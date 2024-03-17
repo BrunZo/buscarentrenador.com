@@ -9,10 +9,16 @@ export default function Page() {
       <h1 className='text-2xl font-bold mb-4'>
         Entrenadores
       </h1>
-      <Search placeholder="Buscar entrenador"/>
-      <Filters/>
-      <CardGrid/>
-      <Pagination totalPages={10}/>
+      <div className='flex gap-4'>
+        <div className='w-96'>
+          <Search placeholder="Buscar entrenador"/>
+          <Filters/>
+        </div>
+        <div className='grow'>
+          <CardGrid/>
+          <Pagination totalPages={10}/>
+        </div>
+      </div>
     </>
   )
 }
