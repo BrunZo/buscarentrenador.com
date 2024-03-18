@@ -175,6 +175,10 @@ export function SelectionButton({ icon, placeholder, selection, select, options 
         onClick={e => setMenuOpen(!menuOpen && options.length > 1)}
         onFocus={e => handleSearch(e.target.value)}
         onChange={e => handleSearch(e.target.value)}
+        onKeyDown={e => {
+          if (e.key === 'Enter')
+            setMenuOpen(!menuOpen && options.length > 1)
+        }}
       />
       <span 
         className={clsx({
