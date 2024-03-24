@@ -2,8 +2,31 @@ import Search from "../ui/entrenadores/search";
 import Filters from "../ui/entrenadores/filters";
 import CardGrid from "../ui/entrenadores/card";
 import Pagination from "../ui/entrenadores/pagination";
+import { fetchEntrenadoresPages } from "../lib/data";
 
-export default function Page() {
+export default function Page({
+  searchParams,
+}: {
+  searchParams?: {
+    query?: string
+    page?: string
+    prov?: string
+    loc?: string
+    modalidad?: string
+    formato?: string
+    nivel?: string
+  }
+}) {
+  const currentPage = Number(searchParams?.page || 1)
+  const totalPages = fetchEntrenadoresPages({
+    query: searchParams?.query || '',
+    prov: searchParams?.prov || '',
+    loc: searchParams?.loc || '',
+    modalidad: searchParams?.modalidad || '',
+    formato: searchParams?.formato || '',
+    nivel: searchParams?.nivel || ''
+  })
+
   return (
     <>
       <h1 className='text-2xl font-bold mb-4'>
@@ -15,8 +38,8 @@ export default function Page() {
           <Filters/>
         </div>
         <div className='grow'>
-          <CardGrid/>
-          <Pagination totalPages={10}/>
+          <CardGrid currentPage={currentPage}/>
+          <Pagination totalPages={totalPages}/>
         </div>
       </div>
     </>

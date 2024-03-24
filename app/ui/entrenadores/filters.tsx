@@ -3,8 +3,6 @@
 import clsx from "clsx";
 import { useEffect, useRef, useState } from "react"
 import {
-  BuildingLibraryIcon,
-  BuildingOffice2Icon,
   BuildingStorefrontIcon,
   ComputerDesktopIcon,
   GlobeAmericasIcon,
@@ -63,8 +61,8 @@ export function LocationFilter() {
     'Santa Fe': ['Rosario', 'Santa Fe', 'Rafaela']
   }
   
-  const [provSelection, setProvSelection] = useState('')
-  const [locSelection, setLocSelection] = useState('')
+  const [provSelection, setProvSelection] = useState(searchParams.get('prov') || '')
+  const [locSelection, setLocSelection] = useState(searchParams.get('loc') || '')
 
   useEffect(() => {
     const params = new URLSearchParams(searchParams);
@@ -215,7 +213,7 @@ export function Menu({ options, selectFunction }: {
     <div
       className={clsx({
         'absolute top-full left-0 z-20 w-full h-48 p-2 overflow-y-scroll': true,
-        'flex flex-col gap-2': true,
+        'flex flex-col': true,
         'bg-white border rounded-md': true
       })}
     >
@@ -227,17 +225,16 @@ export function Menu({ options, selectFunction }: {
         Borrar selección
       </button>
       {options.length > 0 ? options.map((option, i) => (
-        <>
-          <hr key={i}/>
+        <div className='w-full' key={option}>
+          <hr className='my-1'/>
           <button
             tabIndex={0}
-            key={option}
-            className='text-left p-1 hover:bg-gray-50'
+            className='text-left w-full p-1 hover:bg-gray-50'
             onClick={() => selectFunction(option)}
           >
             {option}
           </button>
-        </>
+        </div>
       )) : 
         <div className='text-left p-1 text-gray-500'>
           No hay ubicaciones...
@@ -256,7 +253,8 @@ export function Filter({ icons, title, options }: {
   const pathname = usePathname();
   const { replace } = useRouter();
 
-  const [selectedOptions, setSelectedOptions] = useState(options.map(e => false))
+  const [selectedOptions, setSelectedOptions] 
+    = useState(options.map(e => searchParams.get(title.toLowerCase())?.includes(e) || false))
 
   const select = (index: number) => () => {
     setSelectedOptions(selectedOptions.map((b, i) => i === index ? !b : b))
@@ -266,9 +264,9 @@ export function Filter({ icons, title, options }: {
     const params = new URLSearchParams(searchParams);
     params.set('page', '1');
     if (selectedOptions.some(e => e)) {
-      params.set(title, options.filter((_, i) => selectedOptions[i]).toString());
+      params.set(title.toLowerCase(), options.filter((_, i) => selectedOptions[i]).toString());
     } else {
-      params.delete(title);
+      params.delete(title.toLowerCase());
     }
     replace(`${pathname}?${params.toString()}`);
   }, [selectedOptions])
