@@ -1,44 +1,48 @@
 import Link from "next/link";
+import { auth, signOut } from '@/auth';
 
-export default function Header() {
+export default async function Header() {
+  const session = await auth()
+
   return (
     <div className='flex justify-between items-center py-4 px-32'>
-      <Logo/>
-      <Menu/>
+      <Link
+        className='text-indigo-600 text-xl font-bold'
+        href={'/'}
+      >
+        Buscarentrenador.com
+      </Link>
+      <nav>
+        <ul className='flex gap-8 items-center'>
+          {session && <>
+            <MenuButton
+              text='Inicio'
+              href='/'
+            />
+            <MenuButton
+              text='Entrenadores'
+              href='/entrenadores'
+            />
+            <MenuButton
+              text='Soy entrenador'
+              href='/soy-entrenador'
+            />
+            <li>
+              <form
+                action={async () => {
+                  'use server';
+                  await signOut();
+                }}
+              >
+                <button className='text-gray-600 hover:text-black hover:underline'>
+                  <div className="hidden md:block">Logout</div>
+                </button>
+              </form>
+            </li>
+          </>}
+        </ul>
+      </nav>
     </div>
-  )
-}
-
-export function Logo() {
-  return (
-    <h1 className='text-blue-600 text-xl font-bold'>Buscarentrenador.com</h1>
-  )
-}
-
-export function Menu() {
-  return (
-    <nav>
-      <ul className='flex gap-8 items-center'>
-        <li>
-          <MenuButton
-            text='Inicio'
-            href='/'
-          />
-        </li>
-        <li>
-          <MenuButton
-            text='Entrenadores'
-            href='/entrenadores'
-          />
-        </li>
-        <li>
-          <MenuButton
-            text='Login'
-            href='/login'
-          />
-        </li>
-      </ul>
-    </nav>
   )
 }
 
@@ -47,11 +51,13 @@ export function MenuButton({ text, href }: {
   href: string;
 }) {
   return (
-    <Link
-      className='text-gray-600 hover:text-black hover:underline'
-      href={href}
-    >
-      {text}
-    </Link>
+    <li>
+      <Link
+        className='text-gray-600 hover:text-black hover:underline'
+        href={href}
+      >
+        {text}
+      </Link>
+    </li>
   )
 }

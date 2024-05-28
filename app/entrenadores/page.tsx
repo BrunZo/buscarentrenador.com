@@ -1,7 +1,7 @@
-import Search from "../ui/entrenadores/search";
-import Filters from "../ui/entrenadores/filters";
-import CardGrid from "../ui/entrenadores/card";
-import Pagination from "../ui/entrenadores/pagination";
+import Search from "@/app/ui/entrenadores/search";
+import Filters from "@/app/ui/entrenadores/filters";
+import CardGrid from "@/app/ui/entrenadores/card";
+import Pagination from "@/app/ui/entrenadores/pagination";
 import { fetchEntrenadoresPages } from "../lib/data";
 
 export default function Page({

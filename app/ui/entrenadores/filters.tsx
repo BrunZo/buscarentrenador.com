@@ -164,7 +164,7 @@ export function SelectionButton({ icon, placeholder, selection, select, options 
       <input
         ref={buttonRef}
         className={clsx({
-          'flex items-center gap-2 w-full h-10 p-2 pl-12 border rounded-md select-none readonly': true,
+          'flex items-center gap-2 w-full h-10 p-2 pl-10 border rounded-md select-none readonly': true,
           'bg-gray-100': selection,
           'hover:bg-gray-50 cursor-pointer': options.length > 1,
           'cursor-default': options.length === 1,
@@ -180,7 +180,7 @@ export function SelectionButton({ icon, placeholder, selection, select, options 
       />
       <span 
         className={clsx({
-          'absolute top-1/2 left-12 -translate-y-1/2 pointer-events-none': true,
+          'absolute top-1/2 left-10 -translate-y-1/2 pointer-events-none': true,
           'hidden': menuOpen
         })}
       >
