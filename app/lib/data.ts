@@ -1,98 +1,91 @@
 const ENTRENADORES_PER_PAGE = 3
 
+// mergear con user
 export type Entrenador = {
-  nombre: string,
-  localidad: string,
-  provincia: string,
-  modalidad: boolean[],
-  formato: boolean[],
-  niveles: boolean[],
+  name: string,
+  loc: string,
+  prov: string,
+  mod: boolean[],
+  form: boolean[],
+  level: boolean[],
 }
 
 export type Filters = {
-  query: string
-  prov: string
-  loc: string
-  modalidad: string
-  formato: string
-  nivel: string
+  query?: string
+  prov?: string
+  loc?: string
+  mod?: string
+  form?: string
+  level?: string
 }
 
+// cambiar a db
 const entrenadores: Entrenador[] = [
   {
-    nombre: 'Bruno Martín Ziger',
-    localidad: 'CABA',
-    provincia: 'CABA',
-    modalidad: [true, true, true],
-    formato: [true, false],
-    niveles: [true, true, true, true, true],
+    name: 'Bruno Martín Ziger',
+    loc: 'CABA',
+    prov: 'CABA',
+    mod: [true, true, true],
+    form: [true, false],
+    level: [true, true, true, true, true],
   },
   {
-    nombre: 'Milagros Elizalde',
-    localidad: 'La Plata',
-    provincia: 'Buenos Aires',
-    modalidad: [true, true, true],
-    formato: [true, true],
-    niveles: [true, true, true, false, false],
+    name: 'Milagros Elizalde',
+    loc: 'La Plata',
+    prov: 'Buenos Aires',
+    mod: [true, true, true],
+    form: [true, true],
+    level: [true, true, true, false, false],
   },
   {
-    nombre: 'Martín Lupín',
-    localidad: 'Mar del Plata',
-    provincia: 'Buenos Aires',
-    modalidad: [true, false, false],
-    formato: [true, true],
-    niveles: [false, false, true, true, true],
+    name: 'Martín Lupín',
+    loc: 'Mar del Plata',
+    prov: 'Buenos Aires',
+    mod: [true, false, false],
+    form: [true, true],
+    level: [false, false, true, true, true],
   },
   {
-    nombre: 'Julián Cabrera',
-    localidad: 'Rosario',
-    provincia: 'Santa Fe',
-    modalidad: [true, true, true],
-    formato: [true, true],
-    niveles: [true, true, true],
+    name: 'Julián Cabrera',
+    loc: 'Rosario',
+    prov: 'Santa Fe',
+    mod: [true, true, true],
+    form: [true, true],
+    level: [true, true, true, true, true],
   },
 ]
 
 const filterEntrenadores = (filters: Filters) => {
+  // simplificar?? una función que chequee un filtro
+
   return entrenadores.filter(entrenador => {
     if (filters.query &&
-      !entrenador.nombre.toLowerCase()
-        .includes(filters.query.toString().toLowerCase()))
-      return false
+      !entrenador.name.toLowerCase()
+        .includes(filters.query.toString().toLowerCase())) return false
+    
     if (filters.prov &&
-      !entrenador.provincia.toLowerCase()
-        .includes(filters.prov.toString().toLowerCase())) {
+      !entrenador.prov.toLowerCase()
+        .includes(filters.prov.toString().toLowerCase())) return false
+    
+    if (filters.loc &&
+      !entrenador.loc.toLowerCase()
+        .includes(filters.loc.toString().toLowerCase())) return false
+    
+    if (filters.mod && 
+      filters.mod.split(',').some((modal) => modal === 'true') &&
+      !filters.mod.split(',').some((modal, i) => modal === 'true' && entrenador.mod[i])) {
       return false
     }
-    if (filters.loc &&
-      !entrenador.localidad.toLowerCase()
-        .includes(filters.loc.toString().toLowerCase()))
+    
+    if (filters.form &&
+      filters.form.split(',').some((form) => form === 'true') &&
+      !filters.form.split(',').some((form, i) => form === 'true' && entrenador.form[i]))
       return false
-    if (filters.modalidad &&
-      !(
-        (filters.modalidad.includes('Virtual') && entrenador.modalidad[0]) ||
-        (filters.modalidad.includes('A domicilio') && entrenador.modalidad[1]) ||
-        (filters.modalidad.includes('En dirección') && entrenador.modalidad[2])
-      )
-    )
-      return false
-    if (filters.formato &&
-      !(
-        (filters.formato.includes('Individual') && entrenador.formato[0]) ||
-        (filters.formato.includes('Grupal') && entrenador.formato[1])
-      )
-    )
-      return false
-    if (filters.nivel &&
-      !(
-        (filters.nivel.includes('Ñandú') && entrenador.niveles[0]) ||
-        (filters.nivel.includes('1') && entrenador.niveles[1]) ||
-        (filters.nivel.includes('2') && entrenador.niveles[2]) ||
-        (filters.nivel.includes('3') && entrenador.niveles[3]) ||
-        (filters.nivel.includes('Avanzado') && entrenador.niveles[4])
-      )
-    )
-      return false
+    
+    if (filters.level &&
+      filters.level.split(',').some((level) => level === 'true') &&
+      !filters.level.split(',').some((level, i) => level === 'true' && entrenador.level[i])) return false
+    
     return true
   })
 }
@@ -102,5 +95,6 @@ export function fetchEntrenadoresPages(filters: Filters) {
 }
 
 export function fetchFilteredEntrenadores(filters: Filters, page: number) {
-  return filterEntrenadores(filters).slice((page - 1) * ENTRENADORES_PER_PAGE, page * ENTRENADORES_PER_PAGE)
+  return filterEntrenadores(filters)
+    .slice((page - 1) * ENTRENADORES_PER_PAGE, page * ENTRENADORES_PER_PAGE)
 }

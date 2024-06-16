@@ -1,31 +1,35 @@
-import Search from "@/app/ui/entrenadores/search";
-import Filters from "@/app/ui/entrenadores/filters";
-import CardGrid from "@/app/ui/entrenadores/card";
-import Pagination from "@/app/ui/entrenadores/pagination";
-import { fetchEntrenadoresPages } from "../lib/data";
+'use client'
+
+import Search from '@/app/ui/entrenadores/search';
+import Filters from '@/app/ui/entrenadores/filters';
+import CardGrid from '@/app/ui/entrenadores/card';
+import Pagination from '@/app/ui/entrenadores/pagination';
+import { fetchEntrenadoresPages } from '@/app/lib/data';
+import LocationFilter from '@/app/ui/entrenadores/selection';
 
 export default function Page({
   searchParams,
 }: {
-  searchParams?: {
+  searchParams: {
     query?: string
     page?: string
     prov?: string
     loc?: string
-    modalidad?: string
-    formato?: string
-    nivel?: string
+    modal?: string
+    form?: string
+    level?: string
   }
 }) {
   const currentPage = Number(searchParams?.page || 1)
-  const totalPages = fetchEntrenadoresPages({
-    query: searchParams?.query || '',
-    prov: searchParams?.prov || '',
-    loc: searchParams?.loc || '',
-    modalidad: searchParams?.modalidad || '',
-    formato: searchParams?.formato || '',
-    nivel: searchParams?.nivel || ''
-  })
+  const totalPages = fetchEntrenadoresPages(searchParams)
+
+  // TODO: Fetch data from database
+  const options = {
+    'CABA': ['CABA'],
+    'Buenos Aires': ['La Plata', 'Mar del Plata', 'Bahía Blanca'],
+    'Córdoba': ['Córdoba', 'Villa María', 'Río Cuarto'],
+    'Santa Fe': ['Rosario', 'Santa Fe', 'Rafaela']
+  }
 
   return (
     <>
@@ -33,9 +37,14 @@ export default function Page({
         Entrenadores
       </h1>
       <div className='flex gap-4'>
-        <div className='w-96'>
-          <Search placeholder="Buscar entrenador"/>
-          <Filters/>
+        <div className='w-96 space-y-2'>
+          <Search placeholder='Buscar entrenador'/>
+          <LocationFilter 
+            options={options} 
+            defaultOptions={{prov: '', loc: ''}}
+            replaceUrl={true}
+          />
+          <Filters replaceUrl={true}/>
         </div>
         <div className='grow'>
           <CardGrid currentPage={currentPage}/>

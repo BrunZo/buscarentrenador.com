@@ -1,8 +1,8 @@
-import Link from "next/link";
-import { auth, signOut } from '@/auth';
+import { getSession, signOut } from '@/auth';
+import Link from 'next/link';
 
 export default async function Header() {
-  const session = await auth()
+  const session = await getSession()
 
   return (
     <div className='flex justify-between items-center py-4 px-32'>
@@ -14,7 +14,13 @@ export default async function Header() {
       </Link>
       <nav>
         <ul className='flex gap-8 items-center'>
-          {session && <>
+          {!session.isLoggedIn && <>
+            <MenuButton
+              text='Login'
+              href='/login'
+            />
+          </>}
+          {session.isLoggedIn && <>
             <MenuButton
               text='Inicio'
               href='/'
@@ -23,19 +29,22 @@ export default async function Header() {
               text='Entrenadores'
               href='/entrenadores'
             />
-            <MenuButton
-              text='Soy entrenador'
-              href='/soy-entrenador'
-            />
+            {session.isEntrenador && <>
+              <MenuButton
+                text='Mi cuenta'
+                href='/cuenta'
+              />
+            </>}
+            {!session.isEntrenador && <>
+              <MenuButton
+                text='Soy entrenador'
+                href='/soy-entrenador'
+              />
+            </>}
             <li>
-              <form
-                action={async () => {
-                  'use server';
-                  await signOut();
-                }}
-              >
+              <form action={signOut}>
                 <button className='text-gray-600 hover:text-black hover:underline'>
-                  <div className="hidden md:block">Logout</div>
+                  <div className='hidden md:block'>Logout</div>
                 </button>
               </form>
             </li>
@@ -50,6 +59,8 @@ export function MenuButton({ text, href }: {
   text: string;
   href: string;
 }) {
+  'use client'
+
   return (
     <li>
       <Link
