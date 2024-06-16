@@ -50,7 +50,7 @@ export async function signIn(email: string, pass: string) {
     if (!user) 
       return { status: 401, msg: 'Usuario no encontrado' }
     
-    const passwordMatch = bcrypt.compare(pass, user.pass)
+    const passwordMatch = bcrypt.compare(pass, user.password)
     if (!passwordMatch) 
       return { status: 401, msg: 'Contraseña incorrecta' }
 

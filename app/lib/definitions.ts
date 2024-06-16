@@ -2,7 +2,7 @@
 export type User = {
   id:   string
   email:  string
-  pass: string
+  password: string
   name: string
   entr: boolean
   loc:  string
