@@ -1,24 +1,25 @@
 'use server'
 
-import { getSession, getUserByID } from '@/auth';
 import Dashboard from '@/app/ui/cuenta/dashboard';
+import { getUserData } from '@/app/auth';
 
 export default async function Page() {
-  const session = await getSession()
-  const userData = await getUserByID(session.userId)
+  const response = await getUserData()
+  if (response.status !== 200)
+    return { status: 401, redirect: '/login' }
+
+  const userData = response.payload
 
   return (
     <div>
       <h1 className='text-2xl font-bold'>Mi cuenta</h1>
       <p>Acá podrás ver la información de tu cuenta.</p>
       <br/>
-      {userData && session?.isLoggedIn && <>
-        {!session?.isEntrenador && <>
+        {!userData?.entr && <>
           <p>Aún no eres un entrenador...</p>
           <a href='/soy-entrenador'>¡Hazte entrenador!</a>
         </>}
-        {session?.isEntrenador && <Dashboard userData={userData}/>}
-      </>}
+        {userData && <Dashboard userData={userData}/>}
     </div>
   );
 };

@@ -11,10 +11,3 @@ export type User = {
   form: boolean[]
   level:  boolean[]
 };
-
-// no se usa, usar
-export type SessionData = {
-  userId: string,
-  isLoggedIn:   boolean,
-  isEntrenador: boolean,
-}

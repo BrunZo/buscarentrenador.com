@@ -13,7 +13,7 @@ export default function Dashboard({ userData } : {
   return (
     <>
       <h2 className='text-xl font-semibold'>Perfil de entrenador</h2>
-      <div className='space-y-2 w-2/3'>
+      <div className='space-y-2 w-full'>
         <p>
           Así se verá tu perfil en la página de entrenadores:
         </p>

@@ -7,7 +7,6 @@ import { createUser } from '@/app/lib/actions';
 import Link from 'next/link';
 import Button from '@/app/ui/form/button';
 import Input from '@/app/ui/form/input';
-import ErrorMessage from '@/app/ui/form/error';
 import Message from '@/app/ui/form/error';
 
 export default function Page() {

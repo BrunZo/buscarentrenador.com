@@ -1,10 +1,7 @@
 'use server';
 
-import { sql } from '@vercel/postgres';
 import { z } from 'zod';
-import bcrypt from 'bcrypt';
-import { getSession, getUser, signIn, updateSession } from '@/auth';
-import { User } from '@/app/lib/definitions';
+import { signIn, signUp, updateData } from '@/app/auth';
 
 export async function login(
   prevState: { status: number, msg: string } | undefined,
@@ -19,20 +16,14 @@ export async function login(
       .safeParse(Object.fromEntries(formData))
 
     if (!parsedCredentials.success)
-      return {
-        status: 400,
-        msg: 'Error de validación',
-      }
+      return { status: 400, msg: 'Error de validación', }
 
     const { email, pass } = parsedCredentials.data
-    const response = await signIn(email, pass)
-
-    return response
-  } catch (error) {
-    return {
-      status: 500,
-      msg: 'Hubo un error inesperado',
-    }
+    return await signIn(email, pass)
+  }
+  catch (error) {
+    console.error('Hubo un error inesperado:', error)
+    return { status: 500, msg: 'Hubo un error inesperado', }
   }
 }
 
@@ -50,39 +41,19 @@ export async function createUser(
       })
       .safeParse(Object.fromEntries(formData))
 
-    if (!parsedCredentials.success) {
-      return {
-        status: 400,
-        msg: 'Error de validación',
-      }
-    }
+    if (!parsedCredentials.success) 
+      return { status: 400, msg: 'Error de validación', }
 
     const { email, username, password, repeat } = parsedCredentials.data;
-    const existingUser = await getUser(email);
-    if (existingUser)
-      return {
-        status: 400,
-        msg: 'El usuario ya existe',
-      }
 
     if (password !== repeat)
-      return {
-        status: 400,
-        msg: 'Las contraseñas no coinciden',
-      }
+      return { status: 400, msg: 'Las contraseñas no coinciden' }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // mover a db.ts
-    await sql<User>`INSERT INTO users (email, name, password) VALUES (${email}, ${username}, ${hashedPassword})`;
-
-    return { status: 200, msg: 'Usuario creado' }
-  } catch (error) {
+    return await signUp({ email, username, password })
+  }
+  catch (error) {
     console.error('Hubo un error inesperado.', error)
-    return {
-      status: 500,
-      msg: 'Hubo un error inesperado',
-    }
+    return { status: 500, msg: 'Hubo un error inesperado' }
   }
 }
 
@@ -90,14 +61,6 @@ export async function updateUser(
   prevState: { status: number, msg: string } | undefined,
   formData: FormData,
 ) {
-  const session = await getSession()
-
-  if (!session.isLoggedIn)
-    return {
-      status: 401,
-      msg: 'No estás autorizado',
-    }
-
   try {
     // simplificar??
     const parsedData = z
@@ -123,31 +86,11 @@ export async function updateUser(
         msg: 'Error de validación',
       }
     }
-
-    const { prov, loc,
-            modal0, modal1, modal2,
-            form0, form1,
-            level0, level1, level2, level3, level4 } = parsedData.data;
-
-    await sql<User>`UPDATE users
-                    SET prov=${prov}, loc=${loc}, 
-                        modal=${[modal0, modal1, modal2].join(',')},
-                        form=${[form0, form1].join(',')},
-                        level=${[level0, level1, level2, level3, level4].join(',')},
-                        entr=${true}
-                    WHERE id=${session.userId};`
-
-    updateSession()
-
-    return {
-      status: 200,
-      msg: 'Usuario actualizado',
-    }
-  } catch (error) {
+    
+    return updateData(parsedData.data)            
+  }
+  catch (error) {
     console.error('Hubo un error inesperado.', error)
-    return {
-      status: 500,
-      msg: 'Hubo un error inesperado',
-    }
+    return { status: 500, msg: 'Hubo un error inesperado' }
   }
 }

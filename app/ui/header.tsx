@@ -1,8 +1,8 @@
-import { getSession, signOut } from '@/auth';
+import { getUserData, signOut } from '@/app/auth';
 import Link from 'next/link';
 
 export default async function Header() {
-  const session = await getSession()
+  const user = await getUserData()
 
   return (
     <div className='flex justify-between items-center py-4 px-32'>
@@ -14,13 +14,13 @@ export default async function Header() {
       </Link>
       <nav>
         <ul className='flex gap-8 items-center'>
-          {!session.isLoggedIn && <>
+          {user.status !== 200 && <>
             <MenuButton
               text='Login'
               href='/login'
             />
           </>}
-          {session.isLoggedIn && <>
+          {user.status === 200 && <>
             <MenuButton
               text='Inicio'
               href='/'
@@ -29,13 +29,13 @@ export default async function Header() {
               text='Entrenadores'
               href='/entrenadores'
             />
-            {session.isEntrenador && <>
+            {user.payload?.entr && <>
               <MenuButton
                 text='Mi cuenta'
                 href='/cuenta'
               />
             </>}
-            {!session.isEntrenador && <>
+            {!user.payload?.entr && <>
               <MenuButton
                 text='Soy entrenador'
                 href='/soy-entrenador'
