@@ -11,8 +11,12 @@ import {
 } from '@heroicons/react/24/outline';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
-export default function Filters({ replaceUrl=false }: {
+export default function Filters({ 
+  replaceUrl=false,
+  defaultFilters
+}: {
   replaceUrl?: boolean
+  defaultFilters?: { modal: boolean[], form: boolean[], level: boolean[] }
 }) {
   return (
     <div className='flex flex-col gap-2'>
@@ -27,6 +31,7 @@ export default function Filters({ replaceUrl=false }: {
           <HomeIcon key={1} width={24} height={24} />,
           <BuildingStorefrontIcon key={2} width={24} height={24} />
         ]}
+        defaultState={defaultFilters?.modal}
         replaceUrl={replaceUrl}
       />
       <Filter
@@ -39,6 +44,7 @@ export default function Filters({ replaceUrl=false }: {
           <UserIcon key={0} width={24} height={24} />,
           <UserGroupIcon key={1} width={24} height={24} />
         ]}
+        defaultState={defaultFilters?.form}
         replaceUrl={replaceUrl}
       />
       <Filter
@@ -47,24 +53,26 @@ export default function Filters({ replaceUrl=false }: {
         options={[
           'Ñandú', '1', '2', '3', 'Avanzado'
         ]}
+        defaultState={defaultFilters?.level}
         replaceUrl={replaceUrl}
       />
     </div>
   )
 }
 
-export function Filter({ icons, name, options, replaceUrl }: {
+export function Filter({ icons, name, options, defaultState, replaceUrl }: {
   icons?: JSX.Element[]
   name: string
   title: string
   options: string[]
+  defaultState?: boolean[]
   replaceUrl: boolean
 }) {
   const searchParams = useSearchParams()
   const pathname = usePathname()
   const { replace } = useRouter()
 
-  const [selected, setSelected] = useState<boolean[]>(options.map(() => false))
+  const [selected, setSelected] = useState<boolean[]>(defaultState || options.map(() => false))
 
   useEffect(() => {
     if (replaceUrl) {
@@ -72,7 +80,7 @@ export function Filter({ icons, name, options, replaceUrl }: {
       params.set(name, selected.join(','))
       replace(`${pathname}?${params.toString()}`)
     }
-  }, [selected])
+  }, [name, pathname, replace, replaceUrl, searchParams, selected])
 
   return (
     <div>

@@ -29,7 +29,7 @@ export default function LocationFilter({
       params.set('loc', locSelection);
       replace(`${pathname}?${params.toString()}`);
     }
-  }, [provSelection, locSelection])
+  }, [provSelection, locSelection, replaceUrl, searchParams, replace, pathname])
 
   return (
     <div className='flex flex-col gap-2'>

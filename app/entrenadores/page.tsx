@@ -1,13 +1,11 @@
-'use client'
-
 import Search from '@/app/ui/entrenadores/search';
 import Filters from '@/app/ui/entrenadores/filters';
 import CardGrid from '@/app/ui/entrenadores/card';
 import Pagination from '@/app/ui/entrenadores/pagination';
-import { fetchEntrenadoresPages } from '@/app/lib/data';
+import { fetchEntrenadoresPages, fetchFilteredEntrenadores } from '@/app/lib/data';
 import LocationFilter from '@/app/ui/entrenadores/selection';
 
-export default function Page({
+export default async function Page({
   searchParams,
 }: {
   searchParams: {
@@ -21,7 +19,8 @@ export default function Page({
   }
 }) {
   const currentPage = Number(searchParams?.page || 1)
-  const totalPages = fetchEntrenadoresPages(searchParams)
+  const totalPages = await fetchEntrenadoresPages(searchParams)
+  const entrenadores = await fetchFilteredEntrenadores(searchParams, currentPage)
 
   // TODO: Fetch data from database
   const options = {
@@ -47,7 +46,7 @@ export default function Page({
           <Filters replaceUrl={true}/>
         </div>
         <div className='grow'>
-          <CardGrid currentPage={currentPage}/>
+          <CardGrid cards={entrenadores}/>
           <Pagination totalPages={totalPages}/>
         </div>
       </div>

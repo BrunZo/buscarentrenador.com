@@ -8,14 +8,6 @@ import { updateUser } from '@/app/lib/actions';
 import { useFormState } from 'react-dom';
 import { useRouter } from 'next/navigation';
 
-interface FormData {
-  prov: string,
-  loc: string,
-  modal: number[],
-  form: number[],
-  level: number[]
-}
-
 export default function Page() {
   const router = useRouter();
   const [response, dispatch] = useFormState(updateUser, undefined)
@@ -23,6 +15,7 @@ export default function Page() {
   if (response?.status === 200)
     router.push('/cuenta')
 
+  // TODO: Fetch options from API
   const options = {
     'CABA': ['CABA'],
     'Buenos Aires': ['La Plata', 'Mar del Plata', 'Bahía Blanca'],
@@ -39,9 +32,14 @@ export default function Page() {
         <p>Completá tu información para registrarte como entrenador.</p>
         <LocationFilter 
           options={options} 
+          // TODO: Fetch user location from API
           defaultOptions={{prov: '', loc: ''}}
         />
-        <Filters />
+        <Filters defaultFilters={{
+          modal: [true, true, true],
+          form: [true, true],
+          level: [true, true, true, true, true]
+        }}/>
         <Button text='Publicar información' />
         <Message 
           type={response?.status === 200 ? 'success' : 'error'}

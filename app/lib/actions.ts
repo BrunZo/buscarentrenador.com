@@ -44,7 +44,7 @@ export async function createUser(
     if (!parsedCredentials.success) 
       return { status: 400, msg: 'Error de validación', }
 
-    const { email, username, password, repeat } = parsedCredentials.data;
+    const { email, username, password, repeat } = parsedCredentials.data
 
     if (password !== repeat)
       return { status: 400, msg: 'Las contraseñas no coinciden' }
@@ -62,7 +62,6 @@ export async function updateUser(
   formData: FormData,
 ) {
   try {
-    // simplificar??
     const parsedData = z
       .object({
         prov: z.string(),
