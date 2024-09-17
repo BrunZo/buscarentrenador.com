@@ -14,9 +14,6 @@ export type Filters = {
 
 const filterEntrenadores = (entrenadores: Entrenador[], filters: Filters) => {
   return entrenadores.filter(entrenador => {
-
-    console.log(entrenador, filters)
-
     if (filters.query && !entrenador.name.toLowerCase()
         .includes(filters.query.toString().toLowerCase())) return false
     

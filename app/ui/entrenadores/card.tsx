@@ -20,7 +20,6 @@ export default function CardGrid({ cards }: {
 export function Card(entrenador: Entrenador) {
   const formParagraph = (arr: string[], options: string[]) => {
     const text = options.filter((_, i) => arr?.at(i) === 'on')
-    console.log(text)
     return (
       <p>
         {text.map((t, i) => (
