@@ -70,7 +70,7 @@ function Perfil({ userData } : {
         Acá podrás ver la información de tu perfil de entrenador.
       </p>
       <div>
-        <Card {...userData} />
+        {/* <Card {...userData} /> */}
       </div>
       <button
         className={clsx({

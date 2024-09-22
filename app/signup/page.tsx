@@ -3,7 +3,7 @@
 import { LockClosedIcon, UserIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
 import { useFormState } from 'react-dom';
-import { createUser } from '@/app/lib/actions';
+import { signUp } from '@/app/lib/actions';
 import Link from 'next/link';
 import Button from '@/app/ui/form/button';
 import Input from '@/app/ui/form/input';
@@ -11,7 +11,7 @@ import Message from '@/app/ui/form/error';
 
 export default function Page() {
   const router = useRouter();
-  const [response, dispatch] = useFormState(createUser, undefined);
+  const [response, dispatch] = useFormState(signUp, undefined);
 
   if (response?.status === 200)
     router.push('/login');
@@ -32,10 +32,19 @@ export default function Page() {
           <UserIcon className='absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900' />
         </Input>
         <Input
-          id='username'
+          id='name'
           type='text'
-          name='username'
-          placeholder='Usuario'
+          name='name'
+          placeholder='Nombre'
+          required={true}
+        >
+          <UserIcon className='absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900' />
+        </Input>
+        <Input
+          id='surname'
+          type='text'
+          name='surname'
+          placeholder='Apellido'
           required={true}
         >
           <UserIcon className='absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900' />

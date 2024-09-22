@@ -1,60 +1,83 @@
 'use server';
 
 import { z } from 'zod';
-import { signIn, signUp, updateData } from '@/app/auth';
+import { createClient } from '@/app/utils/supabase/server';
+import { redirect } from 'next/navigation';
 
 export async function login(
   prevState: { status: number, msg: string } | undefined,
   formData: FormData,
 ) {
-  try {
-    const parsedCredentials = z
-      .object({
-        email: z.string().email(),
-        pass: z.string().min(6),
-      })
-      .safeParse(Object.fromEntries(formData))
+  const parsedCredentials = z
+    .object({
+      email: z.string().email(),
+      pass: z.string().min(6),
+    })
+    .safeParse(Object.fromEntries(formData))
+  if (!parsedCredentials.success)
+    return { status: 400, msg: 'Error de validación', }
+  const { email, pass } = parsedCredentials.data
 
-    if (!parsedCredentials.success)
-      return { status: 400, msg: 'Error de validación', }
+  const supabase = createClient()
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: email,
+    password: pass, 
+  })
+ 
+  if (!data)
+    return { status: 401, msg: 'Usuario o contraseña incorrectos' } 
 
-    const { email, pass } = parsedCredentials.data
-    return await signIn(email, pass)
-  }
-  catch (error) {
-    console.error('Hubo un error inesperado:', error)
-    return { status: 500, msg: 'Hubo un error inesperado', }
-  }
-}
-
-export async function createUser(
-  prevState: { status: number, msg: string } | undefined,
-  formData: FormData,
-) {
-  try {
-    const parsedCredentials = z
-      .object({
-        email: z.string().email(),
-        username: z.string(),
-        password: z.string().min(6),
-        repeat: z.string().min(6)
-      })
-      .safeParse(Object.fromEntries(formData))
-
-    if (!parsedCredentials.success) 
-      return { status: 400, msg: 'Error de validación', }
-
-    const { email, username, password, repeat } = parsedCredentials.data
-
-    if (password !== repeat)
-      return { status: 400, msg: 'Las contraseñas no coinciden' }
-
-    return await signUp({ email, username, password })
-  }
-  catch (error) {
+  if (error) {
     console.error('Hubo un error inesperado.', error)
     return { status: 500, msg: 'Hubo un error inesperado' }
   }
+
+  return { status: 200, msg: 'Inicio de sesión exitoso' }
+}
+
+export async function signUp(
+  prevState: { status: number, msg: string } | undefined,
+  formData: FormData,
+) {
+  const parsedCredentials = z
+    .object({
+      email: z.string().email(),
+      name: z.string(),
+      surname: z.string(),
+      password: z.string().min(6),
+      repeat: z.string().min(6)
+    })
+    .safeParse(Object.fromEntries(formData))
+
+  if (!parsedCredentials.success) 
+    return { status: 400, msg: 'Error de validación', }
+
+  const { email, name, surname, password, repeat } = parsedCredentials.data
+
+  if (password !== repeat)
+    return { status: 400, msg: 'Las contraseñas no coinciden' }
+
+  const supabase = createClient()
+  const { error } = await supabase.auth.signUp({
+    email: email,
+    password: password,
+    options: {
+      data: {
+        name: name,
+        surname: surname
+      }
+    }
+  })
+
+  if (error) {
+    if (error.message.includes('already exists'))
+      return { status: 400, msg: 'El correo ya está registrado' }
+    console.error('Hubo un error inesperado.', error)
+    return { status: 500, msg: 'Hubo un error inesperado' }
+  }
+  
+  return { status: 200, msg: 'Usuario creado exitosamente' }
+
 }
 
 export async function updateUser(
@@ -86,10 +109,16 @@ export async function updateUser(
       }
     }
     
-    return updateData(parsedData.data)            
+    return { status: 200, msg: 'Datos actualizados exitosamente' }
   }
   catch (error) {
     console.error('Hubo un error inesperado.', error)
     return { status: 500, msg: 'Hubo un error inesperado' }
   }
+}
+
+export async function signOut() {
+  const supabase = createClient()
+  const { error } = await supabase.auth.signOut()
+  redirect('/')
 }

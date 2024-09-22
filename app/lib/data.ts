@@ -3,7 +3,7 @@ import { Entrenador } from "./definitions"
 
 const ENTRENADORES_PER_PAGE = 3
 
-export type Filters = {
+export type FiltersType = {
   query?: string
   prov?: string
   loc?: string
@@ -12,7 +12,7 @@ export type Filters = {
   level?: string
 }
 
-const filterEntrenadores = (entrenadores: Entrenador[], filters: Filters) => {
+const filterEntrenadores = (entrenadores: Entrenador[], filters: FiltersType) => {
   return entrenadores.filter(entrenador => {
     if (filters.query && !entrenador.name.toLowerCase()
         .includes(filters.query.toString().toLowerCase())) return false
@@ -43,13 +43,13 @@ const filterEntrenadores = (entrenadores: Entrenador[], filters: Filters) => {
   })
 }
 
-export async function fetchEntrenadoresPages(filters: Filters) {
+export async function fetchEntrenadoresPages(filters: FiltersType) {
   // optimizar y agregar el filtro acá
   const entrenadores = await sql<Entrenador>`SELECT * from users WHERE entr=${true}`
   return Math.ceil(filterEntrenadores(entrenadores.rows, filters).length / ENTRENADORES_PER_PAGE)
 }
 
-export async function fetchFilteredEntrenadores(filters: Filters, page: number) {
+export async function fetchFilteredEntrenadores(filters: FiltersType, page: number) {
   // optimizar y agregar el filtro acá
   const entrenadores = await sql<Entrenador>`SELECT * FROM users WHERE entr=${true}`
   return filterEntrenadores(entrenadores.rows, filters)
