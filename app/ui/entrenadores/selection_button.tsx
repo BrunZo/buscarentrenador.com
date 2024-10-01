@@ -3,8 +3,9 @@ import { useEffect, useRef, useState } from "react"
 import { useDebouncedCallback } from "use-debounce"
 import Menu from "./menu"
 
-export default function SelectionButton({ icon, placeholder, selection, handleSelect, options }: {
+export default function SelectionButton({ icon, name, placeholder, selection, handleSelect, options }: {
   icon?: JSX.Element,
+  name: string,
   placeholder: string,
   selection: string,
   handleSelect: (option: string) => void,
@@ -42,11 +43,12 @@ export default function SelectionButton({ icon, placeholder, selection, handleSe
         ref={buttonRef}
         className={clsx({
           'flex items-center gap-2 w-full h-10 p-2 pl-10 border rounded-md select-none readonly': true,
-          'bg-gray-100': selection,
-          'hover:bg-gray-50 cursor-pointer': options.length > 1,
+          'bg-indigo-200': selection && !menuOpen,
+          'hover:bg-indigo-200 cursor-pointer': options.length > 1 && !selection,
           'cursor-default': options.length === 1,
           'text-transparent': !menuOpen
         })}
+        name={name}
         onClick={e => setMenuOpen(!menuOpen && options.length > 1)}
         onFocus={e => handleSearch(e.target.value)}
         onChange={e => handleSearch(e.target.value)}

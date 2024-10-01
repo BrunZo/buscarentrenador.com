@@ -54,6 +54,7 @@ export default function LocationFilter({
     <div className='flex flex-col gap-2'>
       <SelectionButton
         icon={<GlobeAmericasIcon className='absolute w-4 w-4 z-10 left-3 top-1/2 transform -translate-y-1/2' />}
+        name='prov'
         placeholder='Provincia'
         selection={provSelection}
         handleSelect={provSelectHandler}
@@ -61,6 +62,7 @@ export default function LocationFilter({
       />
       <SelectionButton
         icon={<MapPinIcon className='absolute w-4 h-4 z-10 left-3 top-1/2 transform -translate-y-1/2' />}
+        name='city'
         placeholder='Localidad'
         selection={citySelection}
         handleSelect={setCitySelection}

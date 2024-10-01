@@ -36,12 +36,6 @@ export default async function Header() {
               text='Mi cuenta'
               href='/cuenta'
             />
-            {true &&
-              <MenuButton
-                text='Soy entrenador'
-                href='/soy-entrenador'
-              />
-            }
             <li>
               <form action={signOut}>
                 <button className='text-gray-600 hover:text-black hover:underline'>

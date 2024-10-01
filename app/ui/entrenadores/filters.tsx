@@ -11,18 +11,15 @@ import {
 } from '@heroicons/react/24/outline';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
-export default function Filters({ 
-  replaceUrl=false,
-  defaultFilters
-}: {
+export default function Filters({ replaceUrl=false, defaultFilters }: {
   replaceUrl?: boolean
-  defaultFilters?: { modal: boolean[], form: boolean[], level: boolean[] }
+  defaultFilters?: { place: boolean[], group: boolean[], level: boolean[] }
 }) {
   return (
     <div className='flex flex-col gap-2'>
       <Filter
-        name='modal'
-        title='Modalidad'
+        name='place'
+        title='Ubicación de las clases'
         options={[
           'Virtual', 'A domicilio', 'En dirección'
         ]}
@@ -31,12 +28,12 @@ export default function Filters({
           <HomeIcon key={1} width={24} height={24} />,
           <BuildingStorefrontIcon key={2} width={24} height={24} />
         ]}
-        defaultState={defaultFilters?.modal}
+        defaultState={defaultFilters?.place}
         replaceUrl={replaceUrl}
       />
       <Filter
-        name='form'
-        title='Formato'
+        name='group'
+        title='Cantidad de alumnos'
         options={[
           'Individual', 'Grupal'
         ]}
@@ -44,7 +41,7 @@ export default function Filters({
           <UserIcon key={0} width={24} height={24} />,
           <UserGroupIcon key={1} width={24} height={24} />
         ]}
-        defaultState={defaultFilters?.form}
+        defaultState={defaultFilters?.group}
         replaceUrl={replaceUrl}
       />
       <Filter
@@ -125,8 +122,8 @@ export function Option({ icon, name, label, selected, handleCheck }: {
       <div 
         className={clsx({
           'flex flex-col items-center gap-1 w-full p-2 border rounded-md select-none': true,
-          'bg-gray-200': selected,
-          'hover:bg-gray-50': !selected,
+          'bg-indigo-600 text-white': selected,
+          'hover:bg-indigo-200': !selected,
           'text-sm': icon,
           'font-semibold': !icon
         })}

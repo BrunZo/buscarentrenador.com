@@ -1,13 +1,12 @@
 'use client'
 
-import { User } from '@/app/lib/definitions'
-import { Card } from '@/app/ui/entrenadores/card'
+import { Card, Entrenador } from '@/app/ui/entrenadores/card'
 import clsx from 'clsx'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
-export default function Dashboard({ userData } : {
-  userData: User
+export default function Dashboard({ user }: {
+  user: Entrenador
 }) {
   const [selected, setSelected] = useState(0)
 
@@ -20,7 +19,7 @@ export default function Dashboard({ userData } : {
           handler={setSelected}
         />
         {selected === 0 && <Cuenta/>}
-        {selected === 1 && <Perfil userData={userData}/>}
+        {selected === 1 && <Perfil entrenador={user}/>}
         {selected === 2 && <Alumnos/>}
       </div>
     </>
@@ -58,10 +57,12 @@ function Cuenta() {
   )
 }
 
-function Perfil({ userData } : {
-  userData: User
+function Perfil({ entrenador }: {
+  entrenador: Entrenador
 }) {
   const router = useRouter()
+
+  console.log(entrenador)
 
   return (
     <div className='space-y-2 w-full'>
@@ -70,7 +71,7 @@ function Perfil({ userData } : {
         Acá podrás ver la información de tu perfil de entrenador.
       </p>
       <div>
-        {/* <Card {...userData} /> */}
+        <Card entrenador={entrenador}/>
       </div>
       <button
         className={clsx({

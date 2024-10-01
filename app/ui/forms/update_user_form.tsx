@@ -1,17 +1,27 @@
 'use client'
 
 import { useFormState } from "react-dom";
+import { redirect } from "next/navigation";
+import { updateUser } from "@/app/lib/actions";
 import Filters from "../entrenadores/filters";
 import LocationFilter from "../entrenadores/location_filter";
 import Button from "../form/button";
-import Message from "../form/error";
-import { updateUser } from "@/app/lib/actions";
+import Message from "../form/message";
 
 export default function UpdateUserForm({ cities, defaultOptions }: {
   cities: { name: string, province: string }[],
-  defaultOptions: { prov: string, city: string },
+  defaultOptions: { 
+    prov: string, 
+    city: string,
+    place: boolean[],
+    group: boolean[],
+    level: boolean[],
+  },
 }) {
   const [response, dispatch] = useFormState(updateUser, undefined)
+
+  if (response?.status === 200) 
+    redirect('/cuenta')
 
   return (
     <>
@@ -19,12 +29,12 @@ export default function UpdateUserForm({ cities, defaultOptions }: {
         <p>Completá tu información para registrarte como entrenador.</p>
         <LocationFilter
           cities={cities}
-          defaultOptions={defaultOptions}
+          defaultOptions={{ prov: defaultOptions.prov, city: defaultOptions.city }}
         />
         <Filters defaultFilters={{
-          modal: [true, true, true],
-          form: [true, true],
-          level: [true, true, true, true, true]
+          place: defaultOptions.place,
+          group: defaultOptions.group,
+          level: defaultOptions.level
         }} />
         <Button text='Publicar información' />
         <Message

@@ -1,8 +1,9 @@
 'use server';
 
 import { z } from 'zod';
-import { createClient } from '@/app/utils/supabase/server';
 import { redirect } from 'next/navigation';
+import { createClient } from '@/app/utils/supabase/server';
+import { getTrainer } from '../utils/supabase/queries';
 
 export async function login(
   prevState: { status: number, msg: string } | undefined,
@@ -14,8 +15,10 @@ export async function login(
       pass: z.string().min(6),
     })
     .safeParse(Object.fromEntries(formData))
+  
   if (!parsedCredentials.success)
     return { status: 400, msg: 'Error de validación', }
+  
   const { email, pass } = parsedCredentials.data
 
   const supabase = createClient()
@@ -72,6 +75,7 @@ export async function signUp(
   if (error) {
     if (error.message.includes('already exists'))
       return { status: 400, msg: 'El correo ya está registrado' }
+
     console.error('Hubo un error inesperado.', error)
     return { status: 500, msg: 'Hubo un error inesperado' }
   }
@@ -84,41 +88,72 @@ export async function updateUser(
   prevState: { status: number, msg: string } | undefined,
   formData: FormData,
 ) {
-  try {
-    const parsedData = z
-      .object({
-        prov: z.string(),
-        loc: z.string(),
-        modal0: z.string().default('off'),
-        modal1: z.string().default('off'),
-        modal2: z.string().default('off'),
-        form0: z.string().default('off'),
-        form1: z.string().default('off'),
-        level0: z.string().default('off'),
-        level1: z.string().default('off'),
-        level2: z.string().default('off'),
-        level3: z.string().default('off'),
-        level4: z.string().default('off'),
-      })
-      .safeParse(Object.fromEntries(formData))
+  const parsedData = z
+    .object({
+      prov: z.string(),
+      city: z.string(),
+      place0: z.string().default('off'),
+      place1: z.string().default('off'),
+      place2: z.string().default('off'),
+      group0: z.string().default('off'),
+      group1: z.string().default('off'),
+      level0: z.string().default('off'),
+      level1: z.string().default('off'),
+      level2: z.string().default('off'),
+      level3: z.string().default('off'),
+      level4: z.string().default('off'),
+    })
+    .safeParse(Object.fromEntries(formData))
 
-    if (!parsedData.success) {
-      return {
-        status: 400,
-        msg: 'Error de validación',
-      }
-    }
-    
-    return { status: 200, msg: 'Datos actualizados exitosamente' }
-  }
-  catch (error) {
+  if (!parsedData.success)
+    return { status: 400, msg: 'Error de validación' }
+
+  const supabase = createClient()
+  const { data: authData, error: authError } = await supabase.auth.getUser()
+
+  if (!authData?.user || authError) 
+    return { status: 401, msg: 'No autorizado' }
+
+  const currTrainer = await getTrainer(supabase)
+  if (currTrainer)
+    await supabase.from('trainers').insert({ user_id: authData.user.id })
+
+  const city = await supabase.from('cities').select().eq('name', parsedData.data.city)
+  const { error } = await supabase.from('trainers').update({
+    user_id: authData.user.id,
+    city: (city.data && city.data.length > 0) ? city.data[0].id : null,
+    place: [
+      parsedData.data.place0,
+      parsedData.data.place1,
+      parsedData.data.place2,
+    ],
+    group: [
+      parsedData.data.group0,
+      parsedData.data.group1,
+    ],
+    level: [
+      parsedData.data.level0,
+      parsedData.data.level1,
+      parsedData.data.level2,
+      parsedData.data.level3,
+      parsedData.data.level4,
+    ]
+  }).eq('user_id', authData.user.id)
+
+  if (error) {
     console.error('Hubo un error inesperado.', error)
     return { status: 500, msg: 'Hubo un error inesperado' }
   }
+  
+  return { status: 200, msg: 'Datos actualizados exitosamente' }
 }
 
 export async function signOut() {
   const supabase = createClient()
   const { error } = await supabase.auth.signOut()
+
+  if (error)
+    console.error('Hubo un error inesperado.', error)
+
   redirect('/')
 }

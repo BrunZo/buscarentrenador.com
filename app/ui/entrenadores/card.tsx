@@ -1,6 +1,14 @@
 'use client';
 
-import { Entrenador } from '@/app/lib/definitions';
+export type Entrenador = {
+  name: string
+  surname: string
+  city: string
+  province: string
+  place: boolean[]
+  group: boolean[]
+  level: boolean[]
+}
 
 export default function CardGrid({ cards }: {
   cards: Entrenador[]
@@ -10,16 +18,18 @@ export default function CardGrid({ cards }: {
       {cards.length === 0 && (
         <p className='text-gray-600'>No se encontraron entrenadores.</p>
       )}
-      {cards.map((entrenador: Entrenador) => (
-        <Card key={entrenador.name} {...entrenador} />
+      {cards.map((entrenador: Entrenador, i) => (
+        <Card key={i} entrenador={entrenador} />
       ))}
     </div>
   )
 }
 
-export function Card(entrenador: Entrenador) {
-  const formParagraph = (arr: string[], options: string[]) => {
-    const text = options.filter((_, i) => arr?.at(i) === 'on')
+export function Card({ entrenador }: {
+  entrenador: Entrenador
+}) {
+  const formParagraph = (arr: boolean[], options: string[]) => {
+    const text = options.filter((_, i) => arr?.at(i))
     return (
       <p>
         {text.map((t, i) => (
@@ -36,11 +46,11 @@ export function Card(entrenador: Entrenador) {
     <div className='flex gap-4 p-4 border border-gray-200 hover:bg-gray-50 transition-colors rounded-lg cursor-pointer'>
       <div className='w-16 h-16 bg-gray-200 rounded-full' />
       <div>
-        <h2 className='text-xl font-bold'>{entrenador.name}</h2>
-        <p className='text-gray-600 mb-1'>{entrenador.loc}, {entrenador.prov}</p>
-        {formParagraph(entrenador.mod?.split(','), ['virtual', 'a domicilio', 'en dirección particular'])}
-        {formParagraph(entrenador.form?.split(','), ['individual', 'grupal'])}
-        {formParagraph(entrenador.level?.split(','), ['ñandú', 'nivel 1', 'nivel 2', 'nivel 3', 'para selectivos/internacionales'])}
+        <h2 className='text-xl font-bold'>{entrenador.name} {entrenador.surname}</h2>
+        <p className='text-gray-600 mb-1'>{entrenador.city}, {entrenador.province}</p>
+        {formParagraph(entrenador.place, ['virtual', 'a domicilio', 'en dirección particular'])}
+        {formParagraph(entrenador.group, ['individual', 'grupal'])}
+        {formParagraph(entrenador.level, ['ñandú', 'nivel 1', 'nivel 2', 'nivel 3', 'para selectivos/internacionales'])}
       </div>
     </div>
   )
