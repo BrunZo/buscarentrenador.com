@@ -25,8 +25,8 @@ export const getTrainer = cache(async (supabase: SupabaseClient) => {
       place,
       group,
       level,
-      city ( name, province ),
-      user_id ( name, surname )  
+      city!inner ( name, province ),
+      user_id!inner ( user_id, name, surname )  
     `)
     .eq('user_id', authData.user.id)
     .single()
@@ -36,6 +36,7 @@ export const getTrainer = cache(async (supabase: SupabaseClient) => {
   }
 
   return {
+    id: data.user_id.user_id,
     place: data.place,
     group: data.group,
     level: data.level,
@@ -63,7 +64,7 @@ export const getTrainers = cache(async (supabase: SupabaseClient, filters: Filte
       group,
       level,
       city!inner ( name, province ),
-      user_id!inner ( name, surname )
+      user_id!inner ( user_id, name, surname )
     `)
 
   if (filters.prov)
@@ -99,6 +100,7 @@ export const getTrainers = cache(async (supabase: SupabaseClient, filters: Filte
   })
 
   return trainers.map((trainer: any) => ({
+    id: trainer.user_id.user_id,
     place: trainer.place,
     group: trainer.group,
     level: trainer.level,
@@ -107,4 +109,33 @@ export const getTrainers = cache(async (supabase: SupabaseClient, filters: Filte
     name: trainer.user_id.name,
     surname: trainer.user_id.surname
   }))
+})
+
+export const getTrainerById = cache(async (supabase: SupabaseClient, id: string) => {
+  const { data, error } = await supabase
+    .from('trainers')
+    .select(`
+      place,
+      group,
+      level,
+      city!inner ( name, province ),
+      user_id!inner ( name, surname )  
+    `)
+    .eq('user_id', id)
+    .single()
+  
+  if (error) {
+    throw error
+  }
+
+  return {
+    id: id,
+    place: data.place,
+    group: data.group,
+    level: data.level,
+    city: data.city.name,
+    province: data.city.province,
+    name: data.user_id.name,
+    surname: data.user_id.surname
+  }
 })
