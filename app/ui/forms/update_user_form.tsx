@@ -3,7 +3,6 @@
 import Filters from "../entrenadores/filters";
 import LocationFilter from "../entrenadores/location_filter";
 import Button from "../form/button";
-import Message from "../form/message";
 
 export default function UpdateUserForm({ cities, defaultOptions }: {
   cities: { name: string, province: string }[],
