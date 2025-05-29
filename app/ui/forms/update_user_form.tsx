@@ -1,8 +1,5 @@
 'use client'
 
-import { useFormState } from "react-dom";
-import { redirect } from "next/navigation";
-import { updateUser } from "@/app/lib/actions";
 import Filters from "../entrenadores/filters";
 import LocationFilter from "../entrenadores/location_filter";
 import Button from "../form/button";
@@ -18,14 +15,10 @@ export default function UpdateUserForm({ cities, defaultOptions }: {
     level: boolean[],
   },
 }) {
-  const [response, dispatch] = useFormState(updateUser, undefined)
-
-  if (response?.status === 200) 
-    redirect('/cuenta')
 
   return (
     <>
-      <form action={dispatch} className='w-1/3 space-y-2'>
+      <form className='w-1/3 space-y-2'>
         <p>Completá tu información para registrarte como entrenador.</p>
         <LocationFilter
           cities={cities}
@@ -37,10 +30,10 @@ export default function UpdateUserForm({ cities, defaultOptions }: {
           level: defaultOptions.level
         }} />
         <Button text='Publicar información' />
-        <Message
+        {/* <Message
           type={response?.status === 200 ? 'success' : 'error'}
           msg={response?.msg}
-        />
+        /> */}
       </form>
     </>
   )

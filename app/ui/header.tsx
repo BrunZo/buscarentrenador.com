@@ -1,11 +1,6 @@
-import { createClient } from '@/app/utils/supabase/server'
-import { signOut } from '@/app/lib/actions'
 import Link from 'next/link'
 
 export default async function Header() {
-  'use server'
-  const supabase = createClient()
-  const { data, error } = await supabase.auth.getSession()
 
   return (
     <div className='flex justify-between items-center py-4 px-32'>
@@ -17,13 +12,13 @@ export default async function Header() {
       </Link>
       <nav>
         <ul className='flex gap-8 items-center'>
-          {!data?.session && <>
+          {true && <>
             <MenuButton
               text='Login'
               href='/login'
             />
           </>}
-          {data?.session && <>
+          {true && <>
             <MenuButton
               text='Inicio'
               href='/'
@@ -37,7 +32,7 @@ export default async function Header() {
               href='/cuenta'
             />
             <li>
-              <form action={signOut}>
+              <form>
                 <button className='text-gray-600 hover:text-black hover:underline'>
                   <div className='hidden md:block'>Logout</div>
                 </button>

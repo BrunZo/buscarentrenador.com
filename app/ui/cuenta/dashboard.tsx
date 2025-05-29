@@ -1,6 +1,6 @@
 'use client'
 
-import { Card, Entrenador } from '@/app/ui/entrenadores/card'
+import { Entrenador } from '@/app/ui/entrenadores/card'
 import clsx from 'clsx'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'

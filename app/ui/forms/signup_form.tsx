@@ -3,7 +3,6 @@
 import { LockClosedIcon, UserIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
 import { useFormState } from 'react-dom';
-import { signUp } from '@/app/lib/actions';
 import Link from 'next/link';
 import Button from '@/app/ui/form/button';
 import Input from '@/app/ui/form/input';
@@ -11,13 +10,9 @@ import Message from '@/app/ui/form/message';
 
 export default function SignupForm() {
   const router = useRouter();
-  const [response, dispatch] = useFormState(signUp, undefined);
-
-  if (response?.status === 200)
-    router.push('/login');
 
   return (
-    <form action={dispatch} className='w-1/3 space-y-6'>
+    <form className='w-1/3 space-y-6'>
       <Input
         id='email'
         type='email'
@@ -73,10 +68,10 @@ export default function SignupForm() {
           ingresá acá
         </Link>.
       </div>
-      <Message
+      {/* <Message
         type={response?.status === 200 ? 'success' : 'error'}
         msg={response?.msg}
-      />
+      /> */}
     </form>
   )
 }

@@ -73,7 +73,7 @@ export function Filter({ icons, name, options, defaultState, replaceUrl }: {
 
   useEffect(() => {
     if (replaceUrl) {
-      const params = new URLSearchParams(searchParams)
+      const params = new URLSearchParams(searchParams.toString())
       params.set(name, selected.join(','))
       replace(`${pathname}?${params.toString()}`)
     }
