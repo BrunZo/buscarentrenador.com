@@ -2,8 +2,14 @@
 
 import Dashboard from '@/app/ui/cuenta/dashboard';
 import { redirect } from 'next/navigation';
+import { auth } from '@/lib/auth';
 
 export default async function Page() {
+  const session = await auth();
+
+  if (!session?.user) {
+    redirect('/login');
+  }
 
   return (
     <div>
@@ -11,9 +17,9 @@ export default async function Page() {
       <p>Acá podrás ver la información de tu cuenta.</p>
       <br/>
       <Dashboard user={{
-        id: '1',
-        name: 'Juan',
-        surname: 'Perez',
+        id: session.user.id,
+        name: session.user.name || '',
+        surname: session.user.surname || '',
         city: 'Castelar',
         province: 'Buenos Aires',
         group: [],
