@@ -8,7 +8,7 @@ import LocationFilter from '@/app/ui/entrenadores/location_filter';
 import { redirect } from 'next/navigation';
 
 export default async function Page({ searchParams }: {
-  searchParams: {
+  searchParams: Promise<{
     query?: string,
     city?: string,
     prov?: string,
@@ -16,11 +16,10 @@ export default async function Page({ searchParams }: {
     group?: string,
     level?: string,
     page?: string 
-  }
+  }>
 }) {
-
-
-  const currentPage = Number(searchParams?.page || 1)
+  const params = await searchParams;
+  const currentPage = Number(params?.page || 1)
   
   return (
     <>
