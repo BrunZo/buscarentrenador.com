@@ -6,7 +6,7 @@ export default function Info({ entrenador }: {
 }) {
   return (
     <div className='flex gap-8'>
-      <div className='w-96 bg-gray-200 w-36 h-36 rounded-full'>
+      <div className='bg-gray-200 w-36 h-36 rounded-full'>
         <Image
           src='/images/entrenador.jpg'
           alt='Entrenador'
