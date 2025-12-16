@@ -141,21 +141,39 @@ export async function getTrainersByFilters(filters: {
     }
     
     if (filters.place.some(v => v === true)) {
-      conditions.push(`((t.places[1] = $${paramIndex}[1]) OR (t.places[2] = $${paramIndex}[2]) OR (t.places[3] = $${paramIndex}[3]))`);
-      params.push(filters.place);
-      paramIndex++;
+      const placeConditions: string[] = [];
+      filters.place.forEach((value, index) => {
+        if (value === true) {
+          placeConditions.push(`t.places[${index + 1}] = true`);
+        }
+      });
+      if (placeConditions.length > 0) {
+        conditions.push(`(${placeConditions.join(' OR ')})`);
+      }
     }
     
     if (filters.group.some(v => v === true)) {
-      conditions.push(`((t.groups[1] = $${paramIndex}[1]) OR (t.groups[2] = $${paramIndex}[2]))`);
-      params.push(filters.group);
-      paramIndex++;
+      const groupConditions: string[] = [];
+      filters.group.forEach((value, index) => {
+        if (value === true) {
+          groupConditions.push(`t.groups[${index + 1}] = true`);
+        }
+      });
+      if (groupConditions.length > 0) {
+        conditions.push(`(${groupConditions.join(' OR ')})`);
+      }
     }
     
     if (filters.level.some(v => v === true)) {
-      conditions.push(`((t.levels[1] = $${paramIndex}[1]) OR (t.levels[2] = $${paramIndex}[2]) OR (t.levels[3] = $${paramIndex}[3]) OR (t.levels[4] = $${paramIndex}[4]) OR (t.levels[5] = $${paramIndex}[5]))`);
-      params.push(filters.level);
-      paramIndex++;
+      const levelConditions: string[] = [];
+      filters.level.forEach((value, index) => {
+        if (value === true) {
+          levelConditions.push(`t.levels[${index + 1}] = true`);
+        }
+      });
+      if (levelConditions.length > 0) {
+        conditions.push(`(${levelConditions.join(' OR ')})`);
+      }
     }
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
