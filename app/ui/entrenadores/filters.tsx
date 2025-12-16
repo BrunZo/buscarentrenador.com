@@ -74,8 +74,12 @@ export function Filter({ icons, name, title, options, defaultState, replaceUrl }
   useEffect(() => {
     if (replaceUrl) {
       const params = new URLSearchParams(searchParams.toString())
-      params.set(name, selected.join(','))
-      replace(`${pathname}?${params.toString()}`)
+      if (selected.some(v => v === true))
+        params.set(name, selected.join(','))
+      else
+        params.delete(name)
+      if (params.toString() !== searchParams.toString())
+        replace(`${pathname}?${params.toString()}`)
     }
   }, [name, pathname, replace, replaceUrl, searchParams, selected])
 
