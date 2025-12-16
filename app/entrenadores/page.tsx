@@ -19,10 +19,28 @@ export default async function Page({ searchParams }: {
     page?: string 
   }
 }) {
-
-  console.log(searchParams.level)
   const currentPage = Number(searchParams?.page || 1)
-  //const trainers = await getTrainersByFilters(searchParams)
+  
+  const place = searchParams?.place 
+    ? searchParams.place.split(',').map(v => v === 'true')
+    : [false, false, false]
+  
+  const group = searchParams?.group 
+    ? searchParams.group.split(',').map(v => v === 'true')
+    : [false, false]
+  
+  const level = searchParams?.level 
+    ? searchParams.level.split(',').map(v => v === 'true')
+    : [false, false, false, false, false]
+  
+  const trainers = await getTrainersByFilters({
+    query: searchParams?.query,
+    city: searchParams?.city,
+    prov: searchParams?.prov,
+    place,
+    group,
+    level,
+  })
   
   return (
     <>
@@ -40,7 +58,7 @@ export default async function Page({ searchParams }: {
           <Filters replaceUrl={true}/>
         </div>
         <div className='grow'>
-          <CardGrid cards={[].slice((currentPage - 1) * 4, currentPage * 4)}/>
+          <CardGrid cards={trainers.slice((currentPage - 1) * 4, currentPage * 4)}/>
           <Pagination totalPages={1}/>
         </div>
       </div>

@@ -83,38 +83,59 @@ export async function getAllTrainers(): Promise<Trainer[]> {
   }
 }
 
-export async function getTrainersByFilters(searchParams: {
+export async function getTrainersByFilters(filters: {
   query?: string,
   city?: string,
   prov?: string,
-  place?: string,
-  group?: string,
-  level?: string
+  place: boolean[],
+  group: boolean[],
+  level: boolean[]
 }): Promise<Trainer[]> {
   const client = await pool.connect();
   try {
-    let queryString = 'SELECT * FROM trainers WHERE 1=1';
-    if (searchParams.query) {
-      queryString += ` AND (name || ' ' || surname) ILIKE %${searchParams.query}%`;
+    const conditions: string[] = [];
+    const params: any[] = [];
+    let paramIndex = 1;
+
+    if (filters.query) {
+      conditions.push(`((name || ' ' || surname) ILIKE $${paramIndex})`);
+      params.push(`%${filters.query}%`);
+      paramIndex++;
     }
-    if (searchParams.city) {
-      queryString += ` AND city = %${searchParams.city}%`;
+    if (filters.city) {
+      conditions.push(`city = $${paramIndex}`);
+      params.push(filters.city);
+      paramIndex++;
     }
-    if (searchParams.prov) {
-      queryString += ` AND province = %${searchParams.prov}%`;
+    if (filters.prov) {
+      conditions.push(`province = $${paramIndex}`);
+      params.push(filters.prov);
+      paramIndex++;
     }
-    if (searchParams.place) {
-      queryString += ` AND place = %${searchParams.place}%`;
+    
+    if (filters.place.some(v => v === true)) {
+      conditions.push(`((places[1] = $${paramIndex}[1]) OR (places[2] = $${paramIndex}[2]) OR (places[3] = $${paramIndex}[3]))`);
+      params.push(filters.place);
+      paramIndex++;
     }
-    if (searchParams.group) {
-      queryString += ` AND group = %${searchParams.group}%`;
+    
+    if (filters.group.some(v => v === true)) {
+      conditions.push(`((groups[1] = $${paramIndex}[1]) OR (groups[2] = $${paramIndex}[2]))`);
+      params.push(filters.group);
+      paramIndex++;
     }
-    if (searchParams.level) {
-      queryString += ` AND level = %${searchParams.level}%`;
+    
+    if (filters.level.some(v => v === true)) {
+      conditions.push(`((levels[1] = $${paramIndex}[1]) OR (levels[2] = $${paramIndex}[2]) OR (levels[3] = $${paramIndex}[3]) OR (levels[4] = $${paramIndex}[4]) OR (levels[5] = $${paramIndex}[5]))`);
+      params.push(filters.level);
+      paramIndex++;
     }
-    queryString += ' ORDER BY created_at DESC';
-    console.log(queryString);
-    return [];
+
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    const queryString = `SELECT * FROM trainers ${whereClause} ORDER BY created_at DESC`;
+    
+    const result = await client.query(queryString, params);
+    return result.rows;
   } finally {
     client.release();
   }
