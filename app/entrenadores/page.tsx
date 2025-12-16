@@ -8,7 +8,7 @@ import LocationFilter from '@/app/ui/entrenadores/location_filter';
 import { getTrainersByFilters } from '@/lib/trainers';
 
 export default async function Page({ searchParams }: {
-  searchParams: {
+  searchParams: Promise<{
     query?: string,
     city?: string,
     prov?: string,
@@ -16,29 +16,26 @@ export default async function Page({ searchParams }: {
     group?: string,
     level?: string,
     page?: string 
-  }
+  }>
 }) {
-  const currentPage = Number(searchParams?.page || 1)
-  
-  const place = searchParams?.place 
-    ? searchParams.place.split(',').map(v => v === 'true')
-    : [false, false, false]
-  
-  const group = searchParams?.group 
-    ? searchParams.group.split(',').map(v => v === 'true')
-    : [false, false]
-  
-  const level = searchParams?.level 
-    ? searchParams.level.split(',').map(v => v === 'true')
-    : [false, false, false, false, false]
-  
-  const trainers = await getTrainersByFilters({
-    query: searchParams?.query,
-    city: searchParams?.city,
-    prov: searchParams?.prov,
+  const {
+    query,
+    city,
+    prov,
     place,
     group,
     level,
+    page
+  } = await searchParams;
+  const currentPage = Number(page || 1)
+  
+  const trainers = await getTrainersByFilters({
+    query,
+    city,
+    prov,
+    place: place ? place.split(',').map(v => v === 'true') : [false, false, false],
+    group: group ? group.split(',').map(v => v === 'true') : [false, false],
+    level: level ? level.split(',').map(v => v === 'true') : [false, false, false, false, false],
   })
   
   return (
