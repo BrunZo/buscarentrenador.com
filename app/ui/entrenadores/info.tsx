@@ -1,8 +1,8 @@
-import { Entrenador } from "./card"
+import { Trainer } from "@/lib/trainers";
 import Image from 'next/image'
 
 export default function Info({ entrenador }: {
-  entrenador: Entrenador
+  entrenador: Trainer
 }) {
   return (
     <div className='flex gap-8'>
@@ -20,15 +20,15 @@ export default function Info({ entrenador }: {
         <div className='flex flex-col gap-2'>
           <div className='flex flex-wrap gap-2'>
             <span className='text-sm text-gray-600'>Ubicación:</span>
-            {renderChips(entrenador.place, ['Virtual', 'A domicilio', 'En dirección particular'])}
+            {renderChips(entrenador.places, ['Virtual', 'A domicilio', 'En dirección particular'])}
           </div>
           <div className='flex flex-wrap gap-2'>
             <span className='text-sm text-gray-600'>Modalidad:</span>
-            {renderChips(entrenador.group, ['Individual', 'Grupal'])}
+            {renderChips(entrenador.groups, ['Individual', 'Grupal'])}
           </div>
           <div className='flex flex-wrap gap-2'>
             <span className='text-sm text-gray-600'>Nivel:</span>
-            {renderChips(entrenador.level, ['Ñandú', 'Nivel 1', 'Nivel 2', 'Nivel 3', 'Selectivos e internacionales'])}
+            {renderChips(entrenador.levels, ['Ñandú', 'Nivel 1', 'Nivel 2', 'Nivel 3', 'Selectivos e internacionales'])}
           </div>
         </div>
       </div>
