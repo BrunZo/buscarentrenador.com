@@ -33,22 +33,22 @@ export default async function Page({ searchParams }: {
     ? searchParams.level.split(',').map(v => v === 'true')
     : [false, false, false, false, false]
   
-  const trainers = await getTrainersByFilters({
-    query: searchParams?.query,
-    city: searchParams?.city,
-    prov: searchParams?.prov,
-    place,
-    group,
-    level,
-  })
+  //const trainers = await getTrainersByFilters({
+  //  query: searchParams?.query,
+  //  city: searchParams?.city,
+  //  prov: searchParams?.prov,
+  //  place,
+  //  group,
+  //  level,
+  //})
   
   return (
     <>
       <h1 className='text-2xl font-bold mb-4'>
         Entrenadores
       </h1>
-      <div className='flex gap-4'>
-        <div className='w-96 space-y-2'>
+      <div className='flex flex-col lg:flex-row gap-4'>
+        <div className='w-full lg:w-96 space-y-2 flex-shrink-0'>
           <Search placeholder='Buscar entrenador'/>
           <LocationFilter 
             cities={[]} 
@@ -57,8 +57,8 @@ export default async function Page({ searchParams }: {
           />
           <Filters replaceUrl={true}/>
         </div>
-        <div className='grow'>
-          <CardGrid cards={trainers.slice((currentPage - 1) * 4, currentPage * 4)}/>
+        <div className='w-full lg:flex-1 min-w-0'>
+          <CardGrid cards={[].slice((currentPage - 1) * 4, currentPage * 4)}/>
           <Pagination totalPages={1}/>
         </div>
       </div>
