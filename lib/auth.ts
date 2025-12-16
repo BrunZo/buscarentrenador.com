@@ -17,16 +17,6 @@ export const authConfig: NextAuthConfig = {
           return null;
         }
 
-        // TODO: Remove this after testing
-        if (credentials.email === 'admin@admin.com' && credentials.password === 'admin') {
-          return {
-            id: '1',
-            email: 'admin@admin.com',
-            name: 'Admin',
-            surname: '-',
-          };
-        }
-
         const client = await pool.connect();
         try {
           const result = await client.query(

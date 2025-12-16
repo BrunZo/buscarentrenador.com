@@ -1,16 +1,17 @@
 'use client'
 
 import clsx from 'clsx';
-import { ReactNode } from 'react'
+import { ChangeEvent, ReactNode } from 'react'
 import { useFormStatus } from 'react-dom';
 
-export default function Input({ id, type, name, placeholder, required, children } : {
+export default function Input({ id, type, name, placeholder, required, children, onChange } : {
   id: string,
   type: string,
   name: string,
   placeholder: string,
   required?: boolean,
-  children: ReactNode
+  children: ReactNode,
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void
 }) {
   const { pending } = useFormStatus();
   
@@ -35,6 +36,7 @@ export default function Input({ id, type, name, placeholder, required, children 
         required={required}
         aria-disabled={pending}
         disabled={pending}
+        onChange={onChange}
       />
       { children }
     </div>

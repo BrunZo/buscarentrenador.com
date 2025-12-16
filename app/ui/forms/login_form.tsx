@@ -31,20 +31,20 @@ export default function LoginForm() {
       });
 
       if (result?.error) {
-        setError('Invalid email or password');
+        setError('Correo electrónico o contraseña incorrectos');
       } else {
         router.push('/cuenta');
         router.refresh();
       }
     } catch (error) {
-      setError('An error occurred. Please try again.');
+      setError('Ocurrió un error. Por favor, intentá de nuevo.');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className='w-1/3 space-y-6'>
+    <form onSubmit={handleSubmit} className='w-full md:w-2/3 lg:w-1/3 space-y-6'>
       <Input id='email' type='text' name='email' placeholder='Usuario' required={true}>
         <UserIcon className='absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500' />
       </Input>
