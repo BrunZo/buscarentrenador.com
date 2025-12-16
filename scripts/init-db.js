@@ -25,20 +25,8 @@ if (!envLoaded) {
 }
 
 async function initDatabase() {
-  // Log the credentials being used (without showing password)
-  console.log('Database configuration:');
-  console.log(`  User: ${process.env.POSTGRES_USER || 'postgres'}`);
-  console.log(`  Host: ${process.env.POSTGRES_HOST || 'localhost'}`);
-  console.log(`  Database: ${process.env.POSTGRES_DATABASE || 'buscarentrenador'}`);
-  console.log(`  Port: ${process.env.POSTGRES_PORT || '5432'}`);
-  console.log(`  Password: ${process.env.POSTGRES_PASSWORD ? '***' : 'password (default)'}`);
-  
   const pool = new Pool({
-    user: process.env.POSTGRES_USER || 'postgres',
-    host: process.env.POSTGRES_HOST || 'localhost',
-    database: process.env.POSTGRES_DATABASE || 'buscarentrenador',
-    password: process.env.POSTGRES_PASSWORD || 'password',
-    port: parseInt(process.env.POSTGRES_PORT || '5432'),
+    connectionString: process.env.DATABASE_URL,
   });
 
   try {
