@@ -58,7 +58,7 @@ export default async function Page({ searchParams }: {
         </div>
         <div className='w-full lg:flex-1 min-w-0'>
           <CardGrid cards={trainers.slice((currentPage - 1) * 4, currentPage * 4)}/>
-          <Pagination totalPages={1}/>
+          <Pagination totalPages={Math.ceil(trainers.length / 4)}/>
         </div>
       </div>
     </>
