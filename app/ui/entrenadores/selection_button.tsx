@@ -4,7 +4,7 @@ import { useDebouncedCallback } from "use-debounce"
 import Menu from "./menu"
 
 export default function SelectionButton({ icon, name, placeholder, selection, handleSelect, options }: {
-  icon?: JSX.Element,
+  icon?: React.ReactNode,
   name: string,
   placeholder: string,
   selection: string,

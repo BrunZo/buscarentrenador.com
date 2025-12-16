@@ -57,8 +57,8 @@ export default function Filters({ replaceUrl=false, defaultFilters }: {
   )
 }
 
-export function Filter({ icons, name, options, defaultState, replaceUrl }: {
-  icons?: JSX.Element[]
+export function Filter({ icons, name, title, options, defaultState, replaceUrl }: {
+  icons?: React.ReactNode[]
   name: string
   title: string
   options: string[]
@@ -104,7 +104,7 @@ export function Filter({ icons, name, options, defaultState, replaceUrl }: {
 }
 
 export function Option({ icon, name, label, selected, handleCheck }: {
-  icon?: JSX.Element
+  icon?: React.ReactNode
   name: string
   label: string
   selected: boolean

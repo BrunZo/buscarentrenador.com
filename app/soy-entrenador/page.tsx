@@ -13,8 +13,8 @@ export default async function Page() {
         <UpdateUserForm 
           cities={[]} 
           defaultOptions={{
-            prov: 'Buenos Aires', 
-            city: 'Castelar',
+            prov: '', 
+            city: '',
             place: [],
             group: [],
             level: []

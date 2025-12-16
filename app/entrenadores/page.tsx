@@ -5,7 +5,7 @@ import Filters from '@/app/ui/entrenadores/filters';
 import CardGrid from '@/app/ui/entrenadores/card';
 import Pagination from '@/app/ui/entrenadores/pagination';
 import LocationFilter from '@/app/ui/entrenadores/location_filter';
-import { redirect } from 'next/navigation';
+import { getTrainersByFilters } from '@/lib/trainers';
 
 export default async function Page({ searchParams }: {
   searchParams: Promise<{
@@ -18,16 +18,33 @@ export default async function Page({ searchParams }: {
     page?: string 
   }>
 }) {
-  const params = await searchParams;
-  const currentPage = Number(params?.page || 1)
+  const {
+    query,
+    city,
+    prov,
+    place,
+    group,
+    level,
+    page
+  } = await searchParams;
+  const currentPage = Number(page || 1)
+  
+  const trainers = await getTrainersByFilters({
+    query,
+    city,
+    prov,
+    place: place ? place.split(',').map(v => v === 'true') : [false, false, false],
+    group: group ? group.split(',').map(v => v === 'true') : [false, false],
+    level: level ? level.split(',').map(v => v === 'true') : [false, false, false, false, false],
+  })
   
   return (
     <>
       <h1 className='text-2xl font-bold mb-4'>
         Entrenadores
       </h1>
-      <div className='flex gap-4'>
-        <div className='w-96 space-y-2'>
+      <div className='flex flex-col lg:flex-row gap-4'>
+        <div className='w-full lg:w-96 space-y-2 flex-shrink-0'>
           <Search placeholder='Buscar entrenador'/>
           <LocationFilter 
             cities={[]} 
@@ -36,9 +53,9 @@ export default async function Page({ searchParams }: {
           />
           <Filters replaceUrl={true}/>
         </div>
-        <div className='grow'>
-          <CardGrid cards={[].slice((currentPage - 1) * 4, currentPage * 4)}/>
-          <Pagination totalPages={1}/>
+        <div className='w-full lg:flex-1 min-w-0'>
+          <CardGrid cards={trainers.slice((currentPage - 1) * 4, currentPage * 4)}/>
+          <Pagination totalPages={Math.ceil(trainers.length / 4)}/>
         </div>
       </div>
     </>

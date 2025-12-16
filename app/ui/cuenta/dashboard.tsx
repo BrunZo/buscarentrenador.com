@@ -1,27 +1,42 @@
 'use client'
 
-import { Entrenador } from '@/app/ui/entrenadores/card'
 import clsx from 'clsx'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import Info from '../entrenadores/info'
 
-export default function Dashboard({ user }: {
-  user: Entrenador
+import Info from '../entrenadores/info'
+import { Trainer } from '@/lib/trainers'
+
+type User = {
+  id: number
+  email: string
+  name: string
+  surname: string
+}
+
+export default function Dashboard({ user, trainer }: {
+  user: User,
+  trainer: Trainer | null
 }) {
   const [selected, setSelected] = useState(0)
+
+  const options = ['Mi cuenta']
+  if (trainer) {
+    options.push('Perfil de entrenador')
+    options.push('Mis alumnos')
+  }
 
   return (
     <>
       <div className='flex gap-4'>
         <VerticalNavbar
-          options={['Mi cuenta', 'Perfil de entrenador', 'Mis alumnos']}
+          options={options}
           selected={selected}
           handler={setSelected}
         />
         {selected === 0 && <Cuenta/>}
-        {selected === 1 && <Perfil entr={user}/>}
-        {selected === 2 && <Alumnos/>}
+        {trainer && selected === 1 && <Perfil trainer={trainer}/>}
+        {trainer && selected === 2 && <Alumnos/>}
       </div>
     </>
   )
@@ -58,8 +73,8 @@ function Cuenta() {
   )
 }
 
-function Perfil({ entr }: {
-  entr: Entrenador
+function Perfil({ trainer }: {
+  trainer: Trainer
 }) {
   const router = useRouter()
 
@@ -70,7 +85,7 @@ function Perfil({ entr }: {
         Acá podrás ver la información de tu perfil de entrenador.
       </p>
       <div className='p-3 border border-gray-200 rounded-md'>
-        <Info entrenador={entr}/>
+        <Info entrenador={trainer}/>
       </div>
       <button
         className={clsx({
