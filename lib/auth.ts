@@ -35,7 +35,7 @@ export const authConfig: NextAuthConfig = {
           }
 
           return {
-            id: user.id.toString(),
+            id: user.id,
             email: user.email,
             name: user.name,
             surname: user.surname,
@@ -58,7 +58,7 @@ export const authConfig: NextAuthConfig = {
     },
     async session({ session, token }: any) {
       if (token) {
-        session.user.id = token.id as string;
+        session.user.id = token.id as number;
         session.user.email = token.email as string;
         session.user.name = token.name as string;
         session.user.surname = token.surname as string;
@@ -92,7 +92,7 @@ export async function createUser(email: string, password: string, name: string, 
   }
 }
 
-export async function getUserById(id: string) {
+export async function getUserById(id: number) {
   const client = await pool.connect();
   try {
     const result = await client.query(
