@@ -17,22 +17,6 @@ export interface Trainer {
   updated_at: Date;
 }
 
-export async function getTrainerByUserId(userId: number): Promise<Trainer | null> {
-  const client = await pool.connect();
-  try {
-    const result = await client.query(
-      `SELECT t.*, u.name, u.surname 
-       FROM trainers t 
-       JOIN users u ON t.user_id = u.id 
-       WHERE t.user_id = $1`,
-      [userId]
-    );
-    return result.rows[0] || null;
-  } finally {
-    client.release();
-  }
-}
-
 export async function createTrainerProfile(
   userId: number,
   city: string,
@@ -90,6 +74,38 @@ export async function updateTrainerProfile(
       [trainerId]
     );
     return trainerResult.rows[0] || null;
+  } finally {
+    client.release();
+  }
+}
+
+export async function getTrainerById(id: number): Promise<Trainer | null> {
+  const client = await pool.connect();
+  try {
+    const result = await client.query(
+      `SELECT t.*, u.name, u.surname 
+       FROM trainers t 
+       JOIN users u ON t.user_id = u.id 
+       WHERE t.id = $1`,
+      [id]
+    );
+    return result.rows[0] || null;
+  } finally {
+    client.release();
+  }
+}
+
+export async function getTrainerByUserId(userId: number): Promise<Trainer | null> {
+  const client = await pool.connect();
+  try {
+    const result = await client.query(
+      `SELECT t.*, u.name, u.surname 
+       FROM trainers t 
+       JOIN users u ON t.user_id = u.id 
+       WHERE t.user_id = $1`,
+      [userId]
+    );
+    return result.rows[0] || null;
   } finally {
     client.release();
   }

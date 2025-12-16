@@ -1,13 +1,20 @@
 'use server';
 
 import Info from "@/app/ui/entrenadores/info";
-import { redirect } from "next/navigation";
+import { getTrainerById } from "@/lib/trainers";
+import { notFound } from "next/navigation";
 
 export default async function Page({ params }: {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }) {
+  const { id } = await params;
+  const trainer = await getTrainerById(Number(id));
+
+  if (!trainer) {
+    notFound();
+  }
 
   return (
     <div>
@@ -15,16 +22,7 @@ export default async function Page({ params }: {
         Perfil de entrenador
       </h2>
       <br/>
-      <Info entrenador={{
-        id: '1',
-        name: 'Juan',
-        surname: 'Perez',
-        city: 'Castelar',
-        province: 'Buenos Aires',
-        group: [],
-        level: [],
-        place: [],
-      }}/> 
-    </div>
+      <Info entrenador={trainer}/>
+    </div> 
   )
 }
