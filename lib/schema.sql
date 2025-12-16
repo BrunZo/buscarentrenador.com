@@ -17,8 +17,9 @@ CREATE TABLE IF NOT EXISTS trainers (
   province VARCHAR(255),
   description TEXT,
   hourly_rate DECIMAL(10,2),
-  specialties TEXT[],
-  experience_years INTEGER,
+  levels TEXT[],
+  places TEXT[],
+  groups TEXT[],
   certifications TEXT[],
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

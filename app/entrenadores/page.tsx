@@ -6,6 +6,7 @@ import CardGrid from '@/app/ui/entrenadores/card';
 import Pagination from '@/app/ui/entrenadores/pagination';
 import LocationFilter from '@/app/ui/entrenadores/location_filter';
 import { redirect } from 'next/navigation';
+import { getTrainersByFilters } from '@/lib/trainers';
 
 export default async function Page({ searchParams }: {
   searchParams: {
@@ -19,8 +20,9 @@ export default async function Page({ searchParams }: {
   }
 }) {
 
-
+  console.log(searchParams.level)
   const currentPage = Number(searchParams?.page || 1)
+  //const trainers = await getTrainersByFilters(searchParams)
   
   return (
     <>

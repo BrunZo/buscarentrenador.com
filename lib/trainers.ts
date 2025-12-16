@@ -7,8 +7,9 @@ export interface Trainer {
   province: string;
   description: string;
   hourly_rate: number;
-  specialties: string[];
-  experience_years: number;
+  levels: string[];
+  places: string[];
+  groups: string[];
   certifications: string[];
   created_at: Date;
   updated_at: Date;
@@ -77,6 +78,43 @@ export async function getAllTrainers(): Promise<Trainer[]> {
   try {
     const result = await client.query('SELECT * FROM trainers ORDER BY created_at DESC');
     return result.rows;
+  } finally {
+    client.release();
+  }
+}
+
+export async function getTrainersByFilters(searchParams: {
+  query?: string,
+  city?: string,
+  prov?: string,
+  place?: string,
+  group?: string,
+  level?: string
+}): Promise<Trainer[]> {
+  const client = await pool.connect();
+  try {
+    let queryString = 'SELECT * FROM trainers WHERE 1=1';
+    if (searchParams.query) {
+      queryString += ` AND (name || ' ' || surname) ILIKE %${searchParams.query}%`;
+    }
+    if (searchParams.city) {
+      queryString += ` AND city = %${searchParams.city}%`;
+    }
+    if (searchParams.prov) {
+      queryString += ` AND province = %${searchParams.prov}%`;
+    }
+    if (searchParams.place) {
+      queryString += ` AND place = %${searchParams.place}%`;
+    }
+    if (searchParams.group) {
+      queryString += ` AND group = %${searchParams.group}%`;
+    }
+    if (searchParams.level) {
+      queryString += ` AND level = %${searchParams.level}%`;
+    }
+    queryString += ' ORDER BY created_at DESC';
+    console.log(queryString);
+    return [];
   } finally {
     client.release();
   }
