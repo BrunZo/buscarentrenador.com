@@ -5,7 +5,6 @@ import Filters from '@/app/ui/entrenadores/filters';
 import CardGrid from '@/app/ui/entrenadores/card';
 import Pagination from '@/app/ui/entrenadores/pagination';
 import LocationFilter from '@/app/ui/entrenadores/location_filter';
-import { redirect } from 'next/navigation';
 import { getTrainersByFilters } from '@/lib/trainers';
 
 export default async function Page({ searchParams }: {
@@ -33,14 +32,14 @@ export default async function Page({ searchParams }: {
     ? searchParams.level.split(',').map(v => v === 'true')
     : [false, false, false, false, false]
   
-  //const trainers = await getTrainersByFilters({
-  //  query: searchParams?.query,
-  //  city: searchParams?.city,
-  //  prov: searchParams?.prov,
-  //  place,
-  //  group,
-  //  level,
-  //})
+  const trainers = await getTrainersByFilters({
+    query: searchParams?.query,
+    city: searchParams?.city,
+    prov: searchParams?.prov,
+    place,
+    group,
+    level,
+  })
   
   return (
     <>
@@ -58,7 +57,7 @@ export default async function Page({ searchParams }: {
           <Filters replaceUrl={true}/>
         </div>
         <div className='w-full lg:flex-1 min-w-0'>
-          <CardGrid cards={[].slice((currentPage - 1) * 4, currentPage * 4)}/>
+          <CardGrid cards={trainers.slice((currentPage - 1) * 4, currentPage * 4)}/>
           <Pagination totalPages={1}/>
         </div>
       </div>
