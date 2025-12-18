@@ -6,6 +6,7 @@ import CardGrid from '@/app/ui/entrenadores/card';
 import Pagination from '@/app/ui/entrenadores/pagination';
 import LocationFilter from '@/app/ui/entrenadores/location_filter';
 import { getAllTrainers, getTrainersByFilters } from '@/lib/trainers';
+import argCities from '@/lib/arg-cities.json';
 
 export default async function Page({ searchParams }: {
   searchParams: Promise<{
@@ -30,8 +31,11 @@ export default async function Page({ searchParams }: {
   const currentPage = Number(page || 1)
   
   const allTrainers = await getAllTrainers();
-  const cities = allTrainers.map(trainer => ({ name: trainer.city, province: trainer.province }))
-    .filter((city, i, arr) => arr.indexOf(city) === i)
+  const localidades = (argCities as any).localidades;
+  const cities = localidades.map((city: any) => ({
+    name: city.nombre,
+    province: city.provincia.nombre
+  }))
 
   const trainers = await getTrainersByFilters({
     query,
@@ -48,7 +52,7 @@ export default async function Page({ searchParams }: {
         Entrenadores
       </h1>
       <div className='flex flex-col lg:flex-row gap-4'>
-        <div className='w-full lg:w-96 space-y-2 flex-shrink-0'>
+        <div className='w-full lg:w-96 space-y-2 shrink-0'>
           <Search placeholder='Buscar entrenador'/>
           <LocationFilter 
             cities={cities} 

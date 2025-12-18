@@ -7,10 +7,12 @@ import SelectionButton from './selection_button'
 
 export default function LocationFilter({ 
   cities, 
+  provinces: provincesFromProps,
   defaultOptions,
   replaceUrl=false
 }: {
   cities: { name: string, province: string }[],
+  provinces?: string[],
   defaultOptions?: { [key: string]: string },
   replaceUrl?: boolean
 }) {
@@ -21,7 +23,7 @@ export default function LocationFilter({
   const [provSelection, setProvSelection] = useState(defaultOptions?.prov || searchParams.get('prov') || '')
   const [citySelection, setCitySelection] = useState(defaultOptions?.city || searchParams.get('city') || '')
 
-  const provinces = cities
+  const provinces = provincesFromProps || cities
     .map(city => city.province)
     .filter((prov, i, arr) => arr.indexOf(prov) === i)
 
@@ -53,7 +55,7 @@ export default function LocationFilter({
   return (
     <div className='flex flex-col gap-2'>
       <SelectionButton
-        icon={<GlobeAmericasIcon className='absolute w-4 w-4 z-10 left-3 top-1/2 transform -translate-y-1/2' />}
+        icon={<GlobeAmericasIcon className='absolute w-4 z-10 left-3 top-1/2 transform -translate-y-1/2' />}
         name='prov'
         placeholder='Provincia'
         selection={provSelection}

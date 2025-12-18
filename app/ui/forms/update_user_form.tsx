@@ -5,6 +5,7 @@ import Filters from "../entrenadores/filters";
 import LocationFilter from "../entrenadores/location_filter";
 import Button from "../form/button";
 import { XMarkIcon, PlusIcon } from '@heroicons/react/24/outline';
+import argProvinces from '@/lib/arg-provinces.json';
 
 export default function UpdateUserForm({ cities, defaultOptions }: {
   cities: { name: string, province: string }[],
@@ -42,6 +43,7 @@ export default function UpdateUserForm({ cities, defaultOptions }: {
         
         <LocationFilter
           cities={cities}
+          provinces={argProvinces}
           defaultOptions={{ prov: defaultOptions.prov, city: defaultOptions.city }}
         />
         
