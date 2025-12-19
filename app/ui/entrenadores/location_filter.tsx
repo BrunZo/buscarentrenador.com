@@ -3,44 +3,43 @@
 import { GlobeAmericasIcon, MapPinIcon } from '@heroicons/react/24/outline'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import SelectionButton from './selection_button'
+import SelectionButton from '@/app/ui/entrenadores/selection_button'
+import getCities from '@/lib/loc/get_cities';
 
-export default function LocationFilter({ 
-  cities, 
-  provinces: provincesFromProps,
+export default function LocationFilter({
   defaultOptions,
   replaceUrl=false
 }: {
-  cities: { name: string, province: string }[],
-  provinces?: string[],
-  defaultOptions?: { [key: string]: string },
+  defaultOptions: { prov?: string, city?: string },
   replaceUrl?: boolean
 }) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
   
-  const [provSelection, setProvSelection] = useState(defaultOptions?.prov || searchParams.get('prov') || '')
-  const [citySelection, setCitySelection] = useState(defaultOptions?.city || searchParams.get('city') || '')
-
-  const provinces = provincesFromProps || cities
-    .map(city => city.province)
+  const [provSelection, setProvSelection] = useState(defaultOptions.prov || '')
+  const [citySelection, setCitySelection] = useState(defaultOptions.city || '')
+  
+  const cities = getCities();
+  const provinces = cities
+    .map(city => city.prov)
     .filter((prov, i, arr) => arr.indexOf(prov) === i)
+    .sort()
 
   const citiesFromProv = (prov: string) => cities
-    .filter(city => city.province === prov)
+    .filter(city => city.prov === prov)
     .map(city => city.name)
+    .sort()
 
-  // TODO: Add this functionality to the handleSelect through a separate function
   useEffect(() => {
     if (replaceUrl) {
       const params = new URLSearchParams(searchParams.toString())
       params.set('prov', provSelection);
       params.set('city', citySelection);
-      replace(`${pathname}?${params.toString()}`)
+      if (params.toString() !== searchParams.toString())
+        replace(`${pathname}?${params.toString()}`)
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [provSelection, citySelection])
+  }, [provSelection, citySelection, replaceUrl, searchParams, pathname, replace])
 
   const provSelectHandler = (prov: string) => {
     if (prov !== provSelection)

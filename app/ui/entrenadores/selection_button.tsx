@@ -44,8 +44,9 @@ export default function SelectionButton({ icon, name, placeholder, selection, ha
         className={clsx({
           'flex items-center gap-2 w-full h-10 p-2 pl-10 border rounded-md select-none readonly': true,
           'bg-indigo-200': selection && !menuOpen,
-          'hover:bg-indigo-200 cursor-pointer': options.length > 1 && !selection,
+          'hover:bg-indigo-200 hover:cursor-pointer border-indigo-800': options.length > 1 && !selection,
           'cursor-default': options.length === 1,
+          'bg-gray-100 text-gray-500': options.length === 0,
           'text-transparent': !menuOpen
         })}
         name={name}

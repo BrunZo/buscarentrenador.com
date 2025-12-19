@@ -14,17 +14,17 @@ export default function Menu({ options, selectFunction }: {
     >
       <div
         tabIndex={0}
-        className='text-left text-red-600 w-full p-1 hover:bg-red-50'
+        className='text-left text-red-600 w-full p-1 hover:bg-red-50 hover:cursor-pointer'
         onClick={() => selectFunction('')}
       >
         Borrar selección
       </div>
       {options.length > 0 ? options.map((option, i) => (
-        <div className='w-full' key={option}>
+        <div className='w-full' key={i}>
           <hr className='my-1' />
           <div
             tabIndex={0}
-            className='text-left w-full p-1 hover:bg-gray-50'
+            className='text-left w-full p-1 hover:bg-gray-50 hover:cursor-pointer'
             onClick={() => selectFunction(option)}
           >
             {option}
