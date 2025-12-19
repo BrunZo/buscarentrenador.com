@@ -188,6 +188,7 @@ export default function SignupForm() {
       }
     } catch (error) {
       setError('Ocurrió un error. Por favor, intentá de nuevo.');
+      console.log(error);
     } finally {
       setIsLoading(false);
     }
