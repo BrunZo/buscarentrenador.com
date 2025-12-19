@@ -5,13 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import Info from '@/app/ui/entrenadores/info'
 import { Trainer } from '@/types/trainers'
-
-type User = {
-  id: number
-  email: string
-  name: string
-  surname: string
-}
+import { User } from 'next-auth'
 
 export default function Dashboard({ user, trainer }: {
   user: User,
