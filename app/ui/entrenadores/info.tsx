@@ -1,5 +1,5 @@
-import { Trainer } from "@/lib/trainers";
 import Image from 'next/image'
+import { Trainer } from '@/types/trainers'
 
 export default function Info({ entrenador }: {
   entrenador: Trainer

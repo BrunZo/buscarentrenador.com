@@ -3,9 +3,8 @@
 import clsx from 'clsx'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-
-import Info from '../entrenadores/info'
-import { Trainer } from '@/lib/trainers'
+import Info from '@/app/ui/entrenadores/info'
+import { Trainer } from '@/types/trainers'
 
 type User = {
   id: number

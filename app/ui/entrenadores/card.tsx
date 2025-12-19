@@ -1,7 +1,7 @@
 'use client';
 
-import { Trainer } from "@/lib/trainers";
-import Info from "./info";
+import Info from '@/app/ui/entrenadores/info'
+import { Trainer } from '@/types/trainers'
 
 export default function CardGrid({ cards }: {
   cards: Trainer[]
