@@ -15,7 +15,7 @@ export default function TrainerProfile({ trainer }: {
         Acá podrás ver la información de tu perfil de entrenador.
       </p>
       <div className='p-3 border border-gray-200 rounded-md'>
-        <Info entrenador={trainer}/>
+        <Info trainer={trainer}/>
       </div>
       <button
         className={clsx({

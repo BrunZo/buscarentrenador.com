@@ -1,34 +1,34 @@
 import Image from 'next/image'
 import { Trainer } from '@/types/trainers'
 
-export default function Info({ entrenador }: {
-  entrenador: Trainer
+export default function Info({ trainer }: {
+  trainer: Trainer
 }) {
   return (
     <div className='flex gap-8'>
       {/*<div className='bg-gray-200 w-36 h-36 rounded-full'>
         <Image
-          src='/images/entrenador.jpg'
+          src='/images/trainer.jpg'
           alt='Entrenador'
           width={36}
           height={36}
         />
       </div>*/}
       <div className='flex-1'>
-        <h2 className='text-xl font-bold'>{entrenador.name} {entrenador.surname}</h2>
-        <p className='text-gray-600 mb-3'>{entrenador.city}, {entrenador.province}</p>
+        <h2 className='text-xl font-bold'>{trainer.name} {trainer.surname}</h2>
+        <p className='text-gray-600 mb-3'>{trainer.city}, {trainer.province}</p>
         <div className='flex flex-col gap-2'>
           <div className='flex flex-wrap gap-2'>
             <span className='text-sm text-gray-600'>Ubicación:</span>
-            {renderChips(entrenador.places, ['Virtual', 'A domicilio', 'En dirección particular'])}
+            {renderChips(trainer.places, ['Virtual', 'A domicilio', 'En dirección particular'])}
           </div>
           <div className='flex flex-wrap gap-2'>
             <span className='text-sm text-gray-600'>Modalidad:</span>
-            {renderChips(entrenador.groups, ['Individual', 'Grupal'])}
+            {renderChips(trainer.groups, ['Individual', 'Grupal'])}
           </div>
           <div className='flex flex-wrap gap-2'>
             <span className='text-sm text-gray-600'>Nivel:</span>
-            {renderChips(entrenador.levels, ['Ñandú', 'Nivel 1', 'Nivel 2', 'Nivel 3', 'Selectivos e internacionales'])}
+            {renderChips(trainer.levels, ['Ñandú', 'Nivel 1', 'Nivel 2', 'Nivel 3', 'Selectivos e internacionales'])}
           </div>
         </div>
       </div>

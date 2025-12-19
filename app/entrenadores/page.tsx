@@ -18,17 +18,9 @@ export default async function Page({ searchParams }: {
     page?: string 
   }>
 }) {
-  const {
-    query,
-    city,
-    prov,
-    place,
-    group,
-    level,
-    page
-  } = await searchParams;
-  const currentPage = Number(page || 1)
+  const { query, city, prov, place, group, level, page } = await searchParams;
   
+  const currentPage = Number(page || 1)
   const trainers = await getTrainersByFilters({
     query,
     city,
@@ -53,7 +45,7 @@ export default async function Page({ searchParams }: {
           <Filters replaceUrl={true}/>
         </div>
         <div className='w-full lg:flex-1 min-w-0'>
-          <CardGrid cards={trainers.slice((currentPage - 1) * 4, currentPage * 4)}/>
+          <CardGrid trainers={trainers.slice((currentPage - 1) * 4, currentPage * 4)}/>
           <Pagination totalPages={Math.ceil(trainers.length / 4)}/>
         </div>
       </div>
