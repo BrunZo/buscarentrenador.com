@@ -2,10 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createUser, getUserByEmail } from "@/lib/auth";
 import { z } from "zod";
 
-// Regex para validación de contraseña fuerte
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
-
-// Regex para nombre/apellido (solo letras y espacios)
 const nameRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/;
 
 const signupSchema = z.object({
@@ -29,7 +26,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { email, password, name, surname } = signupSchema.parse(body);
 
-    // Verificar si el usuario ya existe
     const existingUser = await getUserByEmail(email);
     if (existingUser) {
       return NextResponse.json(
@@ -38,7 +34,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Crear nuevo usuario
     const user = await createUser(email, password, name, surname);
 
     return NextResponse.json(
@@ -55,7 +50,6 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     if (error instanceof z.ZodError) {
-      // Extraer el primer mensaje de error para mostrarlo al usuario
       const firstError = error.issues[0]?.message || "Datos de entrada inválidos";
       return NextResponse.json(
         { error: firstError, details: error.issues },
@@ -63,7 +57,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.error("Error en registro:", error);
     return NextResponse.json(
       { error: "Error interno del servidor. Por favor, intentá de nuevo." },
       { status: 500 }
