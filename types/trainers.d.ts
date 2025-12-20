@@ -7,9 +7,9 @@ export interface Trainer {
   province: string;
   description: string;
   hourly_rate: number;
-  levels: string[];
-  places: string[];
-  groups: string[];
+  levels: boolean[];
+  places: boolean[];
+  groups: boolean[];
   certifications: string[];
   created_at: Date;
   updated_at: Date;

@@ -4,16 +4,18 @@ import { Trainer } from '@/types/trainers'
 export default function Info({ trainer }: {
   trainer: Trainer
 }) {
+  const image_src = '';
+
   return (
     <div className='flex gap-8'>
-      {/*<div className='bg-gray-200 w-36 h-36 rounded-full'>
+      {image_src && <div className='bg-gray-200 w-36 h-36 rounded-full'>
         <Image
-          src='/images/trainer.jpg'
+          src={image_src}
           alt='Entrenador'
           width={36}
           height={36}
         />
-      </div>*/}
+      </div>}
       <div className='flex-1'>
         <h2 className='text-xl font-bold'>{trainer.name} {trainer.surname}</h2>
         <p className='text-gray-600 mb-3'>{trainer.city}, {trainer.province}</p>
@@ -36,13 +38,8 @@ export default function Info({ trainer }: {
   )
 }
 
-function renderChips(arr: boolean[] | string[] | undefined, options: string[]) {
-  // Convert to boolean array if needed
-  const boolArray: boolean[] = Array.isArray(arr) 
-    ? arr.map((item: any) => typeof item === 'boolean' ? item : item === true || item === 'true' || item === '1')
-    : [];
-  
-  const activeOptions = options.filter((_, i) => boolArray?.at(i))
+function renderChips(arr: boolean[], options: string[]) {
+  const activeOptions = options.filter((_, i) => arr[i])
   
   if (activeOptions.length === 0) {
     return <span className='text-sm text-gray-400'>No especificado</span>
