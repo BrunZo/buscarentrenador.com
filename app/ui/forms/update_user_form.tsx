@@ -1,9 +1,10 @@
 'use client'
 
 import { useState } from 'react';
-import Filters from "../entrenadores/filters";
-import LocationFilter from "../entrenadores/location_filter";
-import Button from "../form/button";
+import FilterGrid from '@/app/ui/entrenadores/filters/filter_grid';
+import trainerFilters from '@/app/ui/entrenadores/filters/trainer_filters';
+import LocationFilter from '@/app/ui/entrenadores/location_filter';
+import Button from '@/app/ui/form/button';
 import { XMarkIcon, PlusIcon } from '@heroicons/react/24/outline';
 
 export default function UpdateUserForm({ defaultOptions }: {
@@ -94,13 +95,11 @@ export default function UpdateUserForm({ defaultOptions }: {
             </button>
           </div>
         </div>
-
-        <Filters defaultFilters={{
-          place: defaultOptions.place,
-          group: defaultOptions.group,
-          level: defaultOptions.level
-        }} />
-        
+        <FilterGrid filters={trainerFilters} defaultStates={{
+          place: defaultOptions.place.map(v => v === true),
+          group: defaultOptions.group.map(v => v === true),
+          level: defaultOptions.level.map(v => v === true),
+        }} replaceUrl={false}/>
         <Button text='Publicar información' />
       </form>
     </>

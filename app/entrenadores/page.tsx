@@ -1,11 +1,13 @@
 'use server'
 
 import Search from '@/app/ui/entrenadores/search';
-import Filters from '@/app/ui/entrenadores/filters';
+import FilterGrid from '@/app/ui/entrenadores/filters/filter_grid';
+import trainerFilters from '@/app/ui/entrenadores/filters/trainer_filters';
 import CardGrid from '@/app/ui/entrenadores/card';
 import Pagination from '@/app/ui/entrenadores/pagination';
 import LocationFilter from '@/app/ui/entrenadores/location_filter';
 import { getTrainersByFilters } from '@/lib/trainers';
+
 
 export default async function Page({ searchParams }: {
   searchParams: Promise<{
@@ -42,7 +44,7 @@ export default async function Page({ searchParams }: {
             defaultOptions={{prov: prov, city: city}}
             replaceUrl={true}
           />
-          <Filters replaceUrl={true}/>
+          <FilterGrid filters={trainerFilters} defaultStates={{}} replaceUrl={true}/>
         </div>
         <div className='w-full lg:flex-1 min-w-0'>
           <CardGrid trainers={trainers.slice((currentPage - 1) * 4, currentPage * 4)}/>

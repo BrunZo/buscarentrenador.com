@@ -19,9 +19,9 @@ export default async function Page({ searchParams }: {
         defaultOptions={{
           prov: prov || '', 
           city: city || '',
-          place: [],
-          group: [],
-          level: []
+          place: [false, false, false],
+          group: [false, false],
+          level: [false, false, false, false, false]
         }}
       />
     </div>
