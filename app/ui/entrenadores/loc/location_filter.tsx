@@ -8,10 +8,14 @@ import getCities from '@/lib/loc/get_cities';
 
 export default function LocationFilter({
   defaultOptions,
-  replaceUrl=false
+  replaceUrl=false,
+  onProvinceChange,
+  onCityChange
 }: {
   defaultOptions: { prov?: string, city?: string },
-  replaceUrl?: boolean
+  replaceUrl?: boolean,
+  onProvinceChange?: (prov: string) => void,
+  onCityChange?: (city: string) => void,
 }) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -35,10 +39,13 @@ export default function LocationFilter({
     if (prov !== provSelection)
       setCitySelection('')
     setProvSelection(prov)
+    onProvinceChange?.(prov)
     
     const posCities = citiesFromProv(prov)
-    if (posCities.length === 1)
+    if (posCities.length === 1) {
       setCitySelection(posCities[0])
+      onCityChange?.(posCities[0])
+    }
   }
 
   useEffect(() => {
@@ -66,7 +73,10 @@ export default function LocationFilter({
         name='city'
         placeholder='Localidad'
         selection={citySelection}
-        handleSelect={setCitySelection}
+        handleSelect={(city) => {
+          setCitySelection(city)
+          onCityChange?.(city)
+        }}
         options={citiesFromProv(provSelection)}
       />
     </div>

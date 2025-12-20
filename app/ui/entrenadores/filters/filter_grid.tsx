@@ -9,10 +9,20 @@ export interface FilterProps {
   icons?: React.ReactNode[]
 }
 
-export default function FilterGrid({ filters, defaultStates, replaceUrl=false }: {
+export default function FilterGrid({ 
+  filters, 
+  defaultStates, 
+  replaceUrl=false,
+  onPlaceChange,
+  onGroupChange,
+  onLevelChange
+}: {
   filters: FilterProps[]
   defaultStates: Record<string, boolean[]>,
   replaceUrl: boolean,
+  onPlaceChange?: (selected: boolean[]) => void,
+  onGroupChange?: (selected: boolean[]) => void,
+  onLevelChange?: (selected: boolean[]) => void,
 }) {
   const searchParams = useSearchParams()
   const pathname = usePathname()
@@ -38,6 +48,15 @@ export default function FilterGrid({ filters, defaultStates, replaceUrl=false }:
         params.delete(name)
       if (params.toString() !== searchParams.toString())
         replace(`${pathname}?${params.toString()}`)
+    }
+    
+    // Call the appropriate onChange callback
+    if (name === 'place' && onPlaceChange) {
+      onPlaceChange(selected)
+    } else if (name === 'group' && onGroupChange) {
+      onGroupChange(selected)
+    } else if (name === 'level' && onLevelChange) {
+      onLevelChange(selected)
     }
   }
 
