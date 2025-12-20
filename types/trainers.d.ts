@@ -2,6 +2,7 @@ export interface Trainer {
   id: number;
   user_id: number;
   name: string;
+  email: string;
   surname: string;
   city: string;
   province: string;

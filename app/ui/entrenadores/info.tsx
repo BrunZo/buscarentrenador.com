@@ -1,8 +1,9 @@
 import Image from 'next/image'
 import { Trainer } from '@/types/trainers'
 
-export default function Info({ trainer }: {
+export default function Info({ trainer, showMail }: {
   trainer: Trainer
+  showMail: boolean
 }) {
   const image_src = '';
 
@@ -18,8 +19,9 @@ export default function Info({ trainer }: {
       </div>}
       <div className='flex-1'>
         <h2 className='text-xl font-bold'>{trainer.name} {trainer.surname}</h2>
-        <p className='text-gray-600 mb-3'>{trainer.city}, {trainer.province}</p>
-        <div className='flex flex-col gap-2'>
+        <p className='text-gray-600'>{trainer.city}, {trainer.province}</p>
+        {showMail && <p className='text-gray-600'>{trainer.email}</p>}
+        <div className='flex flex-col gap-2 mt-3'>
           <div className='flex flex-wrap gap-2'>
             <span className='text-sm text-gray-600'>Ubicación:</span>
             {renderChips(trainer.places, ['Virtual', 'A domicilio', 'En dirección particular'])}

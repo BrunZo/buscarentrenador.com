@@ -28,7 +28,7 @@ export function Card({ trainer }: {
       className='flex gap-4 p-4 border border-gray-200 hover:bg-gray-50 transition-colors rounded-lg cursor-pointer'
       onClick={() => router.push(`/entrenadores/${trainer.id}`)}
     >
-      <Info trainer={trainer}/>
+      <Info trainer={trainer} showMail={false}/>
     </div>
   )
 }
