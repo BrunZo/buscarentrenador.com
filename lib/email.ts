@@ -44,10 +44,7 @@ export async function sendVerificationEmail({ email, name, token }: SendVerifica
           </a>
         </div>
         
-        <p>Si el botón no funciona, copiá y pegá este enlace en tu navegador:</p>
-        <p style="background-color: #fff; padding: 10px; border-radius: 5px; word-break: break-all;">
-          ${verificationUrl}
-        </p>
+        <p>Si el botón no funciona, copiá y pegá el enlace de arriba en tu navegador:</p>
         
         <p style="color: #666; font-size: 14px; margin-top: 30px;">
           Este enlace expirará en 24 horas. Si no solicitaste esta verificación, podés ignorar este correo.
