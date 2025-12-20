@@ -1,0 +1,158 @@
+'use client'
+
+import { LockClosedIcon, UserIcon } from '@heroicons/react/24/outline';
+import { useRouter } from 'next/navigation';
+import { useState, ChangeEvent } from 'react';
+import Link from 'next/link';
+import Button from '@/app/ui/form/button';
+import Input from '@/app/ui/form/input';
+import Message from '@/app/ui/form/message';
+import PasswordStrengthIndicator from '@/app/ui/signup/password_strength_indicator';
+import validateForm from '@/app/ui/signup/client_validation';
+
+export default function SignupForm() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [password, setPassword] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+    setSuccess(null);
+    setFieldErrors({});
+
+    const formData = new FormData(e.currentTarget);
+    
+    const errors = validateForm(formData);
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setIsLoading(false);
+      return;
+    }
+
+    const email = formData.get('email') as string;
+    const passwordValue = formData.get('password') as string;
+    const name = formData.get('name') as string;
+    const surname = formData.get('surname') as string;
+
+    try {
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password: passwordValue,
+          name,
+          surname,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || 'Ocurrió un error durante el registro');
+      } else {
+        setSuccess('¡Cuenta creada exitosamente! Ya podés iniciar sesión.');
+        setPassword('');
+        setTimeout(() => {
+          router.push('/login');
+        }, 2000);
+      }
+    } catch (error) {
+      setError('Ocurrió un error. Por favor, intentá de nuevo.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className='w-full md:w-2/3 lg:w-1/3 space-y-6 pb-6'>
+      <div>
+        <Input
+          id='email'
+          type='email'
+          name='email'
+          placeholder='Correo electrónico'
+          required={true}
+          error={fieldErrors.email}
+        >
+          <UserIcon className='absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900' />
+        </Input>
+      </div>
+      
+      <div>
+        <Input
+          id='name'
+          type='text'
+          name='name'
+          placeholder='Nombre'
+          required={true}
+          error={fieldErrors.name}
+        >
+          <UserIcon className='absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900' />
+        </Input>
+      </div>
+      
+      <div>
+        <Input
+          id='surname'
+          type='text'
+          name='surname'
+          placeholder='Apellido'
+          required={true}
+          error={fieldErrors.surname}
+        >
+          <UserIcon className='absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900' />
+        </Input>
+      </div>
+      
+      <div>
+        <Input
+          id='password'
+          type='password'
+          name='password'
+          placeholder='Contraseña'
+          required={true}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+          error={fieldErrors.password}
+        >
+          <LockClosedIcon className='absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900' />
+        </Input>
+        <PasswordStrengthIndicator password={password} />
+      </div>
+      
+      <div>
+        <Input
+          id='repeat'
+          type='password'
+          name='repeat'
+          placeholder='Repetir contraseña'
+          required={true}
+          error={fieldErrors.repeat}
+        >
+          <LockClosedIcon className='absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900' />
+        </Input>
+      </div>
+      
+      <Button text={isLoading ? 'Creando cuenta...' : 'Crear cuenta'} disabled={isLoading} />
+      
+      <div className='space-y-2'>
+        Si ya tenés cuenta,&nbsp;
+        <Link
+          className='text-indigo-600 hover:text-indigo-800 hover:underline'
+          href='/login'
+        >
+          ingresá acá
+        </Link>.
+        {error && (<Message type='error' msg={error} />)}
+        {success && (<Message type='success' msg={success} />)}
+      </div>
+    </form>
+  )
+}

@@ -1,6 +1,6 @@
 'use server'
 
-import SignupForm from "@/app/ui/forms/signup_form";
+import SignupForm from "@/app/ui/signup/signup_form";
 
 export default async function Page() {
   return (

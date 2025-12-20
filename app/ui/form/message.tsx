@@ -10,7 +10,7 @@ export default function Message({
 }) {
   return (
     <div
-      className='flex items-center h-8 items-end space-x-1'
+      className='flex items-center h-8 space-x-1'
       aria-live='polite'
       aria-atomic='true'
     >
