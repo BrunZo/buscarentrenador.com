@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createUser, getUserByEmail } from "@/lib/auth";
+import { sendVerificationEmail } from "@/lib/email";
 import { z } from "zod";
 
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
@@ -10,8 +11,8 @@ const signupSchema = z.object({
     .email({ message: "El correo electrónico no es válido" }),
   password: z.string()
     .min(8, { message: "La contraseña debe tener al menos 8 caracteres" })
-    .regex(passwordRegex, { 
-      message: "La contraseña debe incluir mayúscula, minúscula, número y carácter especial (!@#$%^&*)" 
+    .regex(passwordRegex, {
+      message: "La contraseña debe incluir mayúscula, minúscula, número y carácter especial (!@#$%^&*)"
     }),
   name: z.string()
     .min(2, { message: "El nombre debe tener al menos 2 caracteres" })
@@ -36,9 +37,33 @@ export async function POST(request: NextRequest) {
 
     const user = await createUser(email, password, name, surname);
 
+    // Send verification email
+    const emailResult = await sendVerificationEmail({
+      email: user.email,
+      name: user.name,
+      token: user.verification_token,
+    });
+
+    if (!emailResult.success) {
+      console.error('Failed to send verification email:', emailResult.error);
+      // User is created but email failed - still return success but with a note
+      return NextResponse.json(
+        {
+          message: "Cuenta creada exitosamente, pero hubo un problema al enviar el correo de verificación. Por favor, solicitá un reenvío.",
+          user: {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            surname: user.surname,
+          }
+        },
+        { status: 201 }
+      );
+    }
+
     return NextResponse.json(
-      { 
-        message: "Cuenta creada exitosamente",
+      {
+        message: "Cuenta creada exitosamente. Te enviamos un correo de verificación. Por favor, revisá tu bandeja de entrada.",
         user: {
           id: user.id,
           email: user.email,

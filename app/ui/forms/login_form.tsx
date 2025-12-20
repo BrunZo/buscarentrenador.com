@@ -13,6 +13,8 @@ export default function LoginForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showResendVerification, setShowResendVerification] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -31,13 +33,22 @@ export default function LoginForm() {
       });
 
       if (result?.error) {
-        setError('Correo electrónico o contraseña incorrectos');
+        // Check if the error is due to unverified email
+        if (result.error.includes('EMAIL_NOT_VERIFIED')) {
+          setError('Tu correo electrónico no está verificado. Por favor, revisá tu bandeja de entrada.');
+          setShowResendVerification(true);
+          setUserEmail(email);
+        } else {
+          setError('Correo electrónico o contraseña incorrectos');
+          setShowResendVerification(false);
+        }
       } else {
         router.push('/cuenta');
         router.refresh();
       }
     } catch (error) {
       setError('Ocurrió un error. Por favor, intentá de nuevo.');
+      setShowResendVerification(false);
     } finally {
       setIsLoading(false);
     }
@@ -66,6 +77,37 @@ export default function LoginForm() {
           type='error'
           msg={error}
         />
+      )}
+      {showResendVerification && (
+        <div className='mt-4 p-4 bg-blue-50 rounded-md'>
+          <p className='text-sm text-blue-800 mb-2'>
+            ¿No recibiste el correo de verificación?
+          </p>
+          <button
+            type='button'
+            onClick={async () => {
+              try {
+                const response = await fetch('/api/auth/resend-verification', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ email: userEmail }),
+                });
+                const data = await response.json();
+                if (response.ok) {
+                  setError('Correo de verificación reenviado. Por favor, revisá tu bandeja de entrada.');
+                  setShowResendVerification(false);
+                } else {
+                  setError(data.error || 'Error al reenviar el correo');
+                }
+              } catch (err) {
+                setError('Error al reenviar el correo');
+              }
+            }}
+            className='text-sm text-indigo-600 hover:text-indigo-800 hover:underline font-semibold'
+          >
+            Reenviar correo de verificación
+          </button>
+        </div>
       )}
     </form>
   )
