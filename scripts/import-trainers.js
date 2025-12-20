@@ -4,7 +4,7 @@ const path = require('path');
 
 async function importTrainers() {
   const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
+    connectionString: process.env.POSTGRES_URL,
   });
 
   const client = await pool.connect();
