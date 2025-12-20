@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import FilterGrid from '@/app/ui/entrenadores/filters/filter_grid';
 import trainerFilters from '@/app/ui/entrenadores/filters/trainer_filters';
-import LocationFilter from '@/app/ui/entrenadores/location_filter';
+import LocationFilter from '@/app/ui/entrenadores/loc/location_filter';
 import Button from '@/app/ui/form/button';
 import { XMarkIcon, PlusIcon } from '@heroicons/react/24/outline';
 

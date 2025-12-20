@@ -3,7 +3,7 @@
 import { GlobeAmericasIcon, MapPinIcon } from '@heroicons/react/24/outline'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import SelectionButton from '@/app/ui/entrenadores/selection_button'
+import SelectionButton from '@/app/ui/entrenadores/loc/selection_button'
 import getCities from '@/lib/loc/get_cities';
 
 export default function LocationFilter({
@@ -31,16 +31,6 @@ export default function LocationFilter({
     .map(city => city.name)
     .sort()
 
-  useEffect(() => {
-    if (replaceUrl) {
-      const params = new URLSearchParams(searchParams.toString())
-      params.set('prov', provSelection);
-      params.set('city', citySelection);
-      if (params.toString() !== searchParams.toString())
-        replace(`${pathname}?${params.toString()}`)
-    }
-  }, [provSelection, citySelection, replaceUrl, searchParams, pathname, replace])
-
   const provSelectHandler = (prov: string) => {
     if (prov !== provSelection)
       setCitySelection('')
@@ -50,6 +40,16 @@ export default function LocationFilter({
     if (posCities.length === 1)
       setCitySelection(posCities[0])
   }
+
+  useEffect(() => {
+    if (replaceUrl) {
+      const params = new URLSearchParams(searchParams.toString())
+      params.set('prov', provSelection);
+      params.set('city', citySelection);
+      if (params.toString() !== searchParams.toString())
+        replace(`${pathname}?${params.toString()}`)
+    }
+  }, [provSelection, citySelection, replaceUrl, searchParams, pathname, replace])
 
   return (
     <div className='flex flex-col gap-2'>
