@@ -1,27 +1,28 @@
-import nodemailer from 'nodemailer';
-
-// Create transporter with SMTP configuration
-const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: process.env.SMTP_PORT === '465', // true for 465, false for other ports
-    auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASSWORD,
-    },
-});
+import { Resend } from 'resend';
 
 interface SendVerificationEmailParams {
-    email: string;
-    name: string;
-    token: string;
+  email: string;
+  name: string;
+  token: string;
 }
 
 export async function sendVerificationEmail({ email, name, token }: SendVerificationEmailParams) {
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    const verificationUrl = `${appUrl}/verify-email?token=${token}`;
+  const apiKey = process.env.RESEND_API_KEY;
 
-    const htmlContent = `
+  if (!apiKey) {
+    console.error('RESEND_API_KEY is missing in environment variables');
+    // Returning false instead of crashing allows the app to continue (though email fails)
+    return { success: false, error: 'Configuration Error: Missing Email API Key' };
+  }
+
+  const resend = new Resend(apiKey);
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const verificationUrl = `${appUrl}/verify-email?token=${token}`;
+
+  const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+  const fromName = process.env.RESEND_FROM_NAME || 'BuscarEntrenador.com';
+
+  const htmlContent = `
     <!DOCTYPE html>
     <html lang="es">
     <head>
@@ -60,7 +61,7 @@ export async function sendVerificationEmail({ email, name, token }: SendVerifica
     </html>
   `;
 
-    const textContent = `
+  const textContent = `
 Hola ${name},
 
 Gracias por registrarte en BuscarEntrenador.com. Para completar tu registro, necesitamos que verifiques tu correo electrónico.
@@ -73,18 +74,24 @@ Este enlace expirará en 24 horas. Si no solicitaste esta verificación, podés 
 BuscarEntrenador.com - Tu plataforma para encontrar entrenadores matematicos
   `;
 
-    try {
-        await transporter.sendMail({
-            from: `"${process.env.SMTP_FROM_NAME || 'BuscarEntrenador.com'}" <${process.env.SMTP_FROM_EMAIL}>`,
-            to: email,
-            subject: 'Verificá tu correo electrónico - BuscarEntrenador.com',
-            text: textContent,
-            html: htmlContent,
-        });
+  try {
+    const { data, error } = await resend.emails.send({
+      from: `${fromName} <${fromEmail}>`,
+      to: email,
+      subject: 'Verificá tu correo electrónico - BuscarEntrenador.com',
+      text: textContent,
+      html: htmlContent,
+    });
 
-        return { success: true };
-    } catch (error) {
-        console.error('Error sending verification email:', error);
-        return { success: false, error };
+    if (error) {
+      console.error('Error sending verification email:', error);
+      return { success: false, error };
     }
+
+    console.log('Verification email sent successfully:', data?.id);
+    return { success: true, messageId: data?.id };
+  } catch (error) {
+    console.error('Error sending verification email:', error);
+    return { success: false, error };
+  }
 }
