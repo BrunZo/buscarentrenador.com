@@ -35,9 +35,9 @@ export const authConfig: NextAuthConfig = {
             return null;
           }
 
-          // Check if email is verified
+          // Check if email is verified - return user with error flag
           if (!user.email_verified) {
-            throw new Error("EMAIL_NOT_VERIFIED");
+            return null;
           }
 
           return {
@@ -74,6 +74,7 @@ export const authConfig: NextAuthConfig = {
   },
   pages: {
     signIn: "/login",
+    error: "/login",
   },
 };
 

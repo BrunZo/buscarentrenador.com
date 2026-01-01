@@ -20,12 +20,39 @@ export default function LoginForm() {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
+    setShowResendVerification(false);
 
     const formData = new FormData(e.currentTarget);
     const email = formData.get('email') as string;
     const password = formData.get('pass') as string;
 
     try {
+      // First, validate credentials with our custom endpoint
+      const validateResponse = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const validateData = await validateResponse.json();
+
+      if (!validateResponse.ok) {
+        // Handle specific errors from our custom endpoint
+        if (validateData.error === 'EMAIL_NOT_VERIFIED') {
+          setError('Tu correo electrónico no está verificado. Por favor, revisá tu bandeja de entrada.');
+          setShowResendVerification(true);
+          setUserEmail(email);
+        } else if (validateData.error === 'INVALID_CREDENTIALS') {
+          setError('Correo electrónico o contraseña incorrectos');
+        } else if (validateData.error === 'MISSING_CREDENTIALS') {
+          setError('Por favor, completá todos los campos');
+        } else {
+          setError(validateData.message || 'Error al iniciar sesión');
+        }
+        return;
+      }
+
+      // If validation passed, sign in with NextAuth
       const result = await signIn('credentials', {
         email,
         password,
@@ -33,22 +60,13 @@ export default function LoginForm() {
       });
 
       if (result?.error) {
-        // Check if the error is due to unverified email
-        if (result.error.includes('EMAIL_NOT_VERIFIED')) {
-          setError('Tu correo electrónico no está verificado. Por favor, revisá tu bandeja de entrada.');
-          setShowResendVerification(true);
-          setUserEmail(email);
-        } else {
-          setError('Correo electrónico o contraseña incorrectos');
-          setShowResendVerification(false);
-        }
+        setError('Error al iniciar sesión. Por favor, intentá de nuevo.');
       } else {
         router.push('/cuenta');
         router.refresh();
       }
     } catch (error) {
       setError('Ocurrió un error. Por favor, intentá de nuevo.');
-      setShowResendVerification(false);
     } finally {
       setIsLoading(false);
     }
@@ -79,7 +97,7 @@ export default function LoginForm() {
         />
       )}
       {showResendVerification && (
-        <div className='mt-4 p-4 bg-blue-50 rounded-md'>
+        <div className='mt-4 p-4 bg-blue-50 rounded-md flex flex-col justify-center'>
           <p className='text-sm text-blue-800 mb-2'>
             ¿No recibiste el correo de verificación?
           </p>
@@ -103,7 +121,7 @@ export default function LoginForm() {
                 setError('Error al reenviar el correo');
               }
             }}
-            className='text-sm text-indigo-600 hover:text-indigo-800 hover:underline font-semibold'
+            className='text-sm text-center text-indigo-600 hover:text-indigo-800 hover:underline font-semibold'
           >
             Reenviar correo de verificación
           </button>
