@@ -20,6 +20,20 @@ export default function RootLayout({
     <html lang='es'>
       <body className={inter.className}>
         <Providers>
+          {/* Beta Testing Banner */}
+          <div className='bg-linear-to-r from-indigo-600 via-purple-600 to-pink-600 py-2 text-center'>
+            <p className='text-white font-bold text-lg tracking-wider'>
+              BETA TESTING
+            </p>
+          </div>
+          
+          {/* Warning Banner */}
+          <div className='bg-amber-100 border-b-2 border-amber-300 py-3 px-4 text-center'>
+            <p className='text-amber-900 font-medium text-sm sm:text-base'>
+              ⚠️ Esta página está en fase de pruebas y aún no está disponible para uso público
+            </p>
+          </div>
+
           <Header />
           <main className='sm:px-16 md:px-32 px-4 py-8 md:py-12'>
             {children}
