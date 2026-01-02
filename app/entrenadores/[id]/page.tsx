@@ -17,12 +17,18 @@ export default async function Page({ params }: {
   }
 
   return (
-    <div>
-      <h2 className='text-2xl font-bold'>
-        Perfil de entrenador
-      </h2>
-      <br/>
-      <Info trainer={trainer} showMail={true}/>
+    <div className='animate-fade-in'>
+      <div className='mb-8'>
+        <h1 className='text-3xl md:text-4xl font-bold text-gray-900 mb-2'>
+          Perfil de Entrenador
+        </h1>
+        <p className='text-gray-600'>
+          Información detallada del entrenador
+        </p>
+      </div>
+      <div className='bg-white rounded-2xl shadow-large border border-gray-100 p-6 md:p-8'>
+        <Info trainer={trainer} showMail={true}/>
+      </div>
     </div> 
   )
 }

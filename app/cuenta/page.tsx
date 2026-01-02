@@ -16,10 +16,15 @@ export default async function Page() {
   const trainer = await getTrainerByUserId(session.user.id);
 
   return (
-    <div>
-      <h1 className='text-2xl font-bold'>Mi cuenta</h1>
-      <p>Acá podrás ver la información de tu cuenta.</p>
-      <br/>
+    <div className='animate-fade-in'>
+      <div className='mb-8'>
+        <h1 className='text-3xl md:text-4xl font-bold text-gray-900 mb-2'>
+          Mi Cuenta
+        </h1>
+        <p className='text-gray-600'>
+          Gestioná tu información personal y perfil de entrenador
+        </p>
+      </div>
       <Dashboard user={session.user} trainer={trainer}/>
     </div>
   );

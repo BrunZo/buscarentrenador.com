@@ -42,13 +42,15 @@ export default function SelectionButton({ icon, name, placeholder, selection, ha
       <input
         ref={buttonRef}
         className={clsx({
-          'flex items-center gap-2 w-full h-10 p-2 pl-10 border rounded-md select-none readonly': true,
-          'bg-indigo-200': selection && !menuOpen,
-          'hover:bg-indigo-200 hover:cursor-pointer border-indigo-800': options.length > 1 && !selection,
-          'cursor-default': options.length === 1,
-          'bg-gray-100 text-gray-500': options.length === 0,
-          'text-transparent': !menuOpen
+          'flex items-center gap-2 w-full h-11 p-2 pl-10 pr-10 border-2 rounded-lg select-none': true,
+          'bg-gradient-to-r from-indigo-50 to-purple-50 border-indigo-400 text-indigo-900 font-medium': selection && !menuOpen,
+          'bg-white border-gray-300 text-gray-700 hover:border-indigo-400 hover:bg-indigo-50 hover:shadow-soft cursor-pointer': options.length > 1 && !selection && !menuOpen,
+          'bg-white border-indigo-500 ring-2 ring-indigo-200 text-gray-900 shadow-soft': menuOpen,
+          'cursor-default bg-gray-50 text-gray-400 border-gray-200': options.length === 1,
+          'bg-gray-100 text-gray-400 border-gray-200': options.length === 0
         })}
+        placeholder={placeholder}
+        value={selection}
         name={name}
         onClick={e => setMenuOpen(!menuOpen && options.length > 1)}
         onFocus={e => handleSearch(e.target.value)}
@@ -59,17 +61,14 @@ export default function SelectionButton({ icon, name, placeholder, selection, ha
         }}
         autoComplete='off'
       />
-      <span
-        className={clsx({
-          'absolute top-1/2 left-10 -translate-y-1/2 pointer-events-none': true,
-          'hidden': menuOpen
-        })}
-      >
-        {selection || placeholder}
-        <span className='ml-1 text-gray-500'>
-          {selection ? `(${placeholder.toLowerCase()})` : ''}
-        </span>
-      </span>
+      <div className={clsx({
+        'absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none': true,
+        'rotate-180': menuOpen
+      })}>
+        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </div>
       <div
         ref={menuRef}
         className={!menuOpen ? 'hidden' : ''}

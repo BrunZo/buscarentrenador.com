@@ -36,7 +36,7 @@ export default function Header() {
       </button>
 
       {/* Menú desktop - visible desde sm */}
-      <nav className='hidden sm:block'>
+      <nav className='hidden sm:block z-50'>
         <ul className='flex gap-8 items-center'>
           {!session && status !== 'loading' && (
             <>

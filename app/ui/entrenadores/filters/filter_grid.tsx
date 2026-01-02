@@ -61,16 +61,17 @@ export default function FilterGrid({
   }
 
   return (
-    <div className='flex flex-col gap-2'>
+    <div className='flex flex-col gap-4'>
       {filters.map((filter) => (
-        <Filter
-          key={filter.name}
-          name={filter.name}
-          options={filter.options}
-          icons={filter.icons}
-          defaultState={defaultStates?.[filter.name]}
-          handleSelection={(selected: boolean[]) => handleSelection(filter.name, selected)}
-        />
+        <div key={filter.name} className="w-full">
+          <Filter
+            name={filter.name}
+            options={filter.options}
+            icons={filter.icons}
+            defaultState={defaultStates?.[filter.name]}
+            handleSelection={(selected: boolean[]) => handleSelection(filter.name, selected)}
+          />
+        </div>
       ))}
     </div>
   )
