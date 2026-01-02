@@ -102,6 +102,7 @@ export async function getAllTrainers(): Promise<Trainer[]> {
       `SELECT t.*, u.name, u.email, u.surname 
        FROM trainers t 
        JOIN users u ON t.user_id = u.id 
+       WHERE t.is_visible = TRUE
        ORDER BY t.created_at DESC`
     );
     return result.rows;
@@ -176,7 +177,10 @@ export async function getTrainersByFilters(filters: {
       }
     }
 
-    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    // Always filter by is_visible = TRUE
+    conditions.push('t.is_visible = TRUE');
+    
+    const whereClause = `WHERE ${conditions.join(' AND ')}`;
     const queryString = `SELECT t.*, u.name, u.surname 
                          FROM trainers t 
                          JOIN users u ON t.user_id = u.id 
@@ -185,6 +189,61 @@ export async function getTrainersByFilters(filters: {
 
     const result = await client.query(queryString, params);
     return result.rows;
+  } finally {
+    client.release();
+  }
+}
+
+export async function toggleTrainerVisibility(trainerId: number): Promise<Trainer | null> {
+  const client = await pool.connect();
+  try {
+    // Toggle the is_visible field
+    const result = await client.query(
+      `UPDATE trainers 
+       SET is_visible = NOT is_visible, updated_at = CURRENT_TIMESTAMP 
+       WHERE id = $1 
+       RETURNING *`,
+      [trainerId]
+    );
+
+    if (result.rows.length === 0) return null;
+
+    // Fetch the updated trainer with user name and surname
+    const trainerResult = await client.query(
+      `SELECT t.*, u.name, u.email, u.surname 
+       FROM trainers t 
+       JOIN users u ON t.user_id = u.id 
+       WHERE t.id = $1`,
+      [trainerId]
+    );
+    return trainerResult.rows[0] || null;
+  } finally {
+    client.release();
+  }
+}
+
+export async function setTrainerVisibility(trainerId: number, isVisible: boolean): Promise<Trainer | null> {
+  const client = await pool.connect();
+  try {
+    const result = await client.query(
+      `UPDATE trainers 
+       SET is_visible = $2, updated_at = CURRENT_TIMESTAMP 
+       WHERE id = $1 
+       RETURNING *`,
+      [trainerId, isVisible]
+    );
+
+    if (result.rows.length === 0) return null;
+
+    // Fetch the updated trainer with user name and surname
+    const trainerResult = await client.query(
+      `SELECT t.*, u.name, u.email, u.surname 
+       FROM trainers t 
+       JOIN users u ON t.user_id = u.id 
+       WHERE t.id = $1`,
+      [trainerId]
+    );
+    return trainerResult.rows[0] || null;
   } finally {
     client.release();
   }
