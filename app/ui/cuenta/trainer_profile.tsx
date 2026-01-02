@@ -94,7 +94,7 @@ export default function TrainerProfile({ trainer }: {
       </div>
       
       <div className='pt-4 border-t border-gray-200'>
-        <Info trainer={trainer} showMail={true}/>
+        <Info trainer={trainer} individualProfile={true}/>
       </div>
       
       <div className='pt-4 border-t border-gray-200'>

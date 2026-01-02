@@ -17,6 +17,8 @@ export default async function Page() {
   let defaultOptions = {
     prov: '',
     city: '',
+    description: '',
+    certifications: [''],
     place: [false, false, false],
     group: [false, false],
     level: [false, false, false, false, false]
@@ -26,6 +28,8 @@ export default async function Page() {
     defaultOptions = {
       prov: trainer.province,
       city: trainer.city,
+      description: trainer.description || '',
+      certifications: trainer.certifications && trainer.certifications.length > 0 ? trainer.certifications : [''],
       place: trainer.places,
       group: trainer.groups,
       level: trainer.levels
