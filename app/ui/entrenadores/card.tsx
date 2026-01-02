@@ -36,9 +36,9 @@ export function Card({ trainer }: {
     >
       <div className='flex items-center gap-4'>
         <div className='flex-1 min-w-0'>
-          <Info trainer={trainer} showMail={true}/>
+          <Info trainer={trainer} individualProfile={false}/>
         </div>
-        <div className='flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300'>
+        <div className='shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300'>
           <svg className='w-6 h-6 text-indigo-600' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
             <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M9 5l7 7-7 7' />
           </svg>

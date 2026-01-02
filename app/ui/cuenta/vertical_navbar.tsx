@@ -25,7 +25,7 @@ export default function VerticalNavbar({ options, selected, handler }: {
           type="button"
           className={clsx({
             'flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer transition-all duration-200 font-medium': true,
-            'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-medium': i === selected,
+            'bg-linear-to-r from-indigo-600 to-purple-600 text-white shadow-medium': i === selected,
             'bg-white text-gray-700 border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700': i !== selected,
           })}
           onClick={() => handler(i)}
