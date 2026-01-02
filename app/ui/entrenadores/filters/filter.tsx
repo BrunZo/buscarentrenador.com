@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react"
-import clsx from "clsx"
 import Option from "@/app/ui/entrenadores/filters/option"
 
 export default function Filter({ icons, name, options, defaultState, handleSelection }: {
@@ -21,7 +20,7 @@ export default function Filter({ icons, name, options, defaultState, handleSelec
 
   return (
     <div className="w-full">
-      <div className='flex gap-2'>
+      <div className='flex gap-1 md:gap-2'>
         {options.map((option, i) => (
           <div
             key={i}

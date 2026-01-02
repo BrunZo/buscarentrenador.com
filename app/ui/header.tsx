@@ -13,7 +13,7 @@ export default function Header() {
   const closeMenu = () => setIsMenuOpen(false);
 
   return (
-    <div className='flex justify-between items-center py-4 px-4 sm:px-32 relative bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-soft'>
+    <div className='flex justify-between items-center py-4 px-4 sm:px-32 relative bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-soft z-50'>
       <Link
         className='text-xl font-bold gradient-text hover:scale-105 transition-transform duration-200'
         href={'/'}

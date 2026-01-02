@@ -27,7 +27,7 @@ export default async function Page({ params }: {
         </p>
       </div>
       <div className='bg-white rounded-2xl shadow-large border border-gray-100 p-6 md:p-8'>
-        <Info trainer={trainer} showMail={true}/>
+        <Info trainer={trainer} individualProfile={true}/>
       </div>
     </div> 
   )

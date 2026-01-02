@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS trainers (
   levels BOOLEAN[5],
   hourly_rate DECIMAL(10,2),
   certifications TEXT[],
+  is_visible BOOLEAN DEFAULT TRUE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

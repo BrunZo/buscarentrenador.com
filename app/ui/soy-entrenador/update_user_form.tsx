@@ -12,14 +12,16 @@ export default function UpdateUserForm({ defaultOptions }: {
   defaultOptions: { 
     prov: string, 
     city: string,
+    description: string,
+    certifications: string[],
     place: boolean[],
     group: boolean[],
     level: boolean[],
   },
 }) {
   const router = useRouter();
-  const [description, setDescription] = useState('');
-  const [achievements, setAchievements] = useState<string[]>(['']);
+  const [description, setDescription] = useState(defaultOptions.description);
+  const [achievements, setAchievements] = useState<string[]>(defaultOptions.certifications);
   const [province, setProvince] = useState(defaultOptions.prov);
   const [city, setCity] = useState(defaultOptions.city);
   const [place, setPlace] = useState<boolean[]>(defaultOptions.place);

@@ -21,7 +21,7 @@ export default function Option({ icon, name, label, selected, handleCheck }: {
         type="button"
         className={clsx({
           'relative flex flex-col items-center justify-center gap-2 w-full p-3 border-2 rounded-lg select-none transition-all duration-200': true,
-          'bg-gradient-to-br from-indigo-500 to-purple-600 text-white border-indigo-600 shadow-medium': selected,
+          'bg-linear-to-br from-indigo-500 to-purple-600 text-white border-indigo-600 shadow-medium': selected,
           'bg-white text-gray-700 border-gray-300 hover:border-indigo-400 hover:bg-indigo-50 hover:shadow-soft': !selected,
           'text-sm': icon,
           'font-semibold text-xs': !icon,

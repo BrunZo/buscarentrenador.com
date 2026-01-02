@@ -61,7 +61,7 @@ export default function FilterGrid({
   }
 
   return (
-    <div className='flex flex-col gap-4'>
+    <div className='flex flex-col md:gap-4 gap-2'>
       {filters.map((filter) => (
         <div key={filter.name} className="w-full">
           <Filter
