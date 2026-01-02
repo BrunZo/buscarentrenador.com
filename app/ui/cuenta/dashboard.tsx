@@ -21,17 +21,19 @@ export default function Dashboard({ user, trainer }: {
   }
 
   return (
-    <>
-      <div className='flex gap-4'>
-        <VerticalNavbar
-          options={options}
-          selected={selected}
-          handler={setSelected}
-        />
-        {selected === 0 && <AccountInfo user={user}/>}
-        {trainer && selected === 1 && <TrainerProfile trainer={trainer}/>}
-        {trainer && selected === 2 && <Students />}
+    <div className='flex flex-col md:flex-row gap-6'>
+      <VerticalNavbar
+        options={options}
+        selected={selected}
+        handler={setSelected}
+      />
+      <div className='flex-1 min-w-0'>
+        <div className='bg-white rounded-2xl shadow-large border border-gray-100 p-6 md:p-8'>
+          {selected === 0 && <AccountInfo user={user}/>}
+          {trainer && selected === 1 && <TrainerProfile trainer={trainer}/>}
+          {trainer && selected === 2 && <Students />}
+        </div>
       </div>
-    </>
+    </div>
   )
 }

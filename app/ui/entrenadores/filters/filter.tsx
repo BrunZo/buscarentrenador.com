@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import clsx from "clsx"
 import Option from "@/app/ui/entrenadores/filters/option"
 
 export default function Filter({ icons, name, options, defaultState, handleSelection }: {
@@ -19,12 +20,12 @@ export default function Filter({ icons, name, options, defaultState, handleSelec
   }, [selected])
 
   return (
-    <div>
-      <ul className='flex gap-2'>
+    <div className="w-full">
+      <div className='flex gap-2'>
         {options.map((option, i) => (
-          <li
+          <div
             key={i}
-            className={`flex-1 basis-1/${options.length}`}
+            className='flex-1 min-w-0'
           >
             <Option
               icon={icons ? icons[i] : undefined}
@@ -33,9 +34,9 @@ export default function Filter({ icons, name, options, defaultState, handleSelec
               selected={selected[i]}
               handleCheck={() => handleCheck(i)}
             />
-          </li>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   )
 }
