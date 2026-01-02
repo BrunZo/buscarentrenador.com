@@ -21,7 +21,7 @@ export default function Home() {
             </Link>
             <Link
               href='/soy-entrenador'
-              className='px-6 py-3 hover:bg-rose-50/50 text-rose-600 font-semibold rounded-lg hover:bg-rose-100 hover:scale-105 transition-all duration-200'
+              className='px-6 py-3 bg-rose-50/50 text-rose-600 font-semibold rounded-lg hover:bg-rose-100 hover:scale-105 transition-all duration-200'
             >
               Soy Entrenador
             </Link>
