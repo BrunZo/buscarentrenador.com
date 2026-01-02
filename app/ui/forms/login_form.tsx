@@ -13,17 +13,46 @@ export default function LoginForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showResendVerification, setShowResendVerification] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
+    setShowResendVerification(false);
 
     const formData = new FormData(e.currentTarget);
     const email = formData.get('email') as string;
     const password = formData.get('pass') as string;
 
     try {
+      // First, validate credentials with our custom endpoint
+      const validateResponse = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const validateData = await validateResponse.json();
+
+      if (!validateResponse.ok) {
+        // Handle specific errors from our custom endpoint
+        if (validateData.error === 'EMAIL_NOT_VERIFIED') {
+          setError('Tu correo electrónico no está verificado. Por favor, revisá tu bandeja de entrada.');
+          setShowResendVerification(true);
+          setUserEmail(email);
+        } else if (validateData.error === 'INVALID_CREDENTIALS') {
+          setError('Correo electrónico o contraseña incorrectos');
+        } else if (validateData.error === 'MISSING_CREDENTIALS') {
+          setError('Por favor, completá todos los campos');
+        } else {
+          setError(validateData.message || 'Error al iniciar sesión');
+        }
+        return;
+      }
+
+      // If validation passed, sign in with NextAuth
       const result = await signIn('credentials', {
         email,
         password,
@@ -31,7 +60,7 @@ export default function LoginForm() {
       });
 
       if (result?.error) {
-        setError('Correo electrónico o contraseña incorrectos');
+        setError('Error al iniciar sesión. Por favor, intentá de nuevo.');
       } else {
         router.push('/cuenta');
         router.refresh();
@@ -66,6 +95,37 @@ export default function LoginForm() {
           type='error'
           msg={error}
         />
+      )}
+      {showResendVerification && (
+        <div className='mt-4 p-4 bg-blue-50 rounded-md flex flex-col justify-center'>
+          <p className='text-sm text-blue-800 mb-2'>
+            ¿No recibiste el correo de verificación?
+          </p>
+          <button
+            type='button'
+            onClick={async () => {
+              try {
+                const response = await fetch('/api/auth/resend-verification', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ email: userEmail }),
+                });
+                const data = await response.json();
+                if (response.ok) {
+                  setError('Correo de verificación reenviado. Por favor, revisá tu bandeja de entrada.');
+                  setShowResendVerification(false);
+                } else {
+                  setError(data.error || 'Error al reenviar el correo');
+                }
+              } catch (err) {
+                setError('Error al reenviar el correo');
+              }
+            }}
+            className='text-sm text-center text-indigo-600 hover:text-indigo-800 hover:underline font-semibold'
+          >
+            Reenviar correo de verificación
+          </button>
+        </div>
       )}
     </form>
   )

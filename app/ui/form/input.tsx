@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import { ChangeEvent, ReactNode } from 'react'
 import { useFormStatus } from 'react-dom';
 
-export default function Input({ id, type, name, placeholder, required, children, onChange, error } : {
+export default function Input({ id, type, name, placeholder, required, children, onChange, error, value } : {
   id: string,
   type: string,
   name: string,
@@ -12,7 +12,8 @@ export default function Input({ id, type, name, placeholder, required, children,
   required?: boolean,
   children: ReactNode,
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void,
-  error?: string | null
+  error?: string | null,
+  value?: string
 }) {
   const { pending } = useFormStatus();
   
@@ -39,6 +40,7 @@ export default function Input({ id, type, name, placeholder, required, children,
           aria-disabled={pending}
           disabled={pending}
           onChange={onChange}
+          value={value}
         />
         { children }
       </div>

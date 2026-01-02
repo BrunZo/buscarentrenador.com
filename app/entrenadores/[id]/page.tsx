@@ -22,7 +22,7 @@ export default async function Page({ params }: {
         Perfil de entrenador
       </h2>
       <br/>
-      <Info trainer={trainer}/>
+      <Info trainer={trainer} showMail={true}/>
     </div> 
   )
 }

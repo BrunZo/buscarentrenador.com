@@ -5,6 +5,9 @@ CREATE TABLE IF NOT EXISTS users (
   password_hash VARCHAR(255) NOT NULL,
   name VARCHAR(255) NOT NULL,
   surname VARCHAR(255) NOT NULL,
+  email_verified BOOLEAN DEFAULT FALSE,
+  verification_token VARCHAR(255),
+  verification_token_expires TIMESTAMP,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -42,6 +45,7 @@ CREATE TABLE IF NOT EXISTS verification_tokens (
 
 -- Create indexes
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_users_verification_token ON users(verification_token);
 CREATE INDEX IF NOT EXISTS idx_trainers_user_id ON trainers(user_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_expires_at ON sessions(expires_at);

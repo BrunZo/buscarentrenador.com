@@ -10,16 +10,16 @@ export default function Message({
 }) {
   return (
     <div
-      className='flex items-center h-8 space-x-1'
+      className='flex flex-row items-center h-auto min-h-8 space-x-1'
       aria-live='polite'
       aria-atomic='true'
     >
       {msg && (
         <>
-          {type === 'error' && <ExclamationCircleIcon className='h-5 w-5 text-red-500' />}
-          {type === 'success' && <CheckCircleIcon className='h-5 w-5 text-green-500' />}
-          {type === 'info' && <ExclamationCircleIcon className='h-5 w-5 text-blue-500' />}
-          {type === 'warning' && <ExclamationCircleIcon className='h-5 w-5 text-yellow-500' />}
+          {type === 'error' && <ExclamationCircleIcon className='h-10 w-auto text-red-500' />}
+          {type === 'success' && <CheckCircleIcon className='h-10 w-auto text-green-500' />}
+          {type === 'info' && <ExclamationCircleIcon className='h-10 w-auto text-blue-500' />}
+          {type === 'warning' && <ExclamationCircleIcon className='h-10 w-auto text-yellow-500' />}
           <p className={clsx(
             'text-sm',
             type === 'error' && 'text-red-500',

@@ -3,6 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { compare, hash } from "bcrypt";
 import pool from "./db";
 import NextAuth from "next-auth";
+import crypto from "crypto";
 
 export const authConfig: NextAuthConfig = {
   providers: [
@@ -20,7 +21,7 @@ export const authConfig: NextAuthConfig = {
         const client = await pool.connect();
         try {
           const result = await client.query(
-            "SELECT id, email, password_hash, name, surname FROM users WHERE email = $1",
+            "SELECT id, email, password_hash, name, surname, email_verified FROM users WHERE email = $1",
             [credentials.email]
           );
 
@@ -31,6 +32,11 @@ export const authConfig: NextAuthConfig = {
 
           const isPasswordValid = await compare(credentials.password, user.password_hash);
           if (!isPasswordValid) {
+            return null;
+          }
+
+          // Check if email is verified - return user with error flag
+          if (!user.email_verified) {
             return null;
           }
 
@@ -68,6 +74,7 @@ export const authConfig: NextAuthConfig = {
   },
   pages: {
     signIn: "/login",
+    error: "/login",
   },
 };
 
@@ -79,12 +86,15 @@ export async function hashPassword(password: string): Promise<string> {
 
 export async function createUser(email: string, password: string, name: string, surname: string) {
   const hashedPassword = await hashPassword(password);
+  const verificationToken = generateVerificationToken();
+  const tokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours from now
+
   const client = await pool.connect();
-  
+
   try {
     const result = await client.query(
-      "INSERT INTO users (email, password_hash, name, surname) VALUES ($1, $2, $3, $4) RETURNING id, email, name, surname",
-      [email, hashedPassword, name, surname]
+      "INSERT INTO users (email, password_hash, name, surname, email_verified, verification_token, verification_token_expires) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, email, name, surname, verification_token",
+      [email, hashedPassword, name, surname, false, verificationToken, tokenExpires]
     );
     return result.rows[0];
   } finally {
@@ -109,10 +119,87 @@ export async function getUserByEmail(email: string) {
   const client = await pool.connect();
   try {
     const result = await client.query(
-      "SELECT id, email, name, surname FROM users WHERE email = $1",
+      "SELECT id, email, name, surname, email_verified FROM users WHERE email = $1",
       [email]
     );
     return result.rows[0];
+  } finally {
+    client.release();
+  }
+}
+
+export function generateVerificationToken(): string {
+  return crypto.randomBytes(32).toString('hex');
+}
+
+export async function verifyUserEmail(token: string): Promise<{ success: boolean; error?: string }> {
+  const client = await pool.connect();
+
+  try {
+    // Find user with this token
+    const result = await client.query(
+      "SELECT id, email, email_verified, verification_token_expires FROM users WHERE verification_token = $1",
+      [token]
+    );
+
+    const user = result.rows[0];
+    if (!user) {
+      return { success: false, error: "Token inválido" };
+    }
+
+    // Check if already verified
+    if (user.email_verified) {
+      return { success: false, error: "El correo ya está verificado" };
+    }
+
+    // Check if token is expired
+    if (new Date() > new Date(user.verification_token_expires)) {
+      return { success: false, error: "El token ha expirado" };
+    }
+
+    // Update user to verified and clear token
+    await client.query(
+      "UPDATE users SET email_verified = TRUE, verification_token = NULL, verification_token_expires = NULL WHERE id = $1",
+      [user.id]
+    );
+
+    return { success: true };
+  } finally {
+    client.release();
+  }
+}
+
+export async function regenerateVerificationToken(email: string): Promise<{ success: boolean; token?: string; error?: string }> {
+  const client = await pool.connect();
+
+  try {
+    // Check if user exists
+    const userResult = await client.query(
+      "SELECT id, email_verified FROM users WHERE email = $1",
+      [email]
+    );
+
+    const user = userResult.rows[0];
+    if (!user) {
+      return { success: false, error: "Usuario no encontrado" };
+    }
+
+    // Check if already verified
+    if (user.email_verified) {
+      return { success: false, error: "El correo ya está verificado" };
+    }
+
+    // Generate new token
+    const newToken = generateVerificationToken();
+    const tokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours from now
+
+    // Update user with new token
+    await client.query(
+      "UPDATE users SET verification_token = $1, verification_token_expires = $2 WHERE id = $3",
+      [newToken, tokenExpires, user.id]
+    );
+
+    return { success: true, token: newToken };
   } finally {
     client.release();
   }

@@ -41,14 +41,14 @@ export async function updateTrainerProfile(
   try {
     const fields = Object.keys(updates);
     const values = Object.values(updates);
-    
+
     if (fields.length === 0) return null;
-    
+
     const setClause = fields.map((field, index) => `${field} = $${index + 2}`).join(', ');
     const query = `UPDATE trainers SET ${setClause}, updated_at = CURRENT_TIMESTAMP WHERE id = $1 RETURNING *`;
-    
+
     await client.query(query, [trainerId, ...values]);
-    
+
     // Fetch the updated trainer with user name and surname
     const trainerResult = await client.query(
       `SELECT t.*, u.name, u.surname 
@@ -67,7 +67,7 @@ export async function getTrainerById(id: number): Promise<Trainer | null> {
   const client = await pool.connect();
   try {
     const result = await client.query(
-      `SELECT t.*, u.name, u.surname 
+      `SELECT t.*, u.name, u.email, u.surname 
        FROM trainers t 
        JOIN users u ON t.user_id = u.id 
        WHERE t.id = $1`,
@@ -83,7 +83,7 @@ export async function getTrainerByUserId(userId: number): Promise<Trainer | null
   const client = await pool.connect();
   try {
     const result = await client.query(
-      `SELECT t.*, u.name, u.surname 
+      `SELECT t.*, u.name, u.email, u.surname 
        FROM trainers t 
        JOIN users u ON t.user_id = u.id 
        WHERE t.user_id = $1`,
@@ -99,7 +99,7 @@ export async function getAllTrainers(): Promise<Trainer[]> {
   const client = await pool.connect();
   try {
     const result = await client.query(
-      `SELECT t.*, u.name, u.surname 
+      `SELECT t.*, u.name, u.email, u.surname 
        FROM trainers t 
        JOIN users u ON t.user_id = u.id 
        ORDER BY t.created_at DESC`
@@ -139,7 +139,7 @@ export async function getTrainersByFilters(filters: {
       params.push(filters.prov);
       paramIndex++;
     }
-    
+
     if (filters.place.some(v => v === true)) {
       const placeConditions: string[] = [];
       filters.place.forEach((value, index) => {
@@ -151,7 +151,7 @@ export async function getTrainersByFilters(filters: {
         conditions.push(`(${placeConditions.join(' OR ')})`);
       }
     }
-    
+
     if (filters.group.some(v => v === true)) {
       const groupConditions: string[] = [];
       filters.group.forEach((value, index) => {
@@ -163,7 +163,7 @@ export async function getTrainersByFilters(filters: {
         conditions.push(`(${groupConditions.join(' OR ')})`);
       }
     }
-    
+
     if (filters.level.some(v => v === true)) {
       const levelConditions: string[] = [];
       filters.level.forEach((value, index) => {
@@ -182,7 +182,7 @@ export async function getTrainersByFilters(filters: {
                          JOIN users u ON t.user_id = u.id 
                          ${whereClause} 
                          ORDER BY t.created_at DESC`;
-    
+
     const result = await client.query(queryString, params);
     return result.rows;
   } finally {
