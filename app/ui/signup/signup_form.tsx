@@ -16,7 +16,11 @@ export default function SignupForm() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
+  const [surname, setSurname] = useState('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [repeat, setRepeat] = useState('');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -34,11 +38,6 @@ export default function SignupForm() {
       return;
     }
 
-    const email = formData.get('email') as string;
-    const passwordValue = formData.get('password') as string;
-    const name = formData.get('name') as string;
-    const surname = formData.get('surname') as string;
-
     try {
       const response = await fetch('/api/auth/signup', {
         method: 'POST',
@@ -47,7 +46,7 @@ export default function SignupForm() {
         },
         body: JSON.stringify({
           email,
-          password: passwordValue,
+          password,
           name,
           surname,
         }),
@@ -61,6 +60,13 @@ export default function SignupForm() {
         setSuccess(data.message || '¡Cuenta creada exitosamente! Te enviamos un correo de verificación. Por favor, revisá tu bandeja de entrada.');
         setPassword('');
         // Don't auto-redirect - let user read the message about checking email
+        setEmail('');
+        setPassword('');
+        setRepeat('');
+        setName('');
+        setSurname('');
+        setFieldErrors({});
+        return;
       }
     } catch (error) {
       setError('Ocurrió un error. Por favor, intentá de nuevo.');
@@ -79,6 +85,8 @@ export default function SignupForm() {
           placeholder='Correo electrónico'
           required={true}
           error={fieldErrors.email}
+          value={email}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
         >
           <UserIcon className='h-5 w-5' />
         </Input>
@@ -92,6 +100,8 @@ export default function SignupForm() {
           placeholder='Nombre'
           required={true}
           error={fieldErrors.name}
+          value={name}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
         >
           <UserIcon className='h-5 w-5' />
         </Input>
@@ -104,6 +114,8 @@ export default function SignupForm() {
           name='surname'
           placeholder='Apellido'
           required={true}
+          value={surname}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setSurname(e.target.value)}
           error={fieldErrors.surname}
         >
           <UserIcon className='h-5 w-5' />
@@ -117,6 +129,7 @@ export default function SignupForm() {
           name='password'
           placeholder='Contraseña'
           required={true}
+          value={password}
           onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
           error={fieldErrors.password}
         >
@@ -133,6 +146,8 @@ export default function SignupForm() {
           placeholder='Repetir contraseña'
           required={true}
           error={fieldErrors.repeat}
+          value={repeat}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setRepeat(e.target.value)}
         >
           <LockClosedIcon className='h-5 w-5' />
         </Input>

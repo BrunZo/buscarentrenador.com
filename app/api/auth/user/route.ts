@@ -1,0 +1,69 @@
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import pool from "@/lib/db";
+import { z } from "zod";
+
+const updateUserSchema = z.object({
+  name: z.string().min(1, "El nombre es requerido").max(255),
+  surname: z.string().min(1, "El apellido es requerido").max(255),
+});
+
+export async function PATCH(request: NextRequest) {
+  try {
+    const session = await auth();
+    
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: "No autorizado. Debes iniciar sesión." },
+        { status: 401 }
+      );
+    }
+
+    const body = await request.json();
+    const validatedData = updateUserSchema.parse(body);
+
+    const client = await pool.connect();
+    
+    try {
+      // Update user name and surname
+      const updateResult = await client.query(
+        `UPDATE users 
+         SET name = $1, surname = $2, updated_at = CURRENT_TIMESTAMP 
+         WHERE id = $3 
+         RETURNING id, email, name, surname`,
+        [validatedData.name, validatedData.surname, session.user.id]
+      );
+
+      if (updateResult.rows.length === 0) {
+        return NextResponse.json(
+          { error: "No se encontró el usuario." },
+          { status: 404 }
+        );
+      }
+
+      return NextResponse.json(
+        { 
+          message: "Información actualizada correctamente.",
+          user: updateResult.rows[0]
+        },
+        { status: 200 }
+      );
+    } finally {
+      client.release();
+    }
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      const firstError = error.issues[0]?.message || "Datos de entrada inválidos";
+      return NextResponse.json(
+        { error: firstError, details: error.issues },
+        { status: 400 }
+      );
+    }
+
+    console.error("Error updating user:", error);
+    return NextResponse.json(
+      { error: "Error interno del servidor. Por favor, intentá de nuevo." },
+      { status: 500 }
+    );
+  }
+}
