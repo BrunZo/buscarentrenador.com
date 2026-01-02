@@ -11,19 +11,19 @@ export default function Info({ trainer, showMail }: {
     <div className='flex flex-col md:flex-row gap-6 md:gap-8'>
       {image_src ? (
         <div className='flex-shrink-0'>
-          <div className='bg-gradient-to-br from-indigo-500 to-purple-600 w-32 h-32 md:w-40 md:h-40 rounded-full flex items-center justify-center shadow-medium'>
+          <div className='bg-gradient-to-br from-indigo-500 to-purple-600 w-16 h-16 md:w-24 md:h-24 rounded-full flex items-center justify-center shadow-medium'>
             <Image
               src={image_src}
               alt='Entrenador'
-              width={160}
-              height={160}
+              width={64}
+              height={64}
               className='rounded-full'
             />
           </div>
         </div>
       ) : (
         <div className='flex-shrink-0'>
-          <div className='bg-gradient-to-br from-indigo-500 to-purple-600 w-32 h-32 md:w-40 md:h-40 rounded-full flex items-center justify-center shadow-medium text-white text-4xl md:text-5xl font-bold'>
+          <div className='bg-gradient-to-br from-indigo-500 to-purple-600 w-16 h-16 md:w-24 md:h-24 rounded-full flex items-center justify-center shadow-medium text-white text-3xl md:text-4xl font-bold'>
             {trainer.name?.charAt(0).toUpperCase() || 'T'}
           </div>
         </div>

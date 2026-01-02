@@ -35,11 +35,8 @@ export function Card({ trainer }: {
       onClick={() => router.push(`/entrenadores/${trainer.id}`)}
     >
       <div className='flex items-center gap-4'>
-        <div className='w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xl font-bold flex-shrink-0 group-hover:scale-110 transition-transform duration-300'>
-          {trainer.name?.charAt(0).toUpperCase() || 'T'}
-        </div>
         <div className='flex-1 min-w-0'>
-          <Info trainer={trainer} showMail={false}/>
+          <Info trainer={trainer} showMail={true}/>
         </div>
         <div className='flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300'>
           <svg className='w-6 h-6 text-indigo-600' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
