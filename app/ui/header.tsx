@@ -13,9 +13,9 @@ export default function Header() {
   const closeMenu = () => setIsMenuOpen(false);
 
   return (
-    <div className='flex justify-between items-center py-4 px-4 sm:px-32 relative'>
+    <div className='flex justify-between items-center py-4 px-4 sm:px-32 relative bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-soft'>
       <Link
-        className='text-indigo-600 text-xl font-bold'
+        className='text-xl font-bold gradient-text hover:scale-105 transition-transform duration-200'
         href={'/'}
         onClick={closeMenu}
       >
@@ -25,7 +25,7 @@ export default function Header() {
       {/* Botón hamburguesa - solo visible en móvil */}
       <button
         onClick={toggleMenu}
-        className='sm:hidden p-2 text-gray-600 hover:text-black'
+        className='sm:hidden p-2 text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all duration-200'
         aria-label='Toggle menu'
       >
         {isMenuOpen ? (
@@ -67,7 +67,7 @@ export default function Header() {
               <li>
                 <button 
                   onClick={() => signOut({ callbackUrl: '/' })}
-                  className='text-gray-600 hover:text-black hover:underline'
+                  className='text-gray-700 hover:text-red-600 font-medium px-3 py-2 rounded-lg hover:bg-red-50 transition-all duration-200'
                 >
                   Logout
                 </button>
@@ -79,7 +79,7 @@ export default function Header() {
 
       {/* Menú móvil desplegable - visible solo cuando está abierto en móvil */}
       {isMenuOpen && (
-        <nav className='absolute top-full left-0 right-0 bg-white border-b border-gray-200 shadow-lg sm:hidden z-50'>
+        <nav className='absolute top-full left-0 right-0 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-large sm:hidden z-50 animate-slide-in'>
           <ul className='flex flex-col py-4'>
             {!session && status !== 'loading' && (
               <>
@@ -118,7 +118,7 @@ export default function Header() {
                       closeMenu();
                       signOut({ callbackUrl: '/' });
                     }}
-                    className='w-full text-left px-4 py-2 text-gray-600 hover:text-black hover:bg-gray-50'
+                    className='w-full text-left px-4 py-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors duration-200'
                   >
                     Logout
                   </button>
@@ -139,10 +139,11 @@ export function MenuButton({ text, href }: {
   return (
     <li>
       <Link
-        className='text-gray-600 hover:text-black hover:underline'
+        className='text-gray-700 hover:text-indigo-600 font-medium px-3 py-2 rounded-lg hover:bg-indigo-50 transition-all duration-200 relative group'
         href={href}
       >
         {text}
+        <span className='absolute bottom-0 left-0 w-0 h-0.5 bg-indigo-600 group-hover:w-full transition-all duration-300'></span>
       </Link>
     </li>
   )
@@ -156,7 +157,7 @@ function MobileMenuButton({ text, href, onClick }: {
   return (
     <li>
       <Link
-        className='block px-4 py-2 text-gray-600 hover:text-black hover:bg-gray-50'
+        className='block px-4 py-2 text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 transition-colors duration-200 font-medium'
         href={href}
         onClick={onClick}
       >

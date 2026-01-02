@@ -73,18 +73,18 @@ export default function LoginForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className='w-full md:w-2/3 lg:w-1/3 space-y-6'>
+    <form onSubmit={handleSubmit} className='w-full md:w-2/3 lg:w-1/3 space-y-6 bg-white rounded-2xl p-8 shadow-large border border-gray-100'>
       <Input id='email' type='text' name='email' placeholder='Usuario' required={true}>
-        <UserIcon className='absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500' />
+        <UserIcon className='h-5 w-5' />
       </Input>
       <Input id='pass' type='password' name='pass' placeholder='Contraseña' required={true}>
-        <LockClosedIcon className='absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500' />
+        <LockClosedIcon className='h-5 w-5' />
       </Input>
       <Button text={isLoading ? 'Ingresando...' : 'Ingresar'} disabled={isLoading} />
-      <div>
+      <div className='text-center text-gray-600'>
         Si no tenés cuenta,&nbsp;
         <Link
-          className='text-indigo-600 hover:text-indigo-800 hover:underline'
+          className='text-indigo-600 hover:text-indigo-700 font-semibold hover:underline transition-colors duration-200'
           href='/signup'
         >
           registrate
@@ -97,8 +97,8 @@ export default function LoginForm() {
         />
       )}
       {showResendVerification && (
-        <div className='mt-4 p-4 bg-blue-50 rounded-md flex flex-col justify-center'>
-          <p className='text-sm text-blue-800 mb-2'>
+        <div className='mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 flex flex-col justify-center'>
+          <p className='text-sm text-blue-800 mb-3 font-medium'>
             ¿No recibiste el correo de verificación?
           </p>
           <button
@@ -121,7 +121,7 @@ export default function LoginForm() {
                 setError('Error al reenviar el correo');
               }
             }}
-            className='text-sm text-center text-indigo-600 hover:text-indigo-800 hover:underline font-semibold'
+            className='text-sm text-center text-indigo-600 hover:text-indigo-700 hover:underline font-semibold transition-colors duration-200'
           >
             Reenviar correo de verificación
           </button>
