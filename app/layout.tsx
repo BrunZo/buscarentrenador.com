@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import Header from '@/app/ui/header';
+import Footer from '@/app/ui/footer';
 import { Providers } from './providers';
 import '@/app/globals.css';
 
@@ -38,6 +39,7 @@ export default function RootLayout({
           <main className='sm:px-16 md:px-32 px-4 py-8 md:py-12'>
             {children}
           </main>
+          <Footer />
         </Providers>
       </body>
     </html>
