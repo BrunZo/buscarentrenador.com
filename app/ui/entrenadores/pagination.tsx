@@ -103,13 +103,13 @@ function PaginationNumber({
   isActive: boolean;
 }) {
   const className = clsx(
-    'flex h-10 w-10 items-center justify-center text-sm border',
+    'flex h-10 w-10 items-center justify-center text-sm font-medium border transition-all duration-200',
     {
-      'rounded-l-md': position === 'first' || position === 'single',
-      'rounded-r-md': position === 'last' || position === 'single',
-      'z-10 bg-indigo-600 border-indigo-600 text-white': isActive,
-      'hover:bg-gray-100': !isActive && position !== 'middle',
-      'text-gray-300': position === 'middle',
+      'rounded-l-lg': position === 'first' || position === 'single',
+      'rounded-r-lg': position === 'last' || position === 'single',
+      'z-10 bg-gradient-to-r from-indigo-600 to-purple-600 border-indigo-600 text-white shadow-medium': isActive,
+      'bg-white border-gray-300 text-gray-700 hover:bg-indigo-50 hover:border-indigo-300 hover:text-indigo-700': !isActive && position !== 'middle',
+      'text-gray-400 border-gray-200 bg-gray-50': position === 'middle',
     },
   );
 
@@ -132,10 +132,10 @@ function PaginationArrow({
   isDisabled?: boolean;
 }) {
   const className = clsx(
-    'flex h-10 w-10 items-center justify-center rounded-md border',
+    'flex h-10 w-10 items-center justify-center rounded-lg border transition-all duration-200',
     {
-      'pointer-events-none text-gray-300': isDisabled,
-      'hover:bg-gray-100': !isDisabled,
+      'pointer-events-none text-gray-300 border-gray-200 bg-gray-50': isDisabled,
+      'bg-white border-gray-300 text-gray-700 hover:bg-indigo-50 hover:border-indigo-300 hover:text-indigo-700': !isDisabled,
       'mr-2 md:mr-4': direction === 'left',
       'ml-2 md:ml-4': direction === 'right',
     },

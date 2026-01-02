@@ -33,24 +33,38 @@ export default async function Page({ searchParams }: {
   })
 
   return (
-    <>
-      <h1 className='text-2xl font-bold mb-4'>
-        Entrenadores
-      </h1>
-      <div className='flex flex-col lg:flex-row gap-4'>
-        <div className='w-full lg:w-96 space-y-2 shrink-0'>
-          <Search placeholder='Buscar entrenador'/>
-          <LocationFilter
-            defaultOptions={{prov: prov, city: city}}
-            replaceUrl={true}
-          />
-          <FilterGrid filters={trainerFilters} defaultStates={{}} replaceUrl={true}/>
+    <div className='animate-fade-in'>
+      <div className='mb-8'>
+        <h1 className='text-3xl md:text-4xl font-bold text-gray-900 mb-2'>
+          Entrenadores
+        </h1>
+        <p className='text-gray-600'>
+          Encontrá a tu entrenador
+        </p>
+      </div>
+      <div className='flex flex-col lg:flex-row gap-6'>
+        <div className='w-full lg:w-96 space-y-4 shrink-0'>
+          <div className='bg-white rounded-xl p-4 shadow-soft border border-gray-100'>
+            <h2 className='text-sm font-semibold text-gray-700 mb-3'>Por nombre</h2>
+            <Search placeholder='Buscar entrenador'/>
+          </div>
+          <div className='bg-white rounded-xl p-4 shadow-soft border border-gray-100'>
+            <h2 className='text-sm font-semibold text-gray-700 mb-3'>Por ubicación</h2>
+            <LocationFilter
+              defaultOptions={{prov: prov, city: city}}
+              replaceUrl={true}
+            />
+          </div>
+          <div className='bg-white rounded-xl p-4 shadow-soft border border-gray-100'>
+            <h2 className='text-sm font-semibold text-gray-700 mb-3'>Por modalidad de clase</h2>
+            <FilterGrid filters={trainerFilters} defaultStates={{}} replaceUrl={true}/>
+          </div>
         </div>
         <div className='w-full lg:flex-1 min-w-0'>
           <CardGrid trainers={trainers.slice((currentPage - 1) * 4, currentPage * 4)}/>
           <Pagination totalPages={Math.ceil(trainers.length / 4)}/>
         </div>
       </div>
-    </>
+    </div>
   )
 }

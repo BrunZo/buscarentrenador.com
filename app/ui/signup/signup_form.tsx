@@ -70,7 +70,7 @@ export default function SignupForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className='w-full md:w-2/3 lg:w-1/3 space-y-6 pb-6'>
+    <form onSubmit={handleSubmit} className='w-full md:w-2/3 lg:w-1/3 space-y-6 pb-6 bg-white rounded-2xl p-8 shadow-large border border-gray-100'>
       <div>
         <Input
           id='email'
@@ -80,7 +80,7 @@ export default function SignupForm() {
           required={true}
           error={fieldErrors.email}
         >
-          <UserIcon className='absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900' />
+          <UserIcon className='h-5 w-5' />
         </Input>
       </div>
       
@@ -93,7 +93,7 @@ export default function SignupForm() {
           required={true}
           error={fieldErrors.name}
         >
-          <UserIcon className='absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900' />
+          <UserIcon className='h-5 w-5' />
         </Input>
       </div>
       
@@ -106,7 +106,7 @@ export default function SignupForm() {
           required={true}
           error={fieldErrors.surname}
         >
-          <UserIcon className='absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900' />
+          <UserIcon className='h-5 w-5' />
         </Input>
       </div>
       
@@ -120,7 +120,7 @@ export default function SignupForm() {
           onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
           error={fieldErrors.password}
         >
-          <LockClosedIcon className='absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900' />
+          <LockClosedIcon className='h-5 w-5' />
         </Input>
         <PasswordStrengthIndicator password={password} />
       </div>
@@ -134,16 +134,16 @@ export default function SignupForm() {
           required={true}
           error={fieldErrors.repeat}
         >
-          <LockClosedIcon className='absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900' />
+          <LockClosedIcon className='h-5 w-5' />
         </Input>
       </div>
       
       <Button text={isLoading ? 'Creando cuenta...' : 'Crear cuenta'} disabled={isLoading} />
       
-      <div className='space-y-2'>
+      <div className='space-y-2 text-center text-gray-600'>
         Si ya tenés cuenta,&nbsp;
         <Link
-          className='text-indigo-600 hover:text-indigo-800 hover:underline'
+          className='text-indigo-600 hover:text-indigo-700 font-semibold hover:underline transition-colors duration-200'
           href='/login'
         >
           ingresá acá

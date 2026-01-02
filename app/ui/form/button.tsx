@@ -16,11 +16,13 @@ export default function Button({ text, disabled }: {
         <button
           type='submit'
           className={clsx({
-            'w-full flex justify-center py-2 px-4': true,
-            'border border-transparent rounded-md shadow-sm text-sm font-medium text-white': true,
-            'bg-indigo-600 hover:bg-indigo-700': !isDisabled,
-            'bg-indigo-200': isDisabled,
-            'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500': true
+            'w-full flex justify-center items-center py-3 px-6': true,
+            'border border-transparent rounded-lg text-base font-semibold text-white': true,
+            'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700': !isDisabled,
+            'bg-gray-300 cursor-not-allowed': isDisabled,
+            'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500': true,
+            'shadow-medium hover:shadow-large transition-all duration-200': true,
+            'transform hover:scale-[1.02] active:scale-[0.98]': !isDisabled,
           })}
           aria-disabled={isDisabled}
           disabled={isDisabled}
