@@ -1,11 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import ResendVerification from '@/app/ui/auth/resend_verification';
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get('token');
@@ -102,5 +102,26 @@ export default function VerifyEmailPage() {
         )}
       </div>
     </main>
+  );
+}
+
+function LoadingFallback() {
+  return (
+    <main className='flex min-h-screen flex-col items-center justify-center p-6'>
+      <div className='w-full max-w-md space-y-6 rounded-lg bg-white p-8 shadow-lg'>
+        <div className='text-center'>
+          <div className='mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent'></div>
+          <h1 className='text-2xl font-bold text-gray-900'>Cargando...</h1>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <VerifyEmailContent />
+    </Suspense>
   );
 }
