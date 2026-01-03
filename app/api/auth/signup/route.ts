@@ -3,7 +3,7 @@ import { createUser, getUserByEmail } from "@/lib/auth";
 import { sendVerificationEmail } from "@/lib/email";
 import { z } from "zod";
 
-const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*?])[A-Za-z\d!@#$%^&*?]{8,}$/;
 const nameRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/;
 
 const signupSchema = z.object({
@@ -12,7 +12,7 @@ const signupSchema = z.object({
   password: z.string()
     .min(8, { message: "La contraseña debe tener al menos 8 caracteres" })
     .regex(passwordRegex, {
-      message: "La contraseña debe incluir mayúscula, minúscula, número y carácter especial (!@#$%^&*)"
+      message: "La contraseña debe incluir mayúscula, minúscula, número y carácter especial (!@#$%^&*?)"
     }),
   name: z.string()
     .min(2, { message: "El nombre debe tener al menos 2 caracteres" })

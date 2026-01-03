@@ -57,7 +57,7 @@ export default function PasswordStrengthIndicator({ password }: { password: stri
           {checks.hasNumber ? '✓' : '○'} Un número
         </li>
         <li className={checks.hasSpecial ? 'text-green-600' : 'text-gray-500'}>
-          {checks.hasSpecial ? '✓' : '○'} Un carácter especial (!@#$%^&*)
+          {checks.hasSpecial ? '✓' : '○'} Un carácter especial (!@#$%^&*?)
         </li>
       </ul>
     </div>
