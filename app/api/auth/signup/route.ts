@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
   if (!validation.success) {
     const firstError = validation.error.issues[0]?.message || "Datos de entrada inválidos";
     return NextResponse.json(
-      { error: firstError, details: validation.error.issues },
+      { error: firstError },
       { status: 400 }
     );
   }
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: userResult.error, message },
+      { error: message },
       { status: statusCode }
     );
   }
@@ -76,7 +76,6 @@ export async function POST(request: NextRequest) {
   });
 
   if (!emailResult.success) {
-    console.error('Failed to send verification email:', emailResult.error);
     let statusCode: number;
     let message: string;
 

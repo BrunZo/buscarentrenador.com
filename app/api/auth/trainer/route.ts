@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
       }
 
       return NextResponse.json(
-        { error: updateResult.error, message },
+        { error: message },
         { status: statusCode }
       );
     }
@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
       }
 
       return NextResponse.json(
-        { error: updatedTrainerResult.error, message },
+        { error: message },
         { status: statusCode }
       );
     }
@@ -147,7 +147,7 @@ export async function POST(request: NextRequest) {
       }
 
       return NextResponse.json(
-        { error: createResult.error, message },
+        { error: message },
         { status: statusCode }
       );
     }
@@ -173,7 +173,7 @@ export async function POST(request: NextRequest) {
       }
 
       return NextResponse.json(
-        { error: trainerResult.error, message },
+        { error: message },
         { status: statusCode }
       );
     }

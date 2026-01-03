@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: result.error, message },
+      { error: message },
       { status: statusCode }
     );
   }

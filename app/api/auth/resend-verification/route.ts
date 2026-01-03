@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: userResult.error, message },
+      { error: message },
       { status: statusCode }
     );
   }
@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: tokenResult.error, message },
+      { error: message },
       { status: statusCode }
     );
   }
@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: emailResult.error, message },
+      { error: message },
       { status: statusCode }
     );
   }

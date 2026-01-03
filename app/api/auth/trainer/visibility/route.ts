@@ -29,7 +29,7 @@ export async function PATCH(request: NextRequest) {
   if (!validation.success) {
     const firstError = validation.error.issues[0]?.message || "Datos de entrada inválidos";
     return NextResponse.json(
-      { error: firstError, details: validation.error.issues },
+      { error: firstError },
       { status: 400 }
     );
   }
@@ -57,7 +57,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: existingTrainerResult.error, message },
+      { error: message },
       { status: statusCode }
     );
   }
@@ -83,7 +83,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: visibilityResult.error, message },
+      { error: message },
       { status: statusCode }
     );
   }
@@ -108,7 +108,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: updatedTrainerResult.error, message },
+      { error: message },
       { status: statusCode }
     );
   }

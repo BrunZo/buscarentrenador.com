@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
   if (!validation.success) {
     const firstError = validation.error.issues[0]?.message || "Datos de entrada inválidos";
     return NextResponse.json(
-      { error: "MISSING_CREDENTIALS", message: firstError },
+      { error: firstError },
       { status: 400 }
     );
   }
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     }
     
     return NextResponse.json(
-      { error: result.error, message },
+      { error: message },
       { status: statusCode }
     );
   }
