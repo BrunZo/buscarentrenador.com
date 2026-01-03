@@ -7,6 +7,7 @@ import AccountInfo from '@/app/ui/cuenta/account_info'
 import VerticalNavbar from '@/app/ui/cuenta/vertical_navbar'
 import TrainerProfile from '@/app/ui/cuenta/trainer_profile'
 import Students from '@/app/ui/cuenta/students'
+import Messages from '@/app/ui/cuenta/messages'
 
 export default function Dashboard({ user, trainer }: {
   user: User,
@@ -14,7 +15,7 @@ export default function Dashboard({ user, trainer }: {
 }) {
   const [selected, setSelected] = useState(0)
 
-  const options = ['Mi cuenta']
+  const options = ['Mi cuenta', 'Mensajes']
   if (trainer) {
     options.push('Perfil de entrenador')
     options.push('Mis alumnos')
@@ -30,8 +31,9 @@ export default function Dashboard({ user, trainer }: {
       <div className='flex-1 min-w-0'>
         <div className='bg-white rounded-2xl shadow-large border border-gray-100 p-6 md:p-8'>
           {selected === 0 && <AccountInfo user={user}/>}
-          {trainer && selected === 1 && <TrainerProfile trainer={trainer}/>}
-          {trainer && selected === 2 && <Students />}
+          {selected === 1 && <Messages userId={user.id} />}
+          {trainer && selected === 2 && <TrainerProfile trainer={trainer}/>}
+          {trainer && selected === 3 && <Students />}
         </div>
       </div>
     </div>
