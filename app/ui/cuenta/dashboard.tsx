@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { TrainerWithUser } from '@/lib/db/schema'
+import { TrainerWithUser } from '@/service/db/schema'
 import { User } from 'next-auth'
 import AccountInfo from '@/app/ui/cuenta/account_info'
 import VerticalNavbar from '@/app/ui/cuenta/vertical_navbar'

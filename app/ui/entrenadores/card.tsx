@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import Info from '@/app/ui/entrenadores/info'
-import { TrainerWithUser } from '@/lib/db/schema'
+import { TrainerWithUser } from '@/service/db/schema'
 
 export default function CardGrid({ trainers }: {
   trainers: TrainerWithUser[]

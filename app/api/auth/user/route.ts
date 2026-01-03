@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth/next-auth.config";
-import { updateUser } from "@/lib/auth/users";
+import { auth } from "@/service/auth/next-auth.config";
+import { updateUser } from "@/service/auth/users";
 import { z } from "zod";
 
 const updateUserSchema = z.object({

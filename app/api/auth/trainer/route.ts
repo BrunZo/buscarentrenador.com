@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth/next-auth.config";
-import { createTrainerProfile, updateTrainerProfile, getTrainerByUserId } from "@/lib/data/trainers";
+import { auth } from "@/service/auth/next-auth.config";
+import { createTrainerProfile, updateTrainerProfile, getTrainerByUserId } from "@/service/data/trainers";
 import { z } from "zod";
 
 const trainerSchema = z.object({

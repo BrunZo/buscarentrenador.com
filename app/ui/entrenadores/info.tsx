@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { TrainerWithUser } from '@/lib/db/schema'
+import { TrainerWithUser } from '@/service/db/schema'
 
 export default function Info({ trainer, individualProfile }: {
   trainer: TrainerWithUser

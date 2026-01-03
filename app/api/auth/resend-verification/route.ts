@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generateVerificationToken } from "@/lib/auth/verification_tokens";
-import { getUserByEmail } from "@/lib/auth/users";
-import { sendVerificationEmail } from "@/lib/auth/email";
+import { generateVerificationToken } from "@/service/auth/verification_tokens";
+import { getUserByEmail } from "@/service/auth/users";
+import { sendVerificationEmail } from "@/service/auth/email";
 import { z } from "zod";
 
 const resendSchema = z.object({

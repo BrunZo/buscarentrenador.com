@@ -4,7 +4,7 @@ import clsx from "clsx"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import Info from "@/app/ui/entrenadores/info"
-import { TrainerWithUser } from "@/lib/db/schema"
+import { TrainerWithUser } from "@/service/db/schema"
 
 export default function TrainerProfile({ trainer }: {
   trainer: TrainerWithUser

@@ -4,7 +4,7 @@ import { GlobeAmericasIcon, MapPinIcon } from '@heroicons/react/24/outline'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import SelectionButton from '@/app/ui/entrenadores/loc/selection_button'
-import getCities from '@/lib/loc/cities';
+import getCities from '@/service/loc/cities';
 
 export default function LocationFilter({
   defaultOptions,
