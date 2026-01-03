@@ -14,90 +14,176 @@ const trainerSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
-  try {
-    const session = await auth();
-    
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: "No autorizado. Debes iniciar sesión." },
-        { status: 401 }
-      );
-    }
+  const session = await auth();
+  
+  if (!session?.user?.id) {
+    return NextResponse.json(
+      { error: "No autorizado. Debes iniciar sesión." },
+      { status: 401 }
+    );
+  }
 
-    const body = await request.json();
-    const validatedData = trainerSchema.parse(body);
+  const body = await request.json().catch(() => {
+    return NextResponse.json(
+      { error: "Cuerpo de solicitud inválido" },
+      { status: 400 }
+    );
+  });
 
-    const {
-      province,
-      city,
-      description,
-      place = [false, false, false],
-      group = [false, false],
-      level = [false, false, false, false, false],
-      certifications = []
-    } = validatedData;
+  const validation = trainerSchema.safeParse(body);
+  if (!validation.success) {
+    const firstError = validation.error.issues[0]?.message || "Datos de entrada inválidos";
+    return NextResponse.json(
+      { error: firstError, details: validation.error.issues },
+      { status: 400 }
+    );
+  }
+  const validatedData = validation.data;
 
-    const existingTrainer = await getTrainerByUserId(session.user.id);
+  const {
+    province,
+    city,
+    description,
+    place = [false, false, false],
+    group = [false, false],
+    level = [false, false, false, false, false],
+    certifications = []
+  } = validatedData;
 
-    if (existingTrainer) {
-      const trainer = await updateTrainerProfile(existingTrainer.id, {
-        province: province || undefined,
-        city: city || undefined,
-        description: description || undefined,
-        places: place,
-        groups: group,
-        levels: level,
-        certifications: certifications.length > 0 ? certifications : undefined,
-      });
+  const existingTrainerResult = await getTrainerByUserId(session.user.id);
 
-      if (!trainer) {
-        return NextResponse.json(
-          { error: "Error al actualizar el perfil de entrenador." },
-          { status: 500 }
-        );
+  if (existingTrainerResult.success) {
+    const updateResult = await updateTrainerProfile(existingTrainerResult.data.id, {
+      province: province || undefined,
+      city: city || undefined,
+      description: description || undefined,
+      places: place,
+      groups: group,
+      levels: level,
+      certifications: certifications.length > 0 ? certifications : undefined,
+    });
+
+    if (!updateResult.success) {
+      let statusCode: number;
+      let message: string;
+
+      switch (updateResult.error) {
+        case 'not-found':
+          statusCode = 404;
+          message = "No se encontró el perfil de entrenador.";
+          break;
+        case 'server-error':
+          statusCode = 500;
+          message = "Error al actualizar el perfil de entrenador.";
+          break;
+        default:
+          statusCode = 500;
+          message = "Error interno del servidor";
       }
 
       return NextResponse.json(
-        { 
-          message: "Información de entrenador actualizada exitosamente",
-          trainer
-        },
-        { status: 200 }
-      );
-    } else {
-      const trainer = await createTrainerProfile({
-        user_id: session.user.id,
-        province: province || null,
-        city: city || null,
-        description: description || null,
-        places: place,
-        groups: group,
-        levels: level,
-        certifications: certifications,
-        hourly_rate: null,
-      });
-
-      return NextResponse.json(
-        { 
-          message: "Información de entrenador guardada exitosamente",
-          trainer
-        },
-        { status: 201 }
-      );
-    }
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      const firstError = error.issues[0]?.message || "Datos de entrada inválidos";
-      return NextResponse.json(
-        { error: firstError, details: error.issues },
-        { status: 400 }
+        { error: updateResult.error, message },
+        { status: statusCode }
       );
     }
 
-    console.error("Error in trainer route:", error);
+    const updatedTrainerResult = await getTrainerByUserId(session.user.id);
+    if (!updatedTrainerResult.success) {
+      let statusCode: number;
+      let message: string;
+
+      switch (updatedTrainerResult.error) {
+        case 'not-found':
+          statusCode = 404;
+          message = "Error al obtener el perfil actualizado.";
+          break;
+        case 'server-error':
+          statusCode = 500;
+          message = "Error al obtener el perfil actualizado.";
+          break;
+        default:
+          statusCode = 500;
+          message = "Error interno del servidor";
+      }
+
+      return NextResponse.json(
+        { error: updatedTrainerResult.error, message },
+        { status: statusCode }
+      );
+    }
+
     return NextResponse.json(
-      { error: "Error interno del servidor. Por favor, intentá de nuevo." },
-      { status: 500 }
+      { 
+        message: "Información de entrenador actualizada exitosamente",
+        trainer: updatedTrainerResult.data
+      },
+      { status: 200 }
+    );
+  } else {
+    const createResult = await createTrainerProfile({
+      user_id: session.user.id,
+      province: province || null,
+      city: city || null,
+      description: description || null,
+      places: place,
+      groups: group,
+      levels: level,
+      certifications: certifications,
+      hourly_rate: null,
+    });
+
+    if (!createResult.success) {
+      let statusCode: number;
+      let message: string;
+
+      switch (createResult.error) {
+        case 'server-error':
+          statusCode = 500;
+          message = "Error al crear el perfil de entrenador.";
+          break;
+        default:
+          statusCode = 500;
+          message = "Error interno del servidor";
+      }
+
+      return NextResponse.json(
+        { error: createResult.error, message },
+        { status: statusCode }
+      );
+    }
+
+    // Fetch the created trainer with user data
+    const trainerResult = await getTrainerByUserId(session.user.id);
+    if (!trainerResult.success) {
+      let statusCode: number;
+      let message: string;
+
+      switch (trainerResult.error) {
+        case 'not-found':
+          statusCode = 404;
+          message = "Error al obtener el perfil creado.";
+          break;
+        case 'server-error':
+          statusCode = 500;
+          message = "Error al obtener el perfil creado.";
+          break;
+        default:
+          statusCode = 500;
+          message = "Error interno del servidor";
+      }
+
+      return NextResponse.json(
+        { error: trainerResult.error, message },
+        { status: statusCode }
+      );
+    }
+
+    return NextResponse.json(
+      { 
+        message: "Información de entrenador guardada exitosamente",
+        trainer: trainerResult.data
+      },
+      { status: 201 }
     );
   }
 }

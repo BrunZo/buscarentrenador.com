@@ -9,41 +9,58 @@ const updateUserSchema = z.object({
 });
 
 export async function PATCH(request: NextRequest) {
-  try {
-    const session = await auth();
-  
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: "No autorizado. Debes iniciar sesión." },
-        { status: 401 }
-      );
-    }
-
-    const body = await request.json();
-    const validatedData = updateUserSchema.parse(body);
-
-    const user = await updateUser(session.user.id, validatedData);
-    if (!user) {
-      return NextResponse.json(
-        { error: "No se encontró el usuario." },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json({ message: "Información actualizada correctamente." }, { status: 200 });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      const firstError = error.issues[0]?.message || "Datos de entrada inválidos";
-      return NextResponse.json(
-        { error: firstError, details: error.issues },
-        { status: 400 }
-      );
-    }
-
-    console.error("Error updating user:", error);
+  const session = await auth();  
+  if (!session?.user?.id) {
     return NextResponse.json(
-      { error: "Error interno del servidor. Por favor, intentá de nuevo." },
-      { status: 500 }
+      { error: "No autorizado. Debes iniciar sesión." },
+      { status: 401 }
     );
   }
+
+  const body = await request.json().catch(() => {
+    return NextResponse.json(
+      { error: "Cuerpo de solicitud inválido" },
+      { status: 400 }
+    );
+  });
+
+  const validation = updateUserSchema.safeParse(body);
+  if (!validation.success) {
+    const firstError = validation.error.issues[0]?.message || "Datos de entrada inválidos";
+    return NextResponse.json(
+      { error: firstError, details: validation.error.issues },
+      { status: 400 }
+    );
+  }
+  const validatedData = validation.data;
+
+  const result = await updateUser(session.user.id, validatedData);
+  if (!result.success) {
+    let statusCode: number;
+    let message: string;
+
+    switch (result.error) {
+      case 'not-found':
+        statusCode = 404;
+        message = "No se encontró el usuario.";
+        break;
+      case 'server-error':
+        statusCode = 500;
+        message = "Error interno del servidor. Por favor, intentá de nuevo.";
+        break;
+      default:
+        statusCode = 500;
+        message = "Error interno del servidor";
+    }
+
+    return NextResponse.json(
+      { error: result.error, message },
+      { status: statusCode }
+    );
+  }
+
+  return NextResponse.json(
+    { message: "Información actualizada correctamente." }, 
+    { status: 200 }
+  );
 }

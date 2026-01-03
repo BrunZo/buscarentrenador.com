@@ -5,73 +5,120 @@ import { sendVerificationEmail } from "@/lib/auth/email";
 import { z } from "zod";
 
 const resendSchema = z.object({
-    email: z.string().email({ message: "El correo electrónico no es válido" }),
+  email: z.string().email({ message: "El correo electrónico no es válido" }),
 });
 
 export async function POST(request: NextRequest) {
-    try {
-        const body = await request.json();
-        const { email } = resendSchema.parse(body);
+  const body = await request.json().catch(() => null);
+  if (!body) {
+    return NextResponse.json(
+      { error: "Cuerpo de solicitud inválido" },
+      { status: 400 }
+    );
+  }
 
-        // Get user to check if exists and get name
-        const user = await getUserByEmail(email);
-        if (!user) {
-            return NextResponse.json(
-                { error: "No existe una cuenta con este correo electrónico" },
-                { status: 404 }
-            );
-        }
+  const validation = resendSchema.safeParse(body);
+  if (!validation.success) {
+    const firstError = validation.error.issues[0]?.message || "Datos de entrada inválidos";
+    return NextResponse.json(
+      { error: firstError },
+      { status: 400 }
+    );
+  }
 
-        // Check if already verified
-        if (user.email_verified) {
-            return NextResponse.json(
-                { error: "El correo ya está verificado" },
-                { status: 400 }
-            );
-        }
+  const { email } = validation.data;
 
-        // Generate new token
-        const result = await generateVerificationToken(email);
+  const userResult = await getUserByEmail(email);
+  if (!userResult.success) {
+    let statusCode: number;
+    let message: string;
 
-        if (!result.success) {
-            return NextResponse.json(
-                { error: result.error },
-                { status: 400 }
-            );
-        }
-
-        // Send verification email
-        const emailResult = await sendVerificationEmail({
-            email: user.email,
-            name: user.name,
-            token: result.token!,
-        });
-
-        if (!emailResult.success) {
-            console.error('Failed to send verification email:', emailResult.error);
-            return NextResponse.json(
-                { error: "Error al enviar el correo de verificación. Por favor, intentá de nuevo más tarde." },
-                { status: 500 }
-            );
-        }
-
-        return NextResponse.json(
-            { message: "Correo de verificación enviado exitosamente" },
-            { status: 200 }
-        );
-    } catch (error) {
-        if (error instanceof z.ZodError) {
-            const firstError = error.issues[0]?.message || "Datos de entrada inválidos";
-            return NextResponse.json(
-                { error: firstError },
-                { status: 400 }
-            );
-        }
-
-        console.error('Error resending verification email:', error);
-        return NextResponse.json(
-            { error: "Error interno del servidor. Por favor, intentá de nuevo." },
-            { status: 500 }
-        );
+    switch (userResult.error) {
+      case 'not-found':
+        statusCode = 404;
+        message = "No existe una cuenta con este correo electrónico";
+        break;
+      case 'server-error':
+        statusCode = 500;
+        message = "Error interno del servidor. Por favor, intentá de nuevo.";
+        break;
+      default:
+        statusCode = 500;
+        message = "Error interno del servidor";
     }
+
+    return NextResponse.json(
+      { error: userResult.error, message },
+      { status: statusCode }
+    );
+  }
+
+  if (userResult.data.email_verified) {
+    return NextResponse.json(
+      { error: "El correo ya está verificado" },
+      { status: 400 }
+    );
+  }
+
+  const tokenResult = await generateVerificationToken(email);
+
+  if (!tokenResult.success) {
+    let statusCode: number;
+    let message: string;
+
+    switch (tokenResult.error) {
+      case 'user-not-found':
+        statusCode = 404;
+        message = "Usuario no encontrado";
+        break;
+      case 'already-verified':
+        statusCode = 400;
+        message = "El correo ya está verificado";
+        break;
+      case 'server-error':
+        statusCode = 500;
+        message = "Error al generar el token de verificación";
+        break;
+      default:
+        statusCode = 500;
+        message = "Error interno del servidor";
+    }
+
+    return NextResponse.json(
+      { error: tokenResult.error, message },
+      { status: statusCode }
+    );
+  }
+
+  const emailResult = await sendVerificationEmail({
+    email: userResult.data.email,
+    name: userResult.data.name,
+    token: tokenResult.data.token,
+  });
+
+  if (!emailResult.success) {
+    console.error('Failed to send verification email:', emailResult.error);
+    let statusCode: number;
+    let message: string;
+
+    switch (emailResult.error) {
+      case 'server-error':
+        statusCode = 500;
+        message = "Error al enviar el correo de verificación. Por favor, intentá de nuevo más tarde.";
+        break;
+      default:
+        statusCode = 500;
+        message = "Error interno del servidor";
+    }
+
+    return NextResponse.json(
+      { error: emailResult.error, message },
+      { status: statusCode }
+    );
+  }
+
+  return NextResponse.json(
+    { message: "Correo de verificación enviado exitosamente" },
+    { status: 200 }
+  );
 }

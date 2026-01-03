@@ -1,12 +1,19 @@
 import { Resend } from 'resend';
+import { Result } from '../model';
 
-interface SendVerificationEmailParams {
+/**
+ * Server actions:
+ * 
+ * sendVerificationEmail({ email, name, token })
+ *  returns: messageId
+ *  errors: server-error
+ */
+
+export async function sendVerificationEmail({ email, name, token }: {
   email: string;
   name: string;
   token: string;
-}
-
-export async function sendVerificationEmail({ email, name, token }: SendVerificationEmailParams) {
+}): Promise<Result<{ message_id: string; }, 'server-error'>> {
   const resend = new Resend(process.env.RESEND_API_KEY);
   const appUrl = process.env.NEXT_PUBLIC_APP_URL;
   const verificationUrl = `${appUrl}/verify-email?token=${token}`;
@@ -77,13 +84,12 @@ BuscarEntrenador.com - Tu plataforma para encontrar entrenadores matematicos
 
     if (error) {
       console.error('Error sending verification email:', error);
-      return { success: false, error };
+      return { success: false, error: 'server-error' };
     }
 
-    console.log('Verification email sent successfully:', data?.id);
-    return { success: true, messageId: data?.id };
+    return { success: true, data: { message_id: data?.id } };
   } catch (error) {
     console.error('Error sending verification email:', error);
-    return { success: false, error: 'Internal server error' };
+    return { success: false, error: 'server-error' };
   }
 }

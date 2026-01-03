@@ -15,11 +15,11 @@ export const authConfig: NextAuthConfig = {
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
-        const { success, user } = await verifyLogin(credentials.email, credentials.password);
-        if (!success || !user) {
+        const result = await verifyLogin(credentials.email, credentials.password);
+        if (!result.success) {
           return null;
         }
-        return user;
+        return result.data;
       }
     })
   ],

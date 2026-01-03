@@ -12,8 +12,10 @@ export default async function Page() {
     redirect('/login');
   }
 
-  // check if the user is a trainer
-  const trainer = await getTrainerByUserId(session.user.id);
+  const result = await getTrainerByUserId(session.user.id);
+  if (!result.success) {
+    redirect('/login');
+  }
 
   return (
     <div className='animate-fade-in'>
@@ -25,7 +27,7 @@ export default async function Page() {
           Gestioná tu información personal y perfil de entrenador
         </p>
       </div>
-      <Dashboard user={session.user} trainer={trainer}/>
+      <Dashboard user={session.user} trainer={result.data}/>
     </div>
   );
 };

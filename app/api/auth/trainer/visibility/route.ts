@@ -8,59 +8,118 @@ const visibilitySchema = z.object({
 });
 
 export async function PATCH(request: NextRequest) {
-  try {
-    const session = await auth();
-    
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: "No autorizado. Debes iniciar sesión." },
-        { status: 401 }
-      );
-    }
-
-    const body = await request.json();
-    const validatedData = visibilitySchema.parse(body);
-
-    const existingTrainer = await getTrainerByUserId(session.user.id);
-
-    if (!existingTrainer) {
-      return NextResponse.json(
-        { error: "No se encontró el perfil de entrenador." },
-        { status: 404 }
-      );
-    }
-
-    const trainer = await setTrainerVisibility(existingTrainer.id, validatedData.is_visible);
-
-    if (!trainer) {
-      return NextResponse.json(
-        { error: "Error al actualizar la visibilidad del perfil." },
-        { status: 500 }
-      );
-    }
-
+  const session = await auth();
+  
+  if (!session?.user?.id) {
     return NextResponse.json(
-      { 
-        message: validatedData.is_visible 
-          ? "Tu perfil ahora es visible para los usuarios." 
-          : "Tu perfil ha sido ocultado de las búsquedas.",
-        trainer
-      },
-      { status: 200 }
-    );
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      const firstError = error.issues[0]?.message || "Datos de entrada inválidos";
-      return NextResponse.json(
-        { error: firstError, details: error.issues },
-        { status: 400 }
-      );
-    }
-
-    console.error("Error in trainer visibility route:", error);
-    return NextResponse.json(
-      { error: "Error interno del servidor. Por favor, intentá de nuevo." },
-      { status: 500 }
+      { error: "No autorizado. Debes iniciar sesión." },
+      { status: 401 }
     );
   }
+
+  const body = await request.json().catch(() => null);
+  if (!body) {
+    return NextResponse.json(
+      { error: "Cuerpo de solicitud inválido" },
+      { status: 400 }
+    );
+  }
+
+  const validation = visibilitySchema.safeParse(body);
+  if (!validation.success) {
+    const firstError = validation.error.issues[0]?.message || "Datos de entrada inválidos";
+    return NextResponse.json(
+      { error: firstError, details: validation.error.issues },
+      { status: 400 }
+    );
+  }
+
+  const validatedData = validation.data;
+
+  const existingTrainerResult = await getTrainerByUserId(session.user.id);
+
+  if (!existingTrainerResult.success) {
+    let statusCode: number;
+    let message: string;
+
+    switch (existingTrainerResult.error) {
+      case 'not-found':
+        statusCode = 404;
+        message = "No se encontró el perfil de entrenador.";
+        break;
+      case 'server-error':
+        statusCode = 500;
+        message = "Error interno del servidor. Por favor, intentá de nuevo.";
+        break;
+      default:
+        statusCode = 500;
+        message = "Error interno del servidor";
+    }
+
+    return NextResponse.json(
+      { error: existingTrainerResult.error, message },
+      { status: statusCode }
+    );
+  }
+
+  const visibilityResult = await setTrainerVisibility(existingTrainerResult.data.id, validatedData.is_visible);
+
+  if (!visibilityResult.success) {
+    let statusCode: number;
+    let message: string;
+
+    switch (visibilityResult.error) {
+      case 'not-found':
+        statusCode = 404;
+        message = "No se encontró el perfil de entrenador.";
+        break;
+      case 'server-error':
+        statusCode = 500;
+        message = "Error al actualizar la visibilidad del perfil.";
+        break;
+      default:
+        statusCode = 500;
+        message = "Error interno del servidor";
+    }
+
+    return NextResponse.json(
+      { error: visibilityResult.error, message },
+      { status: statusCode }
+    );
+  }
+
+  const updatedTrainerResult = await getTrainerByUserId(session.user.id);
+  if (!updatedTrainerResult.success) {
+    let statusCode: number;
+    let message: string;
+
+    switch (updatedTrainerResult.error) {
+      case 'not-found':
+        statusCode = 404;
+        message = "Error al obtener el perfil actualizado.";
+        break;
+      case 'server-error':
+        statusCode = 500;
+        message = "Error al obtener el perfil actualizado.";
+        break;
+      default:
+        statusCode = 500;
+        message = "Error interno del servidor";
+    }
+
+    return NextResponse.json(
+      { error: updatedTrainerResult.error, message },
+      { status: statusCode }
+    );
+  }
+
+  return NextResponse.json(
+    { 
+      message: validatedData.is_visible 
+        ? "Tu perfil ahora es visible para los usuarios." 
+        : "Tu perfil ha sido ocultado de las búsquedas.",
+      trainer: updatedTrainerResult.data
+    },
+    { status: 200 }
+  );
 }

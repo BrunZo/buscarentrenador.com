@@ -7,7 +7,7 @@ import CardGrid from '@/app/ui/entrenadores/card';
 import Pagination from '@/app/ui/entrenadores/pagination';
 import LocationFilter from '@/app/ui/entrenadores/loc/location_filter';
 import { getTrainersByFilters } from '@/lib/data/trainers';
-
+import { redirect } from 'next/navigation';
 
 export default async function Page({ searchParams }: {
   searchParams: Promise<{
@@ -23,7 +23,7 @@ export default async function Page({ searchParams }: {
   const { query, city, prov, place, group, level, page } = await searchParams;
   
   const currentPage = Number(page || 1)
-  const trainers = await getTrainersByFilters({
+  const result = await getTrainersByFilters({
     query,
     city,
     prov,
@@ -31,6 +31,12 @@ export default async function Page({ searchParams }: {
     group: group ? group.split(',').map(v => v === 'true') : [false, false],
     level: level ? level.split(',').map(v => v === 'true') : [false, false, false, false, false],
   })
+
+  if (!result.success) {
+    redirect('/login');
+  }
+
+  const trainers = result.data;
 
   return (
     <div className='animate-fade-in'>

@@ -12,29 +12,29 @@ export default async function Page() {
     redirect('/login');
   }
 
-  const trainer = await getTrainerByUserId(session.user.id);
-
-  let defaultOptions = {
-    prov: '',
-    city: '',
-    description: '',
-    certifications: [''],
-    place: [false, false, false],
-    group: [false, false],
-    level: [false, false, false, false, false]
+  const result = await getTrainerByUserId(session.user.id);
+  if (!result.success) {
+    redirect('/login');
   }
 
-  if (trainer) {
-    defaultOptions = {
-      prov: trainer.province || '',
-      city: trainer.city || '',
-      description: trainer.description || '',
-      certifications: trainer.certifications && trainer.certifications.length > 0 ? trainer.certifications : [''],
-      place: trainer.places || [false, false, false],
-      group: trainer.groups || [false, false],
-      level: trainer.levels || [false, false, false, false, false]
-    };
-  }
+  const trainer = result.data;
+  const defaultOptions = {
+    prov: trainer.province || '',
+    city: trainer.city || '',
+    description: trainer.description || '',
+    certifications: trainer.certifications && trainer.certifications.length > 0 
+      ? trainer.certifications 
+      : [''],
+    place: trainer.places && trainer.places.length >= 3 
+      ? trainer.places.slice(0, 3) 
+      : [false, false, false],
+    group: trainer.groups && trainer.groups.length >= 2 
+      ? trainer.groups.slice(0, 2) 
+      : [false, false],
+    level: trainer.levels && trainer.levels.length >= 5 
+      ? trainer.levels.slice(0, 5) 
+      : [false, false, false, false, false]
+  };
 
   return (
     <div className='flex flex-col items-center'>

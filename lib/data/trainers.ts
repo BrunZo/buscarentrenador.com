@@ -1,155 +1,159 @@
 import { eq, and, or, desc, sql } from 'drizzle-orm';
 import { db } from '../db/index';
-import { trainers, users, type TrainerWithUser, type NewTrainer, Trainer } from '../db/schema';
+import { trainers, users, type TrainerWithUser, type NewTrainer } from '../db/schema';
+import { Result } from '../model';
+
+function getTrainerWithUserSelect() {
+  return {
+    id: trainers.id,
+    user_id: trainers.user_id,
+    name: users.name,
+    email: users.email,
+    surname: users.surname,
+    city: trainers.city,
+    province: trainers.province,
+    description: trainers.description,
+    hourly_rate: trainers.hourly_rate,
+    levels: trainers.levels,
+    places: trainers.places,
+    groups: trainers.groups,
+    certifications: trainers.certifications,
+    is_visible: trainers.is_visible,
+    created_at: trainers.created_at,
+    updated_at: trainers.updated_at,
+  };
+}
+
+/**
+ * Server actions:
+ * 
+ * createTrainerProfile(new_trainer)
+ *  returns: trainer_id  
+ *  errors: server-error
+ * 
+ * updateTrainerProfile(trainerId, updates)
+ *  returns: trainer
+ *  errors: not-found, server-error
+ * 
+ * getTrainerById(id)
+ *  returns: trainer
+ *  errors: not-found, server-error
+ * 
+ * getTrainerByUserId(userId)
+ *  returns: trainer
+ *  errors: not-found, server-error
+ * 
+ * getAllTrainers()
+ *  returns: trainers[]
+ *  errors: server-error
+ * 
+ * getTrainersByFilters(filters)
+ *  returns: trainers[]
+ *  errors: server-error
+ * 
+ * setTrainerVisibility(trainerId, isVisible)
+ *  returns: trainer
+ *  errors: not-found, server-error
+ */
 
 export async function createTrainerProfile(
   new_trainer: NewTrainer
-): Promise<Trainer> {
+): Promise<Result<{ trainer_id: number }, 'server-error'>> {
   try {
-    const [trainer] = await db
+    const result = await db
       .insert(trainers)
-      .values({
-        user_id: new_trainer.user_id,
-        city: new_trainer.city,
-        province: new_trainer.province,
-        description: new_trainer.description,
-        places: new_trainer.places,
-        groups: new_trainer.groups,
-        levels: new_trainer.levels,
-        hourly_rate: new_trainer.hourly_rate,
-        certifications: new_trainer.certifications,
-      })
-      .returning();
-    
-    return trainer;
+      .values(new_trainer)
+      .returning({ trainer_id: trainers.id });
+    const { trainer_id } = result[0];
+    return { success: true, data: { trainer_id } };
   } catch (error) {
     console.error("Error creating trainer profile:", error);
-    throw error;
+    return { success: false, error: 'server-error' };
   }
 }
 
 export async function updateTrainerProfile(
   trainerId: number,
   updates: Partial<Omit<TrainerWithUser, 'id' | 'user_id' | 'created_at' | 'updated_at' | 'name' | 'surname' | 'email'>>
-): Promise<TrainerWithUser | null> {
+): Promise<Result<{ trainer_id: number }, 'not-found' | 'server-error'>> {
   try {
-    const updatesWithoutUndefined: any = Object.fromEntries(Object.entries(updates).filter(([_, value]) => value !== undefined));
-    
+    const updatesWithoutUndefined: Partial<TrainerWithUser> = Object.fromEntries(Object.entries(updates).filter(([_, value]) => value !== undefined));
     if (Object.keys(updatesWithoutUndefined).length === 0) {
-      return null;
+      return { success: false, error: 'not-found' };
     }
-
     updatesWithoutUndefined.updated_at = new Date();
 
-    await db
+    const result = await db
       .update(trainers)
       .set(updatesWithoutUndefined)
-      .where(eq(trainers.id, trainerId));
-
-    // Reuse existing function to get trainer with user info
-    return await getTrainerById(trainerId);
+      .where(eq(trainers.id, trainerId))
+      .returning({ trainer_id: trainers.id });
+    
+    if (result.length === 0) {
+      return { success: false, error: 'not-found' };
+    }
+    
+    const { trainer_id } = result[0];
+    return { success: true, data: { trainer_id } };
   } catch (error) {
     console.error("Error updating trainer profile:", error);
-    return null;
+    return { success: false, error: 'server-error' };
   }
 }
 
-export async function getTrainerById(id: number): Promise<TrainerWithUser | null> {
+export async function getTrainerById(id: number): Promise<Result<TrainerWithUser, 'not-found' | 'server-error'>> {
   try {
     const [result] = await db
-      .select({
-        id: trainers.id,
-        user_id: trainers.user_id,
-        name: users.name,
-        email: users.email,
-        surname: users.surname,
-        city: trainers.city,
-        province: trainers.province,
-        description: trainers.description,
-        hourly_rate: trainers.hourly_rate,
-        levels: trainers.levels,
-        places: trainers.places,
-        groups: trainers.groups,
-        certifications: trainers.certifications,
-        is_visible: trainers.is_visible,
-        created_at: trainers.created_at,
-        updated_at: trainers.updated_at,
-      })
+      .select(getTrainerWithUserSelect())
       .from(trainers)
       .innerJoin(users, eq(trainers.user_id, users.id))
       .where(eq(trainers.id, id))
       .limit(1);
     
-    return result || null;
+    if (!result) {
+      return { success: false, error: 'not-found' };
+    }
+
+    return { success: true, data: result };
   } catch (error) {
     console.error("Error getting trainer by id:", error);
-    return null;
+    return { success: false, error: 'server-error' };
   }
 }
 
-export async function getTrainerByUserId(userId: number): Promise<TrainerWithUser | null> {
+export async function getTrainerByUserId(userId: number): Promise<Result<TrainerWithUser, 'not-found' | 'server-error'>> {
   try {
     const [result] = await db
-      .select({
-        id: trainers.id,
-        user_id: trainers.user_id,
-        name: users.name,
-        email: users.email,
-        surname: users.surname,
-        city: trainers.city,
-        province: trainers.province,
-        description: trainers.description,
-        hourly_rate: trainers.hourly_rate,
-        levels: trainers.levels,
-        places: trainers.places,
-        groups: trainers.groups,
-        certifications: trainers.certifications,
-        is_visible: trainers.is_visible,
-        created_at: trainers.created_at,
-        updated_at: trainers.updated_at,
-      })
+      .select(getTrainerWithUserSelect())
       .from(trainers)
       .innerJoin(users, eq(trainers.user_id, users.id))
       .where(eq(trainers.user_id, userId))
       .limit(1);
     
-    return result || null;
+    if (!result) {
+      return { success: false, error: 'not-found' };
+    }
+
+    return { success: true, data: result };
   } catch (error) {
     console.error("Error getting trainer by user id:", error);
-    return null;
+    return { success: false, error: 'server-error' };
   }
 }
 
-export async function getAllTrainers(): Promise<TrainerWithUser[]> {
+export async function getAllTrainers(): Promise<Result<TrainerWithUser[], 'server-error'>> {
   try {
     const result = await db
-      .select({
-        id: trainers.id,
-        user_id: trainers.user_id,
-        name: users.name,
-        email: users.email,
-        surname: users.surname,
-        city: trainers.city,
-        province: trainers.province,
-        description: trainers.description,
-        hourly_rate: trainers.hourly_rate,
-        levels: trainers.levels,
-        places: trainers.places,
-        groups: trainers.groups,
-        certifications: trainers.certifications,
-        is_visible: trainers.is_visible,
-        created_at: trainers.created_at,
-        updated_at: trainers.updated_at,
-      })
+      .select(getTrainerWithUserSelect())
       .from(trainers)
       .innerJoin(users, eq(trainers.user_id, users.id))
       .where(eq(trainers.is_visible, true))
       .orderBy(desc(trainers.created_at));
     
-    return result;
+    return { success: true, data: result };
   } catch (error) {
     console.error("Error getting all trainers:", error);
-    return [];
+    return { success: false, error: 'server-error' };
   }
 }
 
@@ -160,7 +164,7 @@ export async function getTrainersByFilters(filters: {
   place: boolean[],
   group: boolean[],
   level: boolean[]
-}): Promise<TrainerWithUser[]> {
+}): Promise<Result<TrainerWithUser[], 'server-error'>> {
   try {
     const conditions = [];
 
@@ -227,50 +231,38 @@ export async function getTrainersByFilters(filters: {
     }
 
     const result = await db
-      .select({
-        id: trainers.id,
-        user_id: trainers.user_id,
-        name: users.name,
-        email: users.email,
-        surname: users.surname,
-        city: trainers.city,
-        province: trainers.province,
-        description: trainers.description,
-        hourly_rate: trainers.hourly_rate,
-        levels: trainers.levels,
-        places: trainers.places,
-        groups: trainers.groups,
-        certifications: trainers.certifications,
-        is_visible: trainers.is_visible,
-        created_at: trainers.created_at,
-        updated_at: trainers.updated_at,
-      })
+      .select(getTrainerWithUserSelect())
       .from(trainers)
       .innerJoin(users, eq(trainers.user_id, users.id))
       .where(and(...conditions))
       .orderBy(desc(trainers.created_at));
     
-    return result;
+    return { success: true, data: result };
   } catch (error) {
     console.error("Error getting trainers by filters:", error);
-    return [];
+    return { success: false, error: 'server-error' };
   }
 }
 
-export async function setTrainerVisibility(trainerId: number, isVisible: boolean): Promise<TrainerWithUser | null> {
+export async function setTrainerVisibility(trainerId: number, isVisible: boolean): Promise<Result<{ trainer_id: number }, 'not-found' | 'server-error'>> {
   try {
-    await db
+    const result = await db
       .update(trainers)
       .set({
         is_visible: isVisible,
         updated_at: new Date(),
       })
-      .where(eq(trainers.id, trainerId));
+      .where(eq(trainers.id, trainerId))
+      .returning({ trainer_id: trainers.id });
+    
+    if (result.length === 0) {
+      return { success: false, error: 'not-found' };
+    }
 
-    // Reuse existing function to get trainer with user info
-    return await getTrainerById(trainerId);
+    const { trainer_id } = result[0];
+    return { success: true, data: { trainer_id } };
   } catch (error) {
     console.error("Error setting trainer visibility:", error);
-    return null;
+    return { success: false, error: 'server-error' };
   }
 }
