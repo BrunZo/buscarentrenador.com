@@ -7,16 +7,8 @@ interface SendVerificationEmailParams {
 }
 
 export async function sendVerificationEmail({ email, name, token }: SendVerificationEmailParams) {
-  const apiKey = process.env.RESEND_API_KEY;
-
-  if (!apiKey) {
-    console.error('RESEND_API_KEY is missing in environment variables');
-    // Returning false instead of crashing allows the app to continue (though email fails)
-    return { success: false, error: 'Configuration Error: Missing Email API Key' };
-  }
-
-  const resend = new Resend(apiKey);
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
   const verificationUrl = `${appUrl}/verify-email?token=${token}`;
 
   const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
@@ -92,6 +84,6 @@ BuscarEntrenador.com - Tu plataforma para encontrar entrenadores matematicos
     return { success: true, messageId: data?.id };
   } catch (error) {
     console.error('Error sending verification email:', error);
-    return { success: false, error };
+    return { success: false, error: 'Internal server error' };
   }
 }

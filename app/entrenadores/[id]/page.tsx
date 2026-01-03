@@ -1,7 +1,7 @@
 'use server';
 
 import Info from "@/app/ui/entrenadores/info";
-import { getTrainerById } from "@/lib/trainers";
+import { getTrainerById } from "@/lib/data/trainers";
 import { notFound } from "next/navigation";
 
 export default async function Page({ params }: {

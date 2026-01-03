@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createUser, getUserByEmail } from "@/lib/auth";
-import { sendVerificationEmail } from "@/lib/email";
+import { createUser, getUserByEmail } from "@/lib/auth/users";
+import { sendVerificationEmail } from "@/lib/auth/email";
 import { z } from "zod";
 
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;

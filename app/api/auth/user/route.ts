@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import pool from "@/lib/db";
+import { auth } from "@/lib/auth/next-auth.config";
+import { updateUser } from "@/lib/auth/users";
 import { z } from "zod";
 
 const updateUserSchema = z.object({
@@ -11,7 +11,7 @@ const updateUserSchema = z.object({
 export async function PATCH(request: NextRequest) {
   try {
     const session = await auth();
-    
+  
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: "No autorizado. Debes iniciar sesión." },
@@ -22,35 +22,15 @@ export async function PATCH(request: NextRequest) {
     const body = await request.json();
     const validatedData = updateUserSchema.parse(body);
 
-    const client = await pool.connect();
-    
-    try {
-      // Update user name and surname
-      const updateResult = await client.query(
-        `UPDATE users 
-         SET name = $1, surname = $2, updated_at = CURRENT_TIMESTAMP 
-         WHERE id = $3 
-         RETURNING id, email, name, surname`,
-        [validatedData.name, validatedData.surname, session.user.id]
-      );
-
-      if (updateResult.rows.length === 0) {
-        return NextResponse.json(
-          { error: "No se encontró el usuario." },
-          { status: 404 }
-        );
-      }
-
+    const user = await updateUser(session.user.id, validatedData);
+    if (!user) {
       return NextResponse.json(
-        { 
-          message: "Información actualizada correctamente.",
-          user: updateResult.rows[0]
-        },
-        { status: 200 }
+        { error: "No se encontró el usuario." },
+        { status: 404 }
       );
-    } finally {
-      client.release();
     }
+
+    return NextResponse.json({ message: "Información actualizada correctamente." }, { status: 200 });
   } catch (error) {
     if (error instanceof z.ZodError) {
       const firstError = error.issues[0]?.message || "Datos de entrada inválidos";

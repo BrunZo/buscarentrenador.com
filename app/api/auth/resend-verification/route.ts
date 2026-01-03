@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { regenerateVerificationToken, getUserByEmail } from "@/lib/auth";
-import { sendVerificationEmail } from "@/lib/email";
+import { generateVerificationToken } from "@/lib/auth/verification_tokens";
+import { getUserByEmail } from "@/lib/auth/users";
+import { sendVerificationEmail } from "@/lib/auth/email";
 import { z } from "zod";
 
 const resendSchema = z.object({
@@ -30,7 +31,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Generate new token
-        const result = await regenerateVerificationToken(email);
+        const result = await generateVerificationToken(email);
 
         if (!result.success) {
             return NextResponse.json(

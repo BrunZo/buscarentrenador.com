@@ -2,8 +2,8 @@
 
 import UpdateUserForm from '../ui/soy-entrenador/update_user_form';
 import { redirect } from 'next/navigation';
-import { auth } from '@/lib/auth';
-import { getTrainerByUserId } from '@/lib/trainers';
+import { auth } from '@/lib/auth/next-auth.config';
+import { getTrainerByUserId } from '@/lib/data/trainers';
 
 export default async function Page() {
   const session = await auth();
@@ -26,13 +26,13 @@ export default async function Page() {
 
   if (trainer) {
     defaultOptions = {
-      prov: trainer.province,
-      city: trainer.city,
+      prov: trainer.province || '',
+      city: trainer.city || '',
       description: trainer.description || '',
       certifications: trainer.certifications && trainer.certifications.length > 0 ? trainer.certifications : [''],
-      place: trainer.places,
-      group: trainer.groups,
-      level: trainer.levels
+      place: trainer.places || [false, false, false],
+      group: trainer.groups || [false, false],
+      level: trainer.levels || [false, false, false, false, false]
     };
   }
 

@@ -6,7 +6,7 @@ import trainerFilters from '@/app/ui/entrenadores/filters/trainer_filters';
 import CardGrid from '@/app/ui/entrenadores/card';
 import Pagination from '@/app/ui/entrenadores/pagination';
 import LocationFilter from '@/app/ui/entrenadores/loc/location_filter';
-import { getTrainersByFilters } from '@/lib/trainers';
+import { getTrainersByFilters } from '@/lib/data/trainers';
 
 
 export default async function Page({ searchParams }: {
