@@ -1,4 +1,7 @@
+'use client';
+
 import { Message } from '@/types/messages';
+import { useState, useEffect } from 'react';
 
 interface MessageBubbleProps {
   message: Message;
@@ -6,11 +9,17 @@ interface MessageBubbleProps {
 }
 
 export default function MessageBubble({ message, isOwn }: MessageBubbleProps) {
+  const [formattedTime, setFormattedTime] = useState('');
+  console.log(message)
   const formatTime = (date: Date) => {
     const now = new Date();
+    console.log("now", now)
     const messageDate = new Date(date);
+    console.log("message_time", messageDate)
     const diffInMs = now.getTime() - messageDate.getTime();
+    console.log(diffInMs)
     const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+    console.log(diffInMinutes)
     const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
     const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
     
@@ -32,6 +41,18 @@ export default function MessageBubble({ message, isOwn }: MessageBubbleProps) {
     }
   };
 
+  useEffect(() => {
+    // Update time immediately
+    setFormattedTime(formatTime(message.created_at));
+
+    // Update every 30 seconds
+    const interval = setInterval(() => {
+      setFormattedTime(formatTime(message.created_at));
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, [message.created_at]);
+
   return (
     <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'} mb-4`}>
       <div className={`flex flex-col max-w-[70%] ${isOwn ? 'items-end' : 'items-start'}`}>
@@ -50,7 +71,7 @@ export default function MessageBubble({ message, isOwn }: MessageBubbleProps) {
           <p className='text-sm wrap-break-words whitespace-pre-wrap'>{message.content}</p>
         </div>
         <span className='text-xs text-gray-400 mt-1 px-3'>
-          {formatTime(message.created_at)}
+          {formattedTime}
         </span>
       </div>
     </div>
