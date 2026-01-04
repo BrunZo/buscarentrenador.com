@@ -30,7 +30,7 @@ export async function hashPassword(password: string): Promise<string> {
 export async function createUser(email: string, password: string, name: string, surname: string): Promise<User> {
   const hashedPassword = await hashPassword(password);
 
-  const existingUser = await getUserByEmail(email);
+  const existingUser = await getUserByEmail(email).catch(() => null);
   if (existingUser) {
     throw new UserAlreadyExistsError();
   }
