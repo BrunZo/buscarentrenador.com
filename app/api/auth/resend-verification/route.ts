@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     const { email } = resendSchema.parse(body);
     const user = await getUserByEmail(email);
     const token = await generateVerificationToken(email);
-    await sendVerificationEmail({ email, name: user.name, token: token.token });
+    await sendVerificationEmail({ email, name: user.name, token });
     return NextResponse.json(
       { message: "Correo de verificación enviado exitosamente" },
       { status: 200 }

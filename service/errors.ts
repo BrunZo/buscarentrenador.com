@@ -58,6 +58,13 @@ export class TokenExpiredError extends Error {
   }
 }
 
+export class UserAlreadyExistsError extends Error {
+  constructor() { 
+    super("User already exists");
+    this.name = "UserAlreadyExistsError";
+  }
+}
+
 export class TrainerNotFoundError extends Error {
   constructor() { 
     super("Trainer not found");

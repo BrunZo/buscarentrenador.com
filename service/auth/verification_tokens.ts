@@ -20,7 +20,7 @@ export function generateRandomToken(): string {
   return crypto.randomBytes(32).toString('hex');
 }
 
-export async function generateVerificationToken(email: string): Promise<{ token: string }> {
+export async function generateVerificationToken(email: string): Promise<string> {
   const [user] = await db
     .select({
       id: users.id,
@@ -51,7 +51,7 @@ export async function generateVerificationToken(email: string): Promise<{ token:
     expires: tokenExpires,
   });
 
-  return { token: newToken };
+  return newToken;
 }
 
 export async function verifyUserEmail(token: string): Promise<void> {

@@ -1,7 +1,7 @@
 'use client'
 
 import { LockClosedIcon, UserIcon } from '@heroicons/react/24/outline';
-import { useRouter } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 import { useState, ChangeEvent } from 'react';
 import Link from 'next/link';
 import Button from '@/app/ui/form/button';
@@ -11,7 +11,6 @@ import PasswordStrengthIndicator from '@/app/ui/signup/password_strength_indicat
 import validateForm from '@/app/ui/signup/client_validation';
 
 export default function SignupForm() {
-  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -59,14 +58,13 @@ export default function SignupForm() {
       } else {
         setSuccess(data.message || '¡Cuenta creada exitosamente! Te enviamos un correo de verificación. Por favor, revisá tu bandeja de entrada.');
         setPassword('');
-        // Don't auto-redirect - let user read the message about checking email
         setEmail('');
         setPassword('');
         setRepeat('');
         setName('');
         setSurname('');
         setFieldErrors({});
-        return;
+        redirect('/login');
       }
     } catch (error) {
       setError('Ocurrió un error. Por favor, intentá de nuevo.');

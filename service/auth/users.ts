@@ -2,7 +2,7 @@ import { hash } from "bcrypt";
 import { eq } from "drizzle-orm";
 import { db } from "../db/index";
 import { users, type User } from "../db/schema";
-import { UserNotFoundError } from "../errors";
+import { UserNotFoundError, UserAlreadyExistsError } from "../errors";
 
 /**
  * Server actions:
@@ -29,6 +29,12 @@ export async function hashPassword(password: string): Promise<string> {
 
 export async function createUser(email: string, password: string, name: string, surname: string): Promise<User> {
   const hashedPassword = await hashPassword(password);
+
+  const existingUser = await getUserByEmail(email);
+  if (existingUser) {
+    throw new UserAlreadyExistsError();
+  }
+
   const [result] = await db
     .insert(users)
     .values({

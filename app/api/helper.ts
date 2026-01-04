@@ -9,7 +9,8 @@ import {
   TrainerNotFoundError,
   ServerError,
   JsonError,
-  UnauthorizedError
+  UnauthorizedError,
+  UserAlreadyExistsError
 } from "@/service/errors";
 import { ZodError } from "zod";
 
@@ -60,6 +61,13 @@ export function handleServiceError(error: unknown): NextResponse {
   if (error instanceof AlreadyVerifiedError) {
     return NextResponse.json(
       { error: "El correo ya está verificado" },
+      { status: 400 }
+    );
+  }
+
+  if (error instanceof UserAlreadyExistsError) {
+    return NextResponse.json(
+      { error: "El correo electrónico ya está en uso" },
       { status: 400 }
     );
   }

@@ -17,7 +17,7 @@ export async function signupUser(
     surname: string
 ): Promise<{ user_id: number }> {
   const user = await createUser(email, password, name, surname);
-  const { token } = await generateVerificationToken(email);
+  const token = await generateVerificationToken(email);
   await sendVerificationEmail({
     email: user.email,
     name: user.name,
