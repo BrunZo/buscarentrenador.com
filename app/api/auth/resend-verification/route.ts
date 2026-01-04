@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateVerificationToken } from "@/service/auth/verification_tokens";
-import { getUserByEmail } from "@/service/auth/users";
+import { getUserByEmail } from "@/service/data/users";
 import { sendVerificationEmail } from "@/service/auth/email";
 import { z } from "zod";
 import { handleServiceError } from "../../helper";

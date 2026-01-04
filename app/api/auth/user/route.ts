@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/service/auth/next-auth.config";
-import { updateUser } from "@/service/auth/users";
+import { updateUser } from "@/service/data/users";
 import { z } from "zod";
 import { handleServiceError } from "../../helper";
 import { JsonError, UnauthorizedError } from "@/service/errors";

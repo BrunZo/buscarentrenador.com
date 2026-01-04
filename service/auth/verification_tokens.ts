@@ -1,90 +1,50 @@
-import crypto from "crypto";
-import { eq } from "drizzle-orm";
-import { db } from "../db/index";
-import { users, verificationTokens } from "../db/schema";
-import { UserNotFoundError, AlreadyVerifiedError, InvalidTokenError, TokenExpiredError } from "../errors";
+import { AlreadyVerifiedError, TokenExpiredError, InvalidTokenError } from "../errors";
+import { getUserByEmail, setEmailVerifiedByUser } from "../data/users";
+import { createVerificationToken, deleteVerificationTokenByUser, getUserByToken } from "../data/verification_tokens";
+import { generateRandomToken } from "../crypto";
 
 /**
- * Server actions:
  * 
- * generateVerificationToken(email)
- *  returns: token
- *  errors: UserNotFoundError, AlreadyVerifiedError
- * 
- * verifyUserEmail(token)
- *  returns: void
- *  errors: InvalidTokenError, AlreadyVerifiedError, TokenExpiredError
+ * - Finds a user with the provided email
+ * - Generates a random verification token
+ * - Adds it to the verification tokens table for the found user
+ * - Deletes all previous verification token for that user.
+ * @param email 
+ * @returns The newly generated token
+ * @throws UserNotFound - if there's no user with provided email
+ * @throws AlreadyVerifiedError - if the user's email is already verified.
  */
-
-export function generateRandomToken(): string {
-  return crypto.randomBytes(32).toString('hex');
-}
-
 export async function generateVerificationToken(email: string): Promise<string> {
-  const [user] = await db
-    .select({
-      id: users.id,
-      email_verified: users.email_verified,
-    })
-    .from(users)
-    .where(eq(users.email, email))
-    .limit(1);
-
-  if (!user) {
-    throw new UserNotFoundError();
-  }
-
-  if (user.email_verified) {
+  const user = await getUserByEmail(email);
+  if (user.email_verified)
     throw new AlreadyVerifiedError();
-  }
 
-  await db
-    .delete(verificationTokens)
-    .where(eq(verificationTokens.user_id, user.id));
+  await deleteVerificationTokenByUser(user.id);
 
   const newToken = generateRandomToken();
   const tokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
-
-  await db.insert(verificationTokens).values({
-    user_id: user.id,
-    token: newToken,
-    expires: tokenExpires,
-  });
-
+  await createVerificationToken(user.id, newToken, tokenExpires)
   return newToken;
 }
 
-export async function verifyUserEmail(token: string): Promise<void> {
-  const [tokenData] = await db
-    .select({
-      id: users.id,
-      email: users.email,
-      email_verified: users.email_verified,
-      expires: verificationTokens.expires,
-    })
-    .from(verificationTokens)
-    .innerJoin(users, eq(verificationTokens.user_id, users.id))
-    .where(eq(verificationTokens.token, token))
-    .limit(1);
-
-  if (!tokenData) {
+/**
+ * Verifies the user corresponding to the provided token. Deletes it if verification is successful.
+ * @param email 
+ * @throws InvalidTokenError - if there's no such token
+ * @throws AlreadyVerifiedError - if the user's email is already verified.
+ * @throws TokenExpiredError - if the token has already expired.
+ */
+export async function verifyUserEmail(token: string) {
+  const tokenData = await getUserByToken(token);
+  if (!tokenData)
     throw new InvalidTokenError();
-  }
-
-  if (tokenData.email_verified) {
+  
+  if (tokenData.email_verified)
     throw new AlreadyVerifiedError();
-  }
 
-  if (new Date() > new Date(tokenData.expires)) {
+  if (new Date() > new Date(tokenData.expires))
     throw new TokenExpiredError();
-  }
 
-  await db
-    .update(users)
-    .set({ email_verified: true })
-    .where(eq(users.id, tokenData.id));
-
-  await db
-    .delete(verificationTokens)
-    .where(eq(verificationTokens.token, token));
+  await setEmailVerifiedByUser(tokenData.id);
+  await deleteVerificationTokenByUser(tokenData.id);
 }

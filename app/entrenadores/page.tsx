@@ -28,7 +28,7 @@ export default async function Page({ searchParams }: {
     trainers = await getTrainersByFilters({
       query,
       city,
-      prov,
+      province: prov,
       place: place ? place.split(',').map(v => v === 'true') : [false, false, false],
       group: group ? group.split(',').map(v => v === 'true') : [false, false],
       level: level ? level.split(',').map(v => v === 'true') : [false, false, false, false, false],

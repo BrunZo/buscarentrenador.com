@@ -1,15 +1,23 @@
 import { sendVerificationEmail } from "./email";
-import { createUser } from "./users";
+import { createUser } from "../data/users";
 import { generateVerificationToken } from "./verification_tokens";
 
 /**
- * Server actions:
+ * Full signup flow:
+ *  Creates user with provided email, password, name and surname
+ *  Generates a random verification token.
+ *  Sends it to the provided email address.
+ * @param email 
+ * @param password 
+ * @param name 
+ * @param surname 
+ * @returns The registered user's id.
+ * @throws EmailAlreadyInUseError
  * 
- * signupUser(email, password, name, surname)
- *  returns: user_id
- *  errors: ServerError
+ * Dev notes: 
+ * - the method generateVerificationToken could throw UserNotFound or AlreadyVerifiedError, but this is not to be expected except the createUser method is not working properly.
+ * - the sendVerifcationEmail method could throw a ServerError if something is wrong with the email sender. 
  */
-
 export async function signupUser(
     email: string, 
     password: string, 

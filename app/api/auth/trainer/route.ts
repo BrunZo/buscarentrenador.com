@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/service/auth/next-auth.config";
-import { getTrainerByUserId, updateTrainerProfile } from "@/service/data/trainers";
+import { getTrainerByUserId, updateTrainer } from "@/service/data/trainers";
 import { z } from "zod";
 import { handleServiceError } from "../../helper";
 import { JsonError, UnauthorizedError } from "@/service/errors";
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json().catch(() => { throw new JsonError(); });
     const data = trainerSchema.parse(body);
     const trainer = await getTrainerByUserId(session.user.id);
-    await updateTrainerProfile(trainer.id, data);
+    await updateTrainer(trainer.id, data);
     return NextResponse.json({ message: "Información de entrenador guardada exitosamente" }, { status: 201 });
   } catch (error) {
     return handleServiceError(error);

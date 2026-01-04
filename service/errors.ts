@@ -58,10 +58,10 @@ export class TokenExpiredError extends Error {
   }
 }
 
-export class UserAlreadyExistsError extends Error {
+export class EmailAlreadyInUseError extends Error {
   constructor() { 
-    super("User already exists");
-    this.name = "UserAlreadyExistsError";
+    super("Email already in use");
+    this.name = "EmailAlreadyInUseError";
   }
 }
 

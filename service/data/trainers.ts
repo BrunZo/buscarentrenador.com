@@ -25,71 +25,79 @@ function getTrainerWithUserSelect() {
 }
 
 /**
- * Server actions:
- * 
- * createTrainerProfile(new_trainer)
- *  returns: trainer_id  
- *  errors: TrainerNotFoundError
- * 
- * updateTrainerProfile(trainerId, updates)
- *  returns: trainer
- *  errors: TrainerNotFoundError
- * 
- * getTrainerById(id)
- *  returns: trainer
- *  errors: TrainerNotFoundError
- * 
- * getTrainerByUserId(userId)
- *  returns: trainer
- *  errors: TrainerNotFoundError
- * 
- * getAllTrainers()
- *  returns: trainers[]
- *  errors: TrainerNotFoundError
- * 
- * getTrainersByFilters(filters)
- *  returns: trainers[]
- *  errors: TrainerNotFoundError
- * 
- * setTrainerVisibility(trainerId, isVisible)
- *  returns: trainer
- *  errors: TrainerNotFoundError
+ * @param new_trainer 
+ * @returns The new trainer ID. 
  */
-
-export async function createTrainerProfile(
+export async function createTrainer(
   new_trainer: NewTrainer
 ): Promise<{ trainer_id: number }> {
-  const [result] = await db
+  const [trainer_id] = await db
     .insert(trainers)
     .values(new_trainer)
     .returning({ trainer_id: trainers.id });
-  return result;
+
+  return trainer_id;
 }
 
-export async function updateTrainerProfile(
+/**
+ * 
+ * @param trainerId 
+ * @param updates 
+ * @returns 
+ * @throws TrainerNotFoundError 
+ */
+export async function updateTrainer(
   trainerId: number,
   updates: Partial<Omit<TrainerWithUser, 'id' | 'user_id' | 'created_at' | 'updated_at' | 'name' | 'surname' | 'email'>>
 ): Promise<{ trainer_id: number }> {
   const updatesWithoutUndefined: Partial<TrainerWithUser> = Object.fromEntries(Object.entries(updates).filter(([_, value]) => value !== undefined));
-  if (Object.keys(updatesWithoutUndefined).length === 0) {
-    throw new TrainerNotFoundError();
-  }
   updatesWithoutUndefined.updated_at = new Date();
 
-  const result = await db
+  const [trainer_id] = await db
     .update(trainers)
     .set(updatesWithoutUndefined)
     .where(eq(trainers.id, trainerId))
     .returning({ trainer_id: trainers.id });
   
-  if (result.length === 0) {
+  if (!trainer_id) {
     throw new TrainerNotFoundError();
   }
   
-  const { trainer_id } = result[0];
-  return { trainer_id };
+  return trainer_id;
 }
 
+/**
+ * Light-weight method to modify the visibility of a trainer.
+ * If the @param isVisible is provided, then the visibility will be set to that value.
+ * Otherwise, the visibility would be toggled (true <-> false).
+ * @param trainerId 
+ * @param isVisible
+ * @returns 
+ * @throws TrainerNotFoundError 
+ */
+export async function setTrainerVisibility(trainerId: number, isVisible: boolean): Promise<{ trainer_id: number }> {
+  const [result] = await db
+    .update(trainers)
+    .set({
+      is_visible: isVisible,
+      updated_at: new Date(),
+    })
+    .where(eq(trainers.id, trainerId))
+    .returning({ trainer_id: trainers.id });
+  
+  if (!result) {
+    throw new TrainerNotFoundError();
+  }
+
+  return result;
+}
+
+/**
+ * 
+ * @param id 
+ * @returns TrainerWithUser object
+ * @throws TrainerNotFoundError 
+ */
 export async function getTrainerById(id: number): Promise<TrainerWithUser> {
   const [result] = await db 
     .select(getTrainerWithUserSelect())
@@ -105,6 +113,12 @@ export async function getTrainerById(id: number): Promise<TrainerWithUser> {
   return result;
 }
 
+/**
+ * 
+ * @param user_id 
+ * @returns TrainerWithUser object
+ * @throws TrainerNotFoundError 
+ */
 export async function getTrainerByUserId(userId: number): Promise<TrainerWithUser> {
   const [result] = await db
     .select(getTrainerWithUserSelect())
@@ -120,6 +134,29 @@ export async function getTrainerByUserId(userId: number): Promise<TrainerWithUse
   return result;
 }
 
+/**
+ * 
+ * @param user_id 
+ * @returns TrainerWithUser object
+ * @throws TrainerNotFoundError 
+ */
+export async function isUserTrainer(userId: number): Promise<boolean> {
+  const [result] = await db
+    .select(getTrainerWithUserSelect())
+    .from(trainers)
+    .innerJoin(users, eq(trainers.user_id, users.id))
+    .where(eq(trainers.user_id, userId))
+    .limit(1);
+
+  if (!result)
+    return false;
+  return true;
+}
+
+/**
+ * 
+ * @returns A list of TrainerWithUser objects
+ */
 export async function getAllTrainers(): Promise<TrainerWithUser[]> {
   const result = await db
     .select(getTrainerWithUserSelect())
@@ -131,10 +168,14 @@ export async function getAllTrainers(): Promise<TrainerWithUser[]> {
   return result;
 }
 
+/**
+ * 
+ * @returns A list of TrainerWithUser objects
+ */
 export async function getTrainersByFilters(filters: {
   query?: string,
   city?: string,
-  prov?: string,
+  province?: string,
   place: boolean[],
   group: boolean[],
   level: boolean[]
@@ -153,8 +194,8 @@ export async function getTrainersByFilters(filters: {
     conditions.push(eq(trainers.city, filters.city));
   }
 
-  if (filters.prov) {
-    conditions.push(eq(trainers.province, filters.prov));
+  if (filters.province) {
+    conditions.push(eq(trainers.province, filters.province));
   }
 
   if (filters.place.some(v => v === true)) {
@@ -213,19 +254,3 @@ export async function getTrainersByFilters(filters: {
   return result;
 }
 
-export async function setTrainerVisibility(trainerId: number, isVisible: boolean): Promise<{ trainer_id: number }> {
-  const [result] = await db
-    .update(trainers)
-    .set({
-      is_visible: isVisible,
-      updated_at: new Date(),
-    })
-    .where(eq(trainers.id, trainerId))
-    .returning({ trainer_id: trainers.id });
-  
-  if (!result) {
-    throw new TrainerNotFoundError();
-  }
-
-  return result;
-}

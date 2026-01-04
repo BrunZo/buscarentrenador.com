@@ -10,7 +10,7 @@ import {
   ServerError,
   JsonError,
   UnauthorizedError,
-  UserAlreadyExistsError
+  EmailAlreadyInUseError
 } from "@/service/errors";
 import { ZodError } from "zod";
 
@@ -65,7 +65,7 @@ export function handleServiceError(error: unknown): NextResponse {
     );
   }
 
-  if (error instanceof UserAlreadyExistsError) {
+  if (error instanceof EmailAlreadyInUseError) {
     return NextResponse.json(
       { error: "El correo electrónico ya está en uso" },
       { status: 400 }
