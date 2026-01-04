@@ -7,32 +7,27 @@ import { getTrainerByUserId } from '@/service/data/trainers';
 
 export default async function Page() {
   const session = await auth();
-
   if (!session?.user) {
     redirect('/login');
   }
 
-  let trainer;
-  try {
-    trainer = await getTrainerByUserId(session.user.id);
-  } catch (error) {
-    redirect('/login');
-  }
+  const trainer = await getTrainerByUserId(session.user.id).catch(() => null);
+
   const defaultOptions = {
-    prov: trainer.province || '',
-    city: trainer.city || '',
-    description: trainer.description || '',
-    certifications: trainer.certifications && trainer.certifications.length > 0 
-      ? trainer.certifications 
+    prov: trainer?.province || '',
+    city: trainer?.city || '',
+    description: trainer?.description || '',
+    certifications: trainer?.certifications && trainer?.certifications.length > 0 
+      ? trainer?.certifications 
       : [''],
-    place: trainer.places && trainer.places.length >= 3 
-      ? trainer.places.slice(0, 3) 
+    place: trainer?.places && trainer?.places.length >= 3 
+      ? trainer?.places.slice(0, 3) 
       : [false, false, false],
-    group: trainer.groups && trainer.groups.length >= 2 
-      ? trainer.groups.slice(0, 2) 
+    group: trainer?.groups && trainer?.groups.length >= 2 
+      ? trainer?.groups.slice(0, 2) 
       : [false, false],
-    level: trainer.levels && trainer.levels.length >= 5 
-      ? trainer.levels.slice(0, 5) 
+    level: trainer?.levels && trainer?.levels.length >= 5 
+      ? trainer?.levels.slice(0, 5) 
       : [false, false, false, false, false]
   };
 

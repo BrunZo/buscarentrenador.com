@@ -1,9 +1,6 @@
-import { drizzle } from "drizzle-orm/node-postgres";
-import { Pool } from 'pg';
-import * as schema from "./schema";
+import { drizzle } from 'drizzle-orm/vercel-postgres';
+import { config } from 'dotenv';
 
-const connectionString = process.env.POSTGRES_URL!;
-const pool = new Pool({
-  connectionString: connectionString,
-});
-export const db = drizzle(pool, { schema });
+config({ path: '.env.local' });
+
+export const db = drizzle();

@@ -7,17 +7,12 @@ import { getTrainerByUserId } from '@/service/data/trainers';
 
 export default async function Page() {
   const session = await auth();
-
   if (!session?.user) {
     redirect('/login');
   }
 
-  let trainer;
-  try {
-    trainer = await getTrainerByUserId(session.user.id);
-  } catch (error) {
-    redirect('/login');
-  }
+  // trainer will be null if the user is not a trainer
+  const trainer = await getTrainerByUserId(session.user.id).catch(() => null);
 
   return (
     <div className='animate-fade-in'>

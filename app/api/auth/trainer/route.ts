@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/service/auth/next-auth.config";
-import { getTrainerByUserId, updateTrainer } from "@/service/data/trainers";
+import { createTrainer, getTrainerByUserId, updateTrainer } from "@/service/data/trainers";
 import { z } from "zod";
 import { handleServiceError } from "../../helper";
 import { JsonError, UnauthorizedError } from "@/service/errors";
@@ -24,7 +24,14 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json().catch(() => { throw new JsonError(); });
     const data = trainerSchema.parse(body);
-    const trainer = await getTrainerByUserId(session.user.id);
+    let trainer;
+    try {
+      trainer = await getTrainerByUserId(session.user.id);
+    } catch (error) {
+      // TODO: do this without try-catch by calling an auxiliary method
+      await createTrainer({user_id: session.user.id, ...data});
+      return NextResponse.json({ message: "Entrenador creado exitosamente" }, { status: 201 });
+    }
     await updateTrainer(trainer.id, data);
     return NextResponse.json({ message: "Información de entrenador guardada exitosamente" }, { status: 201 });
   } catch (error) {

@@ -53,7 +53,6 @@ export default function LoginForm() {
         setError('Error al iniciar sesión. Por favor, intentá de nuevo.');
       } else {
         router.push('/cuenta');
-        router.refresh();
       }
     } catch (error) {
       setError('Ocurrió un error. Por favor, intentá de nuevo.');
