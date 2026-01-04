@@ -12,12 +12,12 @@ export default async function Page() {
     redirect('/login');
   }
 
-  const result = await getTrainerByUserId(session.user.id);
-  if (!result.success) {
+  let trainer;
+  try {
+    trainer = await getTrainerByUserId(session.user.id);
+  } catch (error) {
     redirect('/login');
   }
-
-  const trainer = result.data;
   const defaultOptions = {
     prov: trainer.province || '',
     city: trainer.city || '',

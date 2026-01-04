@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import type { NextAuthConfig } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { verifyLogin } from "./users";
+import { verifyLogin } from "./login";
 
 export const authConfig: NextAuthConfig = {
   providers: [
@@ -15,11 +15,11 @@ export const authConfig: NextAuthConfig = {
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
-        const result = await verifyLogin(credentials.email, credentials.password);
-        if (!result.success) {
+        try {
+          return await verifyLogin(credentials.email, credentials.password);
+        } catch (error) {
           return null;
         }
-        return result.data;
       }
     })
   ],

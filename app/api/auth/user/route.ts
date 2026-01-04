@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/service/auth/next-auth.config";
 import { updateUser } from "@/service/auth/users";
 import { z } from "zod";
+import { handleServiceError } from "../../helper";
+import { JsonError, UnauthorizedError } from "@/service/errors";
 
 const updateUserSchema = z.object({
   name: z.string().min(1, "El nombre es requerido").max(255),
@@ -9,58 +11,20 @@ const updateUserSchema = z.object({
 });
 
 export async function PATCH(request: NextRequest) {
-  const session = await auth();  
-  if (!session?.user?.id) {
-    return NextResponse.json(
-      { error: "No autorizado. Debes iniciar sesión." },
-      { status: 401 }
-    );
-  }
-
-  const body = await request.json().catch(() => {
-    return NextResponse.json(
-      { error: "Cuerpo de solicitud inválido" },
-      { status: 400 }
-    );
-  });
-
-  const validation = updateUserSchema.safeParse(body);
-  if (!validation.success) {
-    const firstError = validation.error.issues[0]?.message || "Datos de entrada inválidos";
-    return NextResponse.json(
-      { error: firstError, details: validation.error.issues },
-      { status: 400 }
-    );
-  }
-  const validatedData = validation.data;
-
-  const result = await updateUser(session.user.id, validatedData);
-  if (!result.success) {
-    let statusCode: number;
-    let message: string;
-
-    switch (result.error) {
-      case 'not-found':
-        statusCode = 404;
-        message = "No se encontró el usuario.";
-        break;
-      case 'server-error':
-        statusCode = 500;
-        message = "Error interno del servidor. Por favor, intentá de nuevo.";
-        break;
-      default:
-        statusCode = 500;
-        message = "Error interno del servidor";
+  try {
+    const session = await auth();  
+    if (!session?.user?.id) {
+      throw new UnauthorizedError();
     }
 
+    const body = await request.json().catch(() => { throw new JsonError(); });
+    const { name, surname } = updateUserSchema.parse(body);
+    await updateUser(session.user.id, { name, surname });
     return NextResponse.json(
-      { error: message },
-      { status: statusCode }
+      { message: "Información actualizada correctamente." }, 
+      { status: 200 }
     );
+  } catch (error) {
+    return handleServiceError(error);
   }
-
-  return NextResponse.json(
-    { message: "Información actualizada correctamente." }, 
-    { status: 200 }
-  );
 }

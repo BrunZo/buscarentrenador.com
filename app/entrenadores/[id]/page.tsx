@@ -10,8 +10,10 @@ export default async function Page({ params }: {
   }>
 }) {
   const { id } = await params;
-  const result = await getTrainerById(Number(id));
-  if (!result.success) {
+  let trainer;
+  try {
+    trainer = await getTrainerById(Number(id));
+  } catch (error) {
     notFound();
   }
 
@@ -26,7 +28,7 @@ export default async function Page({ params }: {
         </p>
       </div>
       <div className='bg-white rounded-2xl shadow-large border border-gray-100 p-6 md:p-8'>
-        <Info trainer={result.data} individualProfile={true}/>
+        <Info trainer={trainer} individualProfile={true}/>
       </div>
     </div> 
   )

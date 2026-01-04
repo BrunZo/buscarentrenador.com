@@ -12,8 +12,10 @@ export default async function Page() {
     redirect('/login');
   }
 
-  const result = await getTrainerByUserId(session.user.id);
-  if (!result.success) {
+  let trainer;
+  try {
+    trainer = await getTrainerByUserId(session.user.id);
+  } catch (error) {
     redirect('/login');
   }
 
@@ -27,7 +29,7 @@ export default async function Page() {
           Gestioná tu información personal y perfil de entrenador
         </p>
       </div>
-      <Dashboard user={session.user} trainer={result.data}/>
+      <Dashboard user={session.user} trainer={trainer}/>
     </div>
   );
 };

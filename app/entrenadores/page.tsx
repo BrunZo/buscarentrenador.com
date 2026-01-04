@@ -23,20 +23,19 @@ export default async function Page({ searchParams }: {
   const { query, city, prov, place, group, level, page } = await searchParams;
   
   const currentPage = Number(page || 1)
-  const result = await getTrainersByFilters({
-    query,
-    city,
-    prov,
-    place: place ? place.split(',').map(v => v === 'true') : [false, false, false],
-    group: group ? group.split(',').map(v => v === 'true') : [false, false],
-    level: level ? level.split(',').map(v => v === 'true') : [false, false, false, false, false],
-  })
-
-  if (!result.success) {
+  let trainers;
+  try {
+    trainers = await getTrainersByFilters({
+      query,
+      city,
+      prov,
+      place: place ? place.split(',').map(v => v === 'true') : [false, false, false],
+      group: group ? group.split(',').map(v => v === 'true') : [false, false],
+      level: level ? level.split(',').map(v => v === 'true') : [false, false, false, false, false],
+    });
+  } catch (error) {
     redirect('/login');
   }
-
-  const trainers = result.data;
 
   return (
     <div className='animate-fade-in'>

@@ -1,19 +1,19 @@
 import { Resend } from 'resend';
-import { Result } from '../model';
+import { ServerError } from '../errors';
 
 /**
  * Server actions:
  * 
  * sendVerificationEmail({ email, name, token })
- *  returns: messageId
- *  errors: server-error
+ *  returns: message_id
+ *  errors: ServerError
  */
 
 export async function sendVerificationEmail({ email, name, token }: {
   email: string;
   name: string;
   token: string;
-}): Promise<Result<{ message_id: string; }, 'server-error'>> {
+}) {
   const resend = new Resend(process.env.RESEND_API_KEY);
   const appUrl = process.env.NEXT_PUBLIC_APP_URL;
   const verificationUrl = `${appUrl}/verify-email?token=${token}`;
@@ -73,23 +73,17 @@ Este enlace expirará en 24 horas. Si no solicitaste esta verificación, podés 
 BuscarEntrenador.com - Tu plataforma para encontrar entrenadores matematicos
   `;
 
-  try {
-    const { data, error } = await resend.emails.send({
-      from: `${fromName} <${fromEmail}>`,
-      to: email,
-      subject: 'Verificá tu correo electrónico - BuscarEntrenador.com',
-      text: textContent,
-      html: htmlContent,
-    });
+  const { error } = await resend.emails.send({
+    from: `${fromName} <${fromEmail}>`,
+    to: email,
+    subject: 'Verificá tu correo electrónico - BuscarEntrenador.com',
+    text: textContent,
+    html: htmlContent,
+  });
 
-    if (error) {
-      console.error('Error sending verification email:', error);
-      return { success: false, error: 'server-error' };
-    }
-
-    return { success: true, data: { message_id: data?.id } };
-  } catch (error) {
-    console.error('Error sending verification email:', error);
-    return { success: false, error: 'server-error' };
+  if (error) {
+    throw new ServerError('Failed to send verification email');
   }
+
+  return;
 }

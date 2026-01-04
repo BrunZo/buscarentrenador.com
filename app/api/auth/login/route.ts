@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyLogin } from "@/service/auth/users";
+import { verifyLogin } from "@/service/auth/login";
 import { z } from "zod";
+import { handleServiceError } from "../../helper";
+import { JsonError } from "@/service/errors";
 
 const loginSchema = z.object({
   email: z.string().email("El correo electrónico no es válido"),
@@ -8,55 +10,12 @@ const loginSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
-  const body = await request.json().catch(() => {
-    return NextResponse.json(
-      { error: "Cuerpo de solicitud inválido" },
-      { status: 400 }
-    );
-  });
-
-  const validation = loginSchema.safeParse(body);
-  if (!validation.success) {
-    const firstError = validation.error.issues[0]?.message || "Datos de entrada inválidos";
-    return NextResponse.json(
-      { error: firstError },
-      { status: 400 }
-    );
+  try {
+    const body = await request.json().catch(() => { throw new JsonError(); });
+    const { email, password } = loginSchema.parse(body);
+    await verifyLogin(email, password);
+    return NextResponse.json({ message: "Inicio de sesión exitoso" }, { status: 200 });
+  } catch (error) {
+    return handleServiceError(error);
   }
-
-  const { email, password } = validation.data;
-
-  const result = await verifyLogin(email, password);
-  if (!result.success) {
-    let statusCode: number;
-    let message: string;
-
-    switch (result.error) {
-      case 'invalid-credentials':
-        statusCode = 401;
-        message = "Correo electrónico o contraseña incorrectos";
-        break;
-      case 'email-not-verified':
-        statusCode = 403;
-        message = "Tu correo electrónico no está verificado";
-        break;
-      case 'server-error':
-        statusCode = 500;
-        message = "Error interno del servidor";
-        break;
-      default:
-        statusCode = 500;
-        message = "Error interno del servidor";
-    }
-    
-    return NextResponse.json(
-      { error: message },
-      { status: statusCode }
-    );
-  }
-
-  return NextResponse.json(
-    { user: result.data },
-    { status: 200 }
-  );
 }
