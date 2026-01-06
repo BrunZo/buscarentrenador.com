@@ -151,7 +151,7 @@ export default function Info({ trainer, individualProfile }: {
 }
 
 function renderChips(arr: boolean[], options: string[]) {
-  const activeOptions = options.filter((_, i) => arr[i])
+  const activeOptions = options.filter((_, i) => arr ? arr[i] : false);
   
   if (activeOptions.length === 0) {
     return (
