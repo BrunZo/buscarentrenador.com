@@ -1,22 +1,21 @@
 import { Resend } from 'resend';
+import { ServerError } from '../errors';
 
-interface SendVerificationEmailParams {
+/**
+ * Server actions:
+ * 
+ * sendVerificationEmail({ email, name, token })
+ *  returns: message_id
+ *  errors: ServerError
+ */
+
+export async function sendVerificationEmail({ email, name, token }: {
   email: string;
   name: string;
   token: string;
-}
-
-export async function sendVerificationEmail({ email, name, token }: SendVerificationEmailParams) {
-  const apiKey = process.env.RESEND_API_KEY;
-
-  if (!apiKey) {
-    console.error('RESEND_API_KEY is missing in environment variables');
-    // Returning false instead of crashing allows the app to continue (though email fails)
-    return { success: false, error: 'Configuration Error: Missing Email API Key' };
-  }
-
-  const resend = new Resend(apiKey);
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+}) {
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
   const verificationUrl = `${appUrl}/verify-email?token=${token}`;
 
   const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
@@ -74,24 +73,17 @@ Este enlace expirará en 24 horas. Si no solicitaste esta verificación, podés 
 BuscarEntrenador.com - Tu plataforma para encontrar entrenadores matematicos
   `;
 
-  try {
-    const { data, error } = await resend.emails.send({
-      from: `${fromName} <${fromEmail}>`,
-      to: email,
-      subject: 'Verificá tu correo electrónico - BuscarEntrenador.com',
-      text: textContent,
-      html: htmlContent,
-    });
+  const { error } = await resend.emails.send({
+    from: `${fromName} <${fromEmail}>`,
+    to: email,
+    subject: 'Verificá tu correo electrónico - BuscarEntrenador.com',
+    text: textContent,
+    html: htmlContent,
+  });
 
-    if (error) {
-      console.error('Error sending verification email:', error);
-      return { success: false, error };
-    }
-
-    console.log('Verification email sent successfully:', data?.id);
-    return { success: true, messageId: data?.id };
-  } catch (error) {
-    console.error('Error sending verification email:', error);
-    return { success: false, error };
+  if (error) {
+    throw new ServerError('Failed to send verification email');
   }
+
+  return;
 }
