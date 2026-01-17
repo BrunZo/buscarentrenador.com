@@ -58,6 +58,20 @@ export class TokenExpiredError extends Error {
   }
 }
 
+export class InvalidResetTokenError extends Error {
+  constructor() { 
+    super("Invalid password reset token");
+    this.name = "InvalidResetTokenError";
+  }
+}
+
+export class ResetTokenExpiredError extends Error {
+  constructor() { 
+    super("Password reset token expired");
+    this.name = "ResetTokenExpiredError";
+  }
+}
+
 export class EmailAlreadyInUseError extends Error {
   constructor() { 
     super("Email already in use");
@@ -78,4 +92,3 @@ export class ServerError extends Error {
     this.name = "ServerError";
   }
 }
-
