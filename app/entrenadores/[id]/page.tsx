@@ -1,8 +1,8 @@
 'use server';
 
 import Info from "@/app/ui/entrenadores/info";
-import { getTrainerById } from "@/lib/trainers";
-import { notFound } from "next/navigation";
+import { getTrainerById } from "@/service/data/trainers";
+import { notFound } from 'next/navigation';
 
 export default async function Page({ params }: {
   params: Promise<{
@@ -10,9 +10,10 @@ export default async function Page({ params }: {
   }>
 }) {
   const { id } = await params;
-  const trainer = await getTrainerById(Number(id));
-
-  if (!trainer) {
+  let trainer;
+  try {
+    trainer = await getTrainerById(Number(id));
+  } catch (error) {
     notFound();
   }
 

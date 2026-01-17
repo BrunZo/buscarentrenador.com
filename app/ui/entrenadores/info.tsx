@@ -1,8 +1,8 @@
 import Image from 'next/image'
-import { Trainer } from '@/types/trainers'
+import { TrainerWithUser } from '@/service/db/schema'
 
 export default function Info({ trainer, individualProfile }: {
-  trainer: Trainer
+  trainer: TrainerWithUser
   individualProfile: boolean
 }) {
   const image_src = '';
@@ -107,7 +107,7 @@ export default function Info({ trainer, individualProfile }: {
               <span className='text-sm font-semibold text-gray-700'>Ubicación:</span>
               <div className='flex items-center gap-2'>
                 <div className='flex flex-wrap gap-2'>
-                  {renderChips(trainer.places, ['Virtual', 'A domicilio', 'En dirección particular'])}
+                  {renderChips(trainer.places || [false, false, false], ['Virtual', 'A domicilio', 'En dirección particular'] as string[])}
                 </div>
               </div>
             </div>
@@ -123,7 +123,7 @@ export default function Info({ trainer, individualProfile }: {
               <span className='text-sm font-semibold text-gray-700'>Modalidad:</span>
               <div className='flex items-center gap-2'>
                 <div className='flex flex-wrap gap-2'>
-                  {renderChips(trainer.groups, ['Individual', 'Grupal'])}
+                  {renderChips(trainer.groups || [false, false], ['Individual', 'Grupal'] as string[])}
                 </div>
               </div>
             </div>
@@ -139,7 +139,7 @@ export default function Info({ trainer, individualProfile }: {
               <span className='text-sm font-semibold text-gray-700'>Nivel:</span>
               <div className='flex items-center gap-2'>
                 <div className='flex flex-wrap gap-2'>
-                  {renderChips(trainer.levels, ['Ñandú', 'Nivel 1', 'Nivel 2', 'Nivel 3', 'Selectivos e internacionales'])}
+                  {renderChips(trainer.levels || [false, false, false, false, false], ['Ñandú', 'Nivel 1', 'Nivel 2', 'Nivel 3', 'Selectivos e internacionales'] as string[])}
                 </div>
               </div>
             </div>

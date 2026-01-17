@@ -10,6 +10,9 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'Buscarentrenador.com',
   description: 'Entrenadores para la Olimpiada Matemática Argentina',
+  icons: {
+    icon: '/buscarentrenador_logo.png',
+  },
 };
 
 export default function RootLayout({

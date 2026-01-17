@@ -2,10 +2,10 @@
 
 import { useRouter } from 'next/navigation';
 import Info from '@/app/ui/entrenadores/info'
-import { Trainer } from '@/types/trainers'
+import { TrainerWithUser } from '@/service/db/schema'
 
 export default function CardGrid({ trainers }: {
-  trainers: Trainer[]
+  trainers: TrainerWithUser[]
 }) {
   return (
     <div className='flex flex-col gap-4 mb-4'>
@@ -18,7 +18,7 @@ export default function CardGrid({ trainers }: {
           <p className='text-gray-500 text-sm mt-2'>Intentá ajustar los filtros de búsqueda</p>
         </div>
       )}
-      {trainers.map((trainer: Trainer, i) => (
+      {trainers.map((trainer: TrainerWithUser, i) => (
         <Card key={i} trainer={trainer} />
       ))}
     </div>
@@ -26,7 +26,7 @@ export default function CardGrid({ trainers }: {
 }
 
 export function Card({ trainer }: {
-  trainer: Trainer
+  trainer: TrainerWithUser
 }) {
   const router = useRouter();
   return (

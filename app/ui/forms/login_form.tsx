@@ -27,32 +27,22 @@ export default function LoginForm() {
     const password = formData.get('pass') as string;
 
     try {
-      // First, validate credentials with our custom endpoint
-      const validateResponse = await fetch('/api/auth/login', {
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
+      const data = await response.json();
 
-      const validateData = await validateResponse.json();
-
-      if (!validateResponse.ok) {
-        // Handle specific errors from our custom endpoint
-        if (validateData.error === 'EMAIL_NOT_VERIFIED') {
-          setError('Tu correo electrónico no está verificado. Por favor, revisá tu bandeja de entrada.');
+      if (!response.ok) {
+        setError(data.error);
+        if (response.status === 403) {
           setShowResendVerification(true);
           setUserEmail(email);
-        } else if (validateData.error === 'INVALID_CREDENTIALS') {
-          setError('Correo electrónico o contraseña incorrectos');
-        } else if (validateData.error === 'MISSING_CREDENTIALS') {
-          setError('Por favor, completá todos los campos');
-        } else {
-          setError(validateData.message || 'Error al iniciar sesión');
         }
         return;
       }
 
-      // If validation passed, sign in with NextAuth
       const result = await signIn('credentials', {
         email,
         password,
@@ -63,7 +53,6 @@ export default function LoginForm() {
         setError('Error al iniciar sesión. Por favor, intentá de nuevo.');
       } else {
         router.push('/cuenta');
-        router.refresh();
       }
     } catch (error) {
       setError('Ocurrió un error. Por favor, intentá de nuevo.');

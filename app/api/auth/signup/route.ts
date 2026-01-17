@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createUser, getUserByEmail } from "@/lib/auth";
-import { sendVerificationEmail } from "@/lib/email";
 import { z } from "zod";
+import { signupUser } from "@/service/auth/signup";
+import { handleServiceError } from "../../helper";
+import { JsonError } from "@/service/errors";
 
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
 const nameRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/;
@@ -24,67 +25,15 @@ const signupSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const body = await request.json().catch(() => { throw new JsonError(); });
     const { email, password, name, surname } = signupSchema.parse(body);
-
-    const existingUser = await getUserByEmail(email);
-    if (existingUser) {
-      return NextResponse.json(
-        { error: "Ya existe una cuenta con este correo electrónico" },
-        { status: 400 }
-      );
-    }
-
-    const user = await createUser(email, password, name, surname);
-
-    // Send verification email
-    const emailResult = await sendVerificationEmail({
-      email: user.email,
-      name: user.name,
-      token: user.verification_token,
-    });
-
-    if (!emailResult.success) {
-      console.error('Failed to send verification email:', emailResult.error);
-      // User is created but email failed - still return success but with a note
-      return NextResponse.json(
-        {
-          message: "Cuenta creada exitosamente, pero hubo un problema al enviar el correo de verificación. Por favor, solicitá un reenvío.",
-          user: {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            surname: user.surname,
-          }
-        },
-        { status: 201 }
-      );
-    }
-
+    await signupUser(email, password, name, surname);
     return NextResponse.json(
-      {
-        message: "Cuenta creada exitosamente. Te enviamos un correo de verificación. Por favor, revisá tu bandeja de entrada.",
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          surname: user.surname,
-        }
-      },
+      { message: "Cuenta creada exitosamente. Te enviamos un correo de verificación. Por favor, revisá tu bandeja de entrada." },
       { status: 201 }
     );
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      const firstError = error.issues[0]?.message || "Datos de entrada inválidos";
-      return NextResponse.json(
-        { error: firstError, details: error.issues },
-        { status: 400 }
-      );
-    }
-
-    return NextResponse.json(
-      { error: "Error interno del servidor. Por favor, intentá de nuevo." },
-      { status: 500 }
-    );
+  } 
+  catch (error) {
+    return handleServiceError(error);
   }
 }

@@ -58,15 +58,13 @@ export default function SignupForm() {
         setError(data.error || 'Ocurrió un error durante el registro');
       } else {
         setSuccess(data.message || '¡Cuenta creada exitosamente! Te enviamos un correo de verificación. Por favor, revisá tu bandeja de entrada.');
-        setPassword('');
-        // Don't auto-redirect - let user read the message about checking email
         setEmail('');
         setPassword('');
         setRepeat('');
         setName('');
         setSurname('');
         setFieldErrors({});
-        return;
+        router.push('/login');
       }
     } catch (error) {
       setError('Ocurrió un error. Por favor, intentá de nuevo.');

@@ -2,18 +2,17 @@
 
 import Dashboard from '@/app/ui/cuenta/dashboard';
 import { redirect } from 'next/navigation';
-import { auth } from '@/lib/auth';
-import { getTrainerByUserId } from '@/lib/trainers';
+import { auth } from '@/service/auth/next-auth.config';
+import { getTrainerByUserId } from '@/service/data/trainers';
 
 export default async function Page() {
   const session = await auth();
-
   if (!session?.user) {
     redirect('/login');
   }
 
-  // check if the user is a trainer
-  const trainer = await getTrainerByUserId(session.user.id);
+  // trainer will be null if the user is not a trainer
+  const trainer = await getTrainerByUserId(session.user.id).catch(() => null);
 
   return (
     <div className='animate-fade-in'>
