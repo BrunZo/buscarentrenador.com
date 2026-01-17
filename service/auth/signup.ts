@@ -30,14 +30,7 @@ export async function signupUser(
 ): Promise<UserInfo> {
   const password_hash = await hashPassword(password);
 
-  const newUser: NewUser = {
-    email,
-    password_hash,
-    name,
-    surname
-  };
-
-  const user = await createUser(newUser);
+  const user = await createUser({ email, password_hash, name, surname });
   if (!user)
     throw new EmailAlreadyInUseError();
 
