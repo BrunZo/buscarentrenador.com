@@ -26,10 +26,5 @@ export async function verifyLogin(email: string, password: string): Promise<User
   if (!user.email_verified)
     throw new EmailNotVerifiedError();
 
-  return {
-    id: user.id,
-    email: user.email,
-    name: user.name,
-    surname: user.surname,
-  };
+  return user;
 }
