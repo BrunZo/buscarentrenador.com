@@ -16,7 +16,8 @@ export const authConfig: NextAuthConfig = {
           return null;
         }
         try {
-          return await verifyLogin(credentials.email, credentials.password);
+          const user = await verifyLogin(credentials.email, credentials.password);
+          return user;
         } catch (error) {
           return null;
         }

@@ -1,7 +1,7 @@
-import { type User } from "../db/schema";
+import type { UserInfo } from "@/types/users";
 import { compare } from "bcrypt";
-import { InvalidCredentialsError, EmailNotVerifiedError } from "../errors";
-import { getUserByEmail } from "../data/users";
+import { InvalidCredentialsError, EmailNotVerifiedError, UserNotFoundError } from "../errors";
+import { getUserByEmail } from "@/data/users";
 
 /**
  * Verifies an email and password pair.
@@ -14,10 +14,12 @@ import { getUserByEmail } from "../data/users";
  * @throws InvalidCredentialsError - if the password does not match
  * @throws EmailNotVerifiedError - if the user's email is not verified
  */
-export async function verifyLogin(email: string, password: string): Promise<Pick<User, 'id' | 'email' | 'name' | 'surname'>> {
+export async function verifyLogin(email: string, password: string): Promise<UserInfo & { id: number }> {
   const user = await getUserByEmail(email);
+  if (!user)
+    throw new UserNotFoundError();
 
-  const isPasswordValid = compare(password, user.password_hash);
+  const isPasswordValid = await compare(password, user.password_hash);
   if (!isPasswordValid)
     throw new InvalidCredentialsError();
   

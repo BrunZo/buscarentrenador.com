@@ -14,9 +14,9 @@ export default function UpdateUserForm({ defaultOptions }: {
     city: string,
     description: string,
     certifications: string[],
-    place: boolean[],
-    group: boolean[],
-    level: boolean[],
+    places: boolean[],
+    groups: boolean[],
+    levels: boolean[],
   },
 }) {
   const router = useRouter();
@@ -24,9 +24,9 @@ export default function UpdateUserForm({ defaultOptions }: {
   const [achievements, setAchievements] = useState<string[]>(defaultOptions.certifications);
   const [province, setProvince] = useState(defaultOptions.prov);
   const [city, setCity] = useState(defaultOptions.city);
-  const [place, setPlace] = useState<boolean[]>(defaultOptions.place);
-  const [group, setGroup] = useState<boolean[]>(defaultOptions.group);
-  const [level, setLevel] = useState<boolean[]>(defaultOptions.level);
+  const [places, setPlaces] = useState<boolean[]>(defaultOptions.places);
+  const [groups, setGroups] = useState<boolean[]>(defaultOptions.groups);
+  const [levels, setLevels] = useState<boolean[]>(defaultOptions.levels);
   const [isSubmitting, setIsSubmitting] = useState(false);
   // TODO: errorMessage is missing
 
@@ -46,9 +46,9 @@ export default function UpdateUserForm({ defaultOptions }: {
           province,
           city,
           description,
-          place,
-          group,
-          level,
+          places,
+          groups,
+          levels,
           certifications,
         }),
       });
@@ -99,14 +99,14 @@ export default function UpdateUserForm({ defaultOptions }: {
         <FilterGrid 
           filters={trainerFilters} 
           defaultStates={{
-            place: defaultOptions.place,
-            group: defaultOptions.group,
-            level: defaultOptions.level,
+            place: defaultOptions.places,
+            group: defaultOptions.groups,
+            level: defaultOptions.levels,
           }} 
           replaceUrl={false}
-          onPlaceChange={setPlace}
-          onGroupChange={setGroup}
-          onLevelChange={setLevel}
+          onPlaceChange={setPlaces}
+          onGroupChange={setGroups}
+          onLevelChange={setLevels}
         />
 
         <Button text={isSubmitting ? 'Guardando...' : 'Publicar información'} disabled={isSubmitting} />

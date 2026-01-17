@@ -2,18 +2,12 @@ import { Resend } from 'resend';
 import { ServerError } from '../errors';
 
 /**
- * Server actions:
- * 
- * sendVerificationEmail({ email, name, token })
- *  returns: message_id
- *  errors: ServerError
+ * @param email - The email address
+ * @param name - The name of the user
+ * @param token - The token to send
+ * @throws ServerError - If Resend fails.
  */
-
-export async function sendVerificationEmail({ email, name, token }: {
-  email: string;
-  name: string;
-  token: string;
-}) {
+export async function sendVerificationEmail(email: string, name: string, token: string) {
   const resend = new Resend(process.env.RESEND_API_KEY);
   const appUrl = process.env.NEXT_PUBLIC_APP_URL;
   const verificationUrl = `${appUrl}/verify-email?token=${token}`;
