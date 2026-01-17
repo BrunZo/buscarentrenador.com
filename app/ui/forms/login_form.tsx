@@ -1,9 +1,9 @@
 'use client';
 
 import { LockClosedIcon, UserIcon } from '@heroicons/react/24/outline';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { signIn } from 'next-auth/react';
 import Input from '@/app/ui/form/input';
 import Button from '@/app/ui/form/button';
@@ -11,10 +11,19 @@ import Message from '@/app/ui/form/message';
 
 export default function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showResendVerification, setShowResendVerification] = useState(false);
   const [userEmail, setUserEmail] = useState('');
+
+  useEffect(() => {
+    // Check for password reset success message
+    if (searchParams.get('reset') === 'success') {
+      setSuccessMessage('Tu contraseña ha sido actualizada exitosamente. Podés iniciar sesión con tu nueva contraseña.');
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -70,6 +79,16 @@ export default function LoginForm() {
         <LockClosedIcon className='h-5 w-5' />
       </Input>
       <Button text={isLoading ? 'Ingresando...' : 'Ingresar'} disabled={isLoading} />
+      
+      <div className='text-center text-gray-600 text-sm'>
+        <Link
+          className='text-indigo-600 hover:text-indigo-700 font-semibold hover:underline transition-colors duration-200'
+          href='/forgot-password'
+        >
+          ¿Olvidaste tu contraseña?
+        </Link>
+      </div>
+
       <div className='text-center text-gray-600'>
         Si no tenés cuenta,&nbsp;
         <Link
@@ -79,6 +98,13 @@ export default function LoginForm() {
           registrate
         </Link>.
       </div>
+
+      {successMessage && (
+        <Message
+          type='success'
+          msg={successMessage}
+        />
+      )}
       {error && (
         <Message
           type='error'
@@ -86,7 +112,7 @@ export default function LoginForm() {
         />
       )}
       {showResendVerification && (
-        <div className='mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 flex flex-col justify-center'>
+        <div className='mt-4 p-4 bg-linear-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 flex flex-col justify-center'>
           <p className='text-sm text-blue-800 mb-3 font-medium'>
             ¿No recibiste el correo de verificación?
           </p>
