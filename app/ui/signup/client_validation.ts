@@ -5,12 +5,11 @@ export const passwordChecks = {
   hasUppercase: (password: string) => /[A-Z]/.test(password),
   hasLowercase: (password: string) => /[a-z]/.test(password),
   hasNumber: (password: string) => /\d/.test(password),
-  hasSpecial: (password: string) => /[!@#$%^&*]/.test(password),
 };
 
 export default function validateForm(formData: FormData): Record<string, string> {
   const errors: Record<string, string> = {};
-  
+
   const email = formData.get('email') as string;
   const passwordValue = formData.get('password') as string;
   const repeatPassword = formData.get('repeat') as string;
