@@ -56,6 +56,16 @@ export const verificationTokens = pgTable('verification_tokens', {
   tokenIdx: index('idx_verification_tokens_token').on(table.token),
 }));
 
+// Password reset tokens
+export const passwordResetTokens = pgTable('password_reset_tokens', {
+  user_id: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  token: varchar('token', { length: 255 }).primaryKey(),
+  expires: timestamp('expires').notNull(),
+}, (table) => ({
+  userIdIdx: index('idx_password_reset_tokens_user_id').on(table.user_id),
+  tokenIdx: index('idx_password_reset_tokens_token').on(table.token),
+}));
+
 // Relations
 export const usersRelations = relations(users, ({ one, many }) => ({
   trainer: one(trainers),
@@ -81,6 +91,8 @@ export type User = InferSelectModel<typeof users>;
 export type NewUser = InferInsertModel<typeof users>;
 export type VerificationToken = InferSelectModel<typeof verificationTokens>;
 export type NewVerificationToken = InferInsertModel<typeof verificationTokens>;
+export type PasswordResetToken = InferSelectModel<typeof passwordResetTokens>;
+export type NewPasswordResetToken = InferInsertModel<typeof passwordResetTokens>;
 export type Trainer = InferSelectModel<typeof trainers>;
 export type NewTrainer = InferInsertModel<typeof trainers>;
 export type TrainerWithUser = Trainer & {
