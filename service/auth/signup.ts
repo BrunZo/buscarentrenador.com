@@ -1,12 +1,16 @@
 import { sendVerificationEmail } from "./email";
-import { createUser } from "../data/users";
+import { createUser } from "@/data/users";
 import { generateVerificationToken } from "./verification_tokens";
+import { hashPassword } from "../crypto";
+import { NewUser, UserInfo } from "@/types/users";
+import { EmailAlreadyInUseError } from "../errors";
 
 /**
  * Full signup flow:
  *  Creates user with provided email, password, name and surname
  *  Generates a random verification token.
  *  Sends it to the provided email address.
+ * 
  * @param email 
  * @param password 
  * @param name 
@@ -23,13 +27,15 @@ export async function signupUser(
     password: string, 
     name: string, 
     surname: string
-): Promise<{ user_id: number }> {
-  const user = await createUser(email, password, name, surname);
+): Promise<UserInfo> {
+  const password_hash = await hashPassword(password);
+
+  const user = await createUser({ email, password_hash, name, surname });
+  if (!user)
+    throw new EmailAlreadyInUseError();
+
   const token = await generateVerificationToken(email);
-  await sendVerificationEmail({
-    email: user.email,
-    name: user.name,
-    token,
-  });
-  return { user_id: user.id };
+  await sendVerificationEmail(user.email, user.name, token);
+
+  return user;
 }
