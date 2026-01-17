@@ -7,25 +7,22 @@ export default function PasswordStrengthIndicator({ password }: { password: stri
     hasUppercase: passwordChecks.hasUppercase(password),
     hasLowercase: passwordChecks.hasLowercase(password),
     hasNumber: passwordChecks.hasNumber(password),
-    hasSpecial: passwordChecks.hasSpecial(password),
   }), [password]);
 
   const passedChecks = Object.values(checks).filter(Boolean).length;
-  const strengthPercentage = (passedChecks / 5) * 100;
+  const strengthPercentage = (passedChecks / 4) * 100;
 
   const getStrengthColor = () => {
-    if (strengthPercentage <= 20) return 'bg-red-500';
-    if (strengthPercentage <= 40) return 'bg-orange-500';
-    if (strengthPercentage <= 60) return 'bg-yellow-500';
-    if (strengthPercentage <= 80) return 'bg-lime-500';
+    if (strengthPercentage <= 25) return 'bg-red-500';
+    if (strengthPercentage <= 50) return 'bg-orange-500';
+    if (strengthPercentage <= 75) return 'bg-yellow-500';
     return 'bg-green-500';
   };
 
   const getStrengthText = () => {
-    if (strengthPercentage <= 20) return 'Muy débil';
-    if (strengthPercentage <= 40) return 'Débil';
-    if (strengthPercentage <= 60) return 'Regular';
-    if (strengthPercentage <= 80) return 'Fuerte';
+    if (strengthPercentage <= 25) return 'Débil';
+    if (strengthPercentage <= 50) return 'Regular';
+    if (strengthPercentage <= 75) return 'Fuerte';
     return 'Muy fuerte';
   };
 
@@ -55,9 +52,6 @@ export default function PasswordStrengthIndicator({ password }: { password: stri
         </li>
         <li className={checks.hasNumber ? 'text-green-600' : 'text-gray-500'}>
           {checks.hasNumber ? '✓' : '○'} Un número
-        </li>
-        <li className={checks.hasSpecial ? 'text-green-600' : 'text-gray-500'}>
-          {checks.hasSpecial ? '✓' : '○'} Un carácter especial (!@#$%^&*)
         </li>
       </ul>
     </div>
