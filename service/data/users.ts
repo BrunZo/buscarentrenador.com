@@ -124,3 +124,23 @@ export async function setEmailVerifiedByUser(userId: number) {
   if (!result)
     throw new UserNotFoundError();
 }
+
+/**
+ * Updates a user's password.
+ * @throws UserNotFoundError - if there's no user with such id.
+ */
+export async function updateUserPassword(userId: number, newPasswordHash: string): Promise<User> {
+  const [user] = await db
+    .update(users)
+    .set({ 
+      password_hash: newPasswordHash,
+      updated_at: new Date()
+    })
+    .where(eq(users.id, userId))
+    .returning();
+  
+  if (!user)
+    throw new UserNotFoundError();
+
+  return user;
+}
