@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/service/auth/next-auth.config";
-import { createTrainer, getTrainerByUserId, updateTrainer } from "@/service/data/trainers";
+import { createOrUpdateTrainer } from "@/service/auth/trainers";
 import { z } from "zod";
 import { handleServiceError } from "../../helper";
 import { JsonError, UnauthorizedError } from "@/service/errors";
@@ -9,9 +9,9 @@ const trainerSchema = z.object({
   province: z.string().optional(),
   city: z.string().optional(),
   description: z.string().optional(),
-  place: z.array(z.boolean()).length(3).optional(),
-  group: z.array(z.boolean()).length(2).optional(),
-  level: z.array(z.boolean()).length(5).optional(),
+  places: z.array(z.boolean()).length(3).optional(),
+  groups: z.array(z.boolean()).length(2).optional(),
+  levels: z.array(z.boolean()).length(5).optional(),
   certifications: z.array(z.string()).optional(),
 });
 
@@ -24,16 +24,16 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json().catch(() => { throw new JsonError(); });
     const data = trainerSchema.parse(body);
-    let trainer;
-    try {
-      trainer = await getTrainerByUserId(session.user.id);
-    } catch (error) {
-      // TODO: do this without try-catch by calling an auxiliary method
-      await createTrainer({user_id: session.user.id, ...data});
-      return NextResponse.json({ message: "Entrenador creado exitosamente" }, { status: 201 });
-    }
-    await updateTrainer(trainer.id, data);
-    return NextResponse.json({ message: "Información de entrenador guardada exitosamente" }, { status: 201 });
+    const result = await createOrUpdateTrainer(session.user.id, data);
+    
+    return NextResponse.json(
+      { 
+        message: result 
+          ? "Entrenador creado exitosamente" 
+          : "Información de entrenador guardada exitosamente" 
+      }, 
+      { status: 201 }
+    );
   } catch (error) {
     return handleServiceError(error);
   }

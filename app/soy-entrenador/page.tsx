@@ -3,7 +3,7 @@
 import UpdateUserForm from '../ui/soy-entrenador/update_user_form';
 import { redirect } from 'next/navigation';
 import { auth } from '@/service/auth/next-auth.config';
-import { getTrainerByUserId } from '@/service/data/trainers';
+import { getTrainerByUserId } from '@/data/trainers';
 
 export default async function Page() {
   const session = await auth();
@@ -20,13 +20,13 @@ export default async function Page() {
     certifications: trainer?.certifications && trainer?.certifications.length > 0 
       ? trainer?.certifications 
       : [''],
-    place: trainer?.places && trainer?.places.length >= 3 
+    places: trainer?.places && trainer?.places.length >= 3 
       ? trainer?.places.slice(0, 3) 
       : [false, false, false],
-    group: trainer?.groups && trainer?.groups.length >= 2 
+    groups: trainer?.groups && trainer?.groups.length >= 2 
       ? trainer?.groups.slice(0, 2) 
       : [false, false],
-    level: trainer?.levels && trainer?.levels.length >= 5 
+    levels: trainer?.levels && trainer?.levels.length >= 5 
       ? trainer?.levels.slice(0, 5) 
       : [false, false, false, false, false]
   };

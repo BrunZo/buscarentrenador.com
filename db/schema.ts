@@ -2,6 +2,8 @@ import { pgTable, serial, varchar, text, boolean, timestamp, decimal, integer, i
 import { relations } from 'drizzle-orm';
 import type { InferSelectModel, InferInsertModel } from 'drizzle-orm';
 
+// This schemas should in the future be deduced from the types/users.ts and types/trainers.ts files.
+
 // Users table
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),

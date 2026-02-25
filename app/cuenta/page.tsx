@@ -3,7 +3,7 @@
 import Dashboard from '@/app/ui/cuenta/dashboard';
 import { redirect } from 'next/navigation';
 import { auth } from '@/service/auth/next-auth.config';
-import { getTrainerByUserId } from '@/service/data/trainers';
+import { getTrainerByUserId } from '@/data/trainers';
 
 export default async function Page() {
   const session = await auth();
