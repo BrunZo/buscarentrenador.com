@@ -1,6 +1,15 @@
-import { InvalidResetTokenError, ResetTokenExpiredError, UserNotFoundError } from "../errors";
-import { getUserByEmail, updateUserPassword } from "../data/users";
-import { createPasswordResetToken, deletePasswordResetTokenByUser, getUserByResetToken } from "../data/password_reset_tokens";
+import {
+  InvalidResetTokenError,
+  ResetTokenExpiredError,
+  UserNotFoundError,
+} from "../errors";
+import { getUserByEmail, updateUserPassword } from "@/data/users";
+import {
+  createPasswordResetToken,
+  deletePasswordResetTokenByUser,
+  getUserByResetToken,
+} from "@/data/password_reset_tokens";
+
 import { generateRandomToken, hashPassword } from "../crypto";
 
 /**
@@ -9,13 +18,15 @@ import { generateRandomToken, hashPassword } from "../crypto";
  * - Generates a random reset token
  * - Adds it to the password_reset_tokens table for the found user
  * - Deletes all previous reset tokens for that user
- * @param email 
+ * @param email
  * @returns The newly generated token
  * @throws UserNotFoundError - if there's no user with provided email
  */
-export async function generatePasswordResetToken(email: string): Promise<string> {
+export async function generatePasswordResetToken(
+  email: string,
+): Promise<string> {
   const user = await getUserByEmail(email);
-
+  if (!user) return "";
   // Delete any existing reset tokens for this user
   await deletePasswordResetTokenByUser(user.id);
 
@@ -23,7 +34,7 @@ export async function generatePasswordResetToken(email: string): Promise<string>
   const newToken = generateRandomToken();
   const tokenExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
   await createPasswordResetToken(user.id, newToken, tokenExpires);
-  
+
   return newToken;
 }
 
@@ -35,11 +46,13 @@ export async function generatePasswordResetToken(email: string): Promise<string>
  * @throws InvalidResetTokenError - if there's no such token
  * @throws ResetTokenExpiredError - if the token has already expired
  */
-export async function resetPassword(token: string, newPassword: string): Promise<void> {
+export async function resetPassword(
+  token: string,
+  newPassword: string,
+): Promise<void> {
   const tokenData = await getUserByResetToken(token);
-  
-  if (!tokenData)
-    throw new InvalidResetTokenError();
+
+  if (!tokenData) throw new InvalidResetTokenError();
 
   if (new Date() > new Date(tokenData.expires))
     throw new ResetTokenExpiredError();
@@ -47,7 +60,7 @@ export async function resetPassword(token: string, newPassword: string): Promise
   // Hash the new password and update the user
   const newPasswordHash = await hashPassword(newPassword);
   await updateUserPassword(tokenData.id, newPasswordHash);
-  
+
   // Delete the used token
   await deletePasswordResetTokenByUser(tokenData.id);
 }

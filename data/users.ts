@@ -11,15 +11,12 @@ import { NewUser, UpdateUser, SelectUser } from "@/types/users";
  * @returns The new User object or null if the email is already in use.
  */
 export async function createUser(newUser: NewUser): Promise<SelectUser | null> {
-  const emailInUse = await isEmailInUse(newUser.email)
+  const emailInUse = await isEmailInUse(newUser.email);
   if (emailInUse) {
     return null;
   }
 
-  const [result] = await db
-    .insert(users)
-    .values(newUser)
-    .returning();
+  const [result] = await db.insert(users).values(newUser).returning();
 
   return result;
 }
@@ -29,13 +26,16 @@ export async function createUser(newUser: NewUser): Promise<SelectUser | null> {
  * @param updates
  * @returns The updated User object or null if the user does not exist.
  */
-export async function updateUser(id: number, updates: UpdateUser): Promise<SelectUser | null> {
+export async function updateUser(
+  id: number,
+  updates: UpdateUser,
+): Promise<SelectUser | null> {
   const [user] = await db
     .update(users)
     .set(updates)
     .where(eq(users.id, id))
     .returning();
-  
+
   return user;
 }
 
@@ -56,14 +56,29 @@ export async function isEmailInUse(email: string): Promise<boolean> {
 /**
  * Fetches the user with a given email.
  */
-export async function getUserByEmail(email: string): Promise<SelectUser | null> {
+export async function getUserByEmail(
+  email: string,
+): Promise<SelectUser | null> {
   const [user] = await db
     .select()
     .from(users)
     .where(eq(users.email, email))
     .limit(1);
-  
+
   return user;
+}
+
+export async function updateUserPassword(
+  userId: number,
+  newPasswordHash: string,
+) {
+  const [result] = await db
+    .update(users)
+    .set({ password_hash: newPasswordHash })
+    .where(eq(users.id, userId))
+    .returning();
+
+  return result;
 }
 
 export async function setEmailVerifiedByUser(userId: number) {
