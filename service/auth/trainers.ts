@@ -1,5 +1,5 @@
 import { createTrainer, getTrainerByUserId, updateTrainer } from "@/data/trainers";
-import { TrainerNotFoundError } from "../errors";
+import { TrainerNotFoundError } from "@/service/errors";
 import type { TrainerInfo, UpdateTrainer } from "@/types/trainers";
 
 /**
