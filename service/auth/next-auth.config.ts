@@ -26,7 +26,7 @@ export const authConfig: NextAuthConfig = {
     })
   ],
   callbacks: {
-    async jwt({ token, user, trigger, session }) {
+    async jwt({ token, user, trigger, session }: any) {
       if (user) {
         token.id = user.id;
         token.email = user.email;
@@ -41,7 +41,7 @@ export const authConfig: NextAuthConfig = {
 
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token }: any) {
       session.user.id = token.id;
       session.user.email = token.email;
       session.user.name = token.name;
