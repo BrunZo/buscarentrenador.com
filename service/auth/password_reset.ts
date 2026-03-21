@@ -26,7 +26,6 @@ export async function generatePasswordResetToken(
 ): Promise<string> {
   const user = await getUserByEmail(email);
   if (!user) throw new UserNotFoundError();
-
   // Delete any existing reset tokens for this user
   await deletePasswordResetTokenByUser(user.id);
 
