@@ -3,7 +3,7 @@ import {
   ResetTokenExpiredError,
   UserNotFoundError,
 } from "../errors";
-import { getUserByEmail, updateUserPassword } from "@/data/users";
+import { getUserByEmail, updateUser } from "@/data/users";
 import {
   createPasswordResetToken,
   deletePasswordResetTokenByUser,
@@ -33,7 +33,7 @@ export async function generatePasswordResetToken(
   // Generate new token with 1 hour expiration (shorter than email verification for security)
   const newToken = generateRandomToken();
   const tokenExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
-  await createPasswordResetToken(user.id, newToken, tokenExpires);
+  await createPasswordResetToken({ user_id: user.id, token: newToken, expires: tokenExpires });
 
   return newToken;
 }
@@ -59,7 +59,7 @@ export async function resetPassword(
 
   // Hash the new password and update the user
   const newPasswordHash = await hashPassword(newPassword);
-  await updateUserPassword(tokenData.id, newPasswordHash);
+  await updateUser(tokenData.id, { password_hash: newPasswordHash });
 
   // Delete the used token
   await deletePasswordResetTokenByUser(tokenData.id);

@@ -11,7 +11,7 @@ export type UserSchema = {
 
 // sql helpers
 export type NewUser = Pick<UserSchema, 'email' | 'password_hash' | 'name' | 'surname'>;
-export type UpdateUser = Pick<UserSchema, 'name' | 'surname'>;
+export type UpdateUser = Partial<Pick<UserSchema, 'name' | 'surname' | 'password_hash' | 'email_verified'>>;
 export type SelectUser = Pick<UserSchema, 'id' | 'email' | 'password_hash' | 'name' | 'surname' | 'email_verified'>;
 
 // only visible information
