@@ -29,9 +29,9 @@ export default async function Page({ searchParams }: {
       query,
       city,
       province: prov,
-      place: place ? place.split(',').map(v => v === 'true') : [false, false, false],
-      group: group ? group.split(',').map(v => v === 'true') : [false, false],
-      level: level ? level.split(',').map(v => v === 'true') : [false, false, false, false, false],
+      places: place ? place.split(',').map(v => v === 'true') : [false, false, false],
+      groups: group ? group.split(',').map(v => v === 'true') : [false, false],
+      levels: level ? level.split(',').map(v => v === 'true') : [false, false, false, false, false],
     });
   } catch (error) {
     redirect('/login');
