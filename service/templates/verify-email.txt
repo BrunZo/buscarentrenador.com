@@ -1,0 +1,10 @@
+Hola {{name}},
+
+Gracias por registrarte en BuscarEntrenador.com. Para completar tu registro, necesitamos que verifiques tu correo electrónico.
+
+Hacé clic en el siguiente enlace para verificar tu correo:
+{{url}}
+
+Este enlace expirará en 24 horas. Si no solicitaste esta verificación, podés ignorar este correo.
+
+BuscarEntrenador.com - Tu plataforma para encontrar entrenadores personales
