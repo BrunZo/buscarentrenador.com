@@ -1,5 +1,5 @@
 import { AlreadyVerifiedError, TokenExpiredError, InvalidTokenError, UserNotFoundError } from "../errors";
-import { getUserByEmail, setEmailVerifiedByUser } from "@/data/users";
+import { getUserByEmail, updateUser } from "@/data/users";
 import { createVerificationToken, deleteVerificationTokenByUser, getUserByToken } from "@/data/verification_tokens";
 import { generateRandomToken } from "../crypto";
 import { sendVerificationEmail } from "./email";
@@ -49,7 +49,7 @@ export async function verifyUserEmail(token: string) {
   if (new Date() > new Date(tokenData.expires))
     throw new TokenExpiredError();
 
-  await setEmailVerifiedByUser(tokenData.user_id);
+  await updateUser(tokenData.user_id, { email_verified: true });
   await deleteVerificationTokenByUser(tokenData.user_id);
 }
 

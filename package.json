@@ -6,10 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "init-db": "node scripts/init-db.js",
-    "clear-db": "node scripts/clear-db.js",
-    "import-trainers": "node scripts/import-trainers.js"
+    "lint": "next lint"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
