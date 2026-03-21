@@ -1,8 +1,8 @@
-import { AlreadyVerifiedError, TokenExpiredError, InvalidTokenError, UserNotFoundError } from "../errors";
+import { AlreadyVerifiedError, TokenExpiredError, InvalidTokenError, UserNotFoundError } from "@/service/errors";
 import { getUserByEmail, updateUser } from "@/data/users";
 import { createVerificationToken, deleteVerificationTokenByUser, getUserByToken } from "@/data/verification_tokens";
-import { generateRandomToken } from "../crypto";
-import { sendVerificationEmail } from "./email";
+import { generateRandomToken } from "@/service/crypto";
+import { sendVerificationEmail } from "@/service/auth/email";
 
 /**
  * 
@@ -63,10 +63,8 @@ export async function verifyUserEmail(token: string) {
  * @throws AlreadyVerifiedError - if the user's email is already verified
  */
 export async function resendVerificationEmail(email: string): Promise<void> {
-  const user = await getUserByEmail(email);
+  // generateVerificationToken throws UserNotFoundError if no user exists, so user is guaranteed here
   const token = await generateVerificationToken(email);
-  if (!user)
-    throw new UserNotFoundError();
-
-  await sendVerificationEmail(user.email, user.name, token);
+  const user = await getUserByEmail(email);
+  await sendVerificationEmail(user!.email, user!.name, token);
 }

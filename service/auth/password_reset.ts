@@ -2,15 +2,14 @@ import {
   InvalidResetTokenError,
   ResetTokenExpiredError,
   UserNotFoundError,
-} from "../errors";
+} from "@/service/errors";
 import { getUserByEmail, updateUser } from "@/data/users";
 import {
   createPasswordResetToken,
   deletePasswordResetTokenByUser,
   getUserByResetToken,
 } from "@/data/password_reset_tokens";
-
-import { generateRandomToken, hashPassword } from "../crypto";
+import { generateRandomToken, hashPassword } from "@/service/crypto";
 
 /**
  * Generates a password reset token for the user with the provided email.
@@ -26,7 +25,7 @@ export async function generatePasswordResetToken(
   email: string,
 ): Promise<string> {
   const user = await getUserByEmail(email);
-  if (!user) return "";
+  if (!user) throw new UserNotFoundError();
   // Delete any existing reset tokens for this user
   await deletePasswordResetTokenByUser(user.id);
 

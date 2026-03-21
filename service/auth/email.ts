@@ -1,7 +1,7 @@
 import { readFile } from 'fs/promises';
 import path from 'path';
 import { Resend } from 'resend';
-import { ServerError } from '../errors';
+import { ServerError } from '@/service/errors';
 
 function getEnv(key: string): string {
   const value = process.env[key];
