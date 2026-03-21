@@ -1,7 +1,8 @@
 import NextAuth from "next-auth";
 import type { NextAuthConfig } from "next-auth";
+import type { JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { verifyLogin } from "./login";
+import { verifyLogin } from "@/service/auth/login";
 
 export const authConfig: NextAuthConfig = {
   providers: [
@@ -11,12 +12,12 @@ export const authConfig: NextAuthConfig = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" }
       },
-      async authorize(credentials: any) {
+      async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
         try {
-          const user = await verifyLogin(credentials.email, credentials.password);
+          const user = await verifyLogin(credentials.email as string, credentials.password as string);
           return user;
         } catch (error) {
           return null;
@@ -25,28 +26,26 @@ export const authConfig: NextAuthConfig = {
     })
   ],
   callbacks: {
-    async jwt({ token, user, trigger, session }: any) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
         token.email = user.email;
         token.name = user.name;
         token.surname = user.surname;
       }
-      
+
       if (trigger === "update" && session) {
         token.name = session.name;
         token.surname = session.surname;
       }
-      
+
       return token;
     },
-    async session({ session, token }: any) {
-      if (token) {
-        session.user.id = token.id as number;
-        session.user.email = token.email as string;
-        session.user.name = token.name as string;
-        session.user.surname = token.surname as string;
-      }
+    async session({ session, token }) {
+      session.user.id = token.id;
+      session.user.email = token.email;
+      session.user.name = token.name;
+      session.user.surname = token.surname;
       return session;
     },
   },

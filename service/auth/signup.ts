@@ -1,31 +1,31 @@
-import { sendVerificationEmail } from "./email";
+import { sendVerificationEmail } from "@/service/auth/email";
 import { createUser } from "@/data/users";
-import { generateVerificationToken } from "./verification_tokens";
-import { hashPassword } from "../crypto";
+import { generateVerificationToken } from "@/service/auth/verification_tokens";
+import { hashPassword } from "@/service/crypto";
 import { NewUser, UserInfo } from "@/types/users";
-import { EmailAlreadyInUseError } from "../errors";
+import { EmailAlreadyInUseError } from "@/service/errors";
 
 /**
  * Full signup flow:
  *  Creates user with provided email, password, name and surname
  *  Generates a random verification token.
  *  Sends it to the provided email address.
- * 
- * @param email 
- * @param password 
- * @param name 
- * @param surname 
+ *
+ * @param email
+ * @param password
+ * @param name
+ * @param surname
  * @returns The registered user's id.
  * @throws EmailAlreadyInUseError
- * 
- * Dev notes: 
- * - the method generateVerificationToken could throw UserNotFound or AlreadyVerifiedError, but this is not to be expected except the createUser method is not working properly.
- * - the sendVerifcationEmail method could throw a ServerError if something is wrong with the email sender. 
+ *
+ * Dev notes:
+ * - generateVerificationToken could throw UserNotFound or AlreadyVerifiedError, but this is not expected unless createUser is not working properly.
+ * - sendVerificationEmail could throw a ServerError if something is wrong with the email sender.
  */
 export async function signupUser(
-    email: string, 
-    password: string, 
-    name: string, 
+    email: string,
+    password: string,
+    name: string,
     surname: string
 ): Promise<UserInfo> {
   const password_hash = await hashPassword(password);

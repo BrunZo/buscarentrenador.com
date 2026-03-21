@@ -1,6 +1,6 @@
 import { updateUser } from "@/data/users";
 import type { UpdateUser, UserInfo } from "@/types/users";
-import { UserNotFoundError } from "../errors";
+import { UserNotFoundError } from "@/service/errors";
 
 /**
  * Updates a user's profile information (name and surname).
@@ -16,4 +16,3 @@ export async function updateUserProfile(userId: number, updates: UpdateUser): Pr
 
   return user;
 }
-
