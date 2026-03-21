@@ -1,4 +1,4 @@
-import { getTrainerByUserId, updateTrainer } from "@/data/trainers";
+import { createTrainer, getTrainerByUserId, updateTrainer } from "@/data/trainers";
 import { TrainerNotFoundError } from "../errors";
 import type { TrainerInfo, UpdateTrainer } from "@/types/trainers";
 
@@ -15,11 +15,17 @@ export async function createOrUpdateTrainer(
   userId: number,
   trainerData: UpdateTrainer
 ): Promise<TrainerInfo> {
+  let trainerId: number;
   const existingTrainer = await getTrainerByUserId(userId);
-  if (!existingTrainer)
-    throw new TrainerNotFoundError();
+  if (existingTrainer) {
+    trainerId = existingTrainer.id;
+  } else {
+    const created = await createTrainer(userId);
+    if (!created) throw new TrainerNotFoundError();
+    trainerId = created.id;
+  }
 
-  const updatedTrainer = await updateTrainer(existingTrainer.id, trainerData);
+  const updatedTrainer = await updateTrainer(trainerId, trainerData);
   if (!updatedTrainer)
     throw new TrainerNotFoundError();
 

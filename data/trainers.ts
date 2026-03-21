@@ -26,6 +26,15 @@ function getTrainerWithUserSelect() {
   };
 }
 
+export async function createTrainer(userId: number): Promise<SelectTrainer | null> {
+  const [result] = await db
+    .insert(trainers)
+    .values({ user_id: userId })
+    .returning();
+
+  return result ?? null;
+}
+
 export async function updateTrainer(trainerId: number, updates: UpdateTrainer): Promise<SelectTrainer | null> {
   const [result] = await db
     .update(trainers)
