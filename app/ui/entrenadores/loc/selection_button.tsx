@@ -12,20 +12,23 @@ export default function SelectionButton({ icon, name, placeholder, selection, ha
   options: string[]
 }) {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [query, setQuery] = useState('')
   const [filter, setFilter] = useState('')
 
-  const handleSearch = useDebouncedCallback((term: string) => setFilter(term))
+  const handleSearch = useDebouncedCallback((term: string) => setFilter(term), 150)
 
   const buttonRef = useRef<HTMLInputElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (buttonRef.current) {
-      buttonRef.current.value = selection
-      if (menuOpen) buttonRef.current.focus()
-      else buttonRef.current.blur()
+    if (!menuOpen) {
+      setQuery('')
+      setFilter('')
+      buttonRef.current?.blur()
+    } else {
+      buttonRef.current?.focus()
     }
-  }, [menuOpen, selection])
+  }, [menuOpen])
 
   useEffect(() => {
     document.addEventListener('click', (e: MouseEvent) => {
@@ -50,14 +53,30 @@ export default function SelectionButton({ icon, name, placeholder, selection, ha
           'bg-gray-100 text-gray-400 border-gray-200': options.length === 0
         })}
         placeholder={placeholder}
-        value={selection}
+        value={menuOpen ? query : selection}
         name={name}
-        onClick={e => setMenuOpen(!menuOpen && options.length > 1)}
-        onFocus={e => handleSearch(e.target.value)}
-        onChange={e => handleSearch(e.target.value)}
+        onClick={() => setMenuOpen(!menuOpen && options.length > 1)}
+        onChange={e => {
+          setQuery(e.target.value)
+          handleSearch(e.target.value)
+          if (!menuOpen && options.length > 1) setMenuOpen(true)
+        }}
         onKeyDown={e => {
-          if (e.key === 'Enter')
-            setMenuOpen(!menuOpen && options.length > 1)
+          if (e.key === 'Enter') {
+            if (menuOpen) {
+              const match = options.find(opt =>
+                opt.toLowerCase().includes(filter.toLowerCase())
+              )
+              if (match) {
+                setMenuOpen(false)
+                handleSelect(match)
+              }
+            } else if (options.length > 1) {
+              setMenuOpen(true)
+            }
+          } else if (e.key === 'Escape') {
+            setMenuOpen(false)
+          }
         }}
         autoComplete='off'
       />
