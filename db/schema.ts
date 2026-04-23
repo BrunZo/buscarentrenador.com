@@ -29,6 +29,7 @@ export const trainers = pgTable('trainers', {
   certifications: text('certifications').array(),
   is_visible: boolean('is_visible').default(true),
   soy_exo: boolean('soy_exo').default(false),
+  examenes_oma: boolean('examenes_oma').default(false),
   created_at: timestamp('created_at').defaultNow(),
   updated_at: timestamp('updated_at').defaultNow(),
 }, (table) => [

@@ -20,6 +20,7 @@ function getTrainerWithUserSelect() {
     certifications: trainers.certifications,
     is_visible: trainers.is_visible,
     soy_exo: trainers.soy_exo,
+    examenes_oma: trainers.examenes_oma,
     created_at: trainers.created_at,
     updated_at: trainers.updated_at,
     password_hash: users.password_hash,

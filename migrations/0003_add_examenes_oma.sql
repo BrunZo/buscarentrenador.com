@@ -1,0 +1,1 @@
+ALTER TABLE "trainers" ADD COLUMN "examenes_oma" boolean DEFAULT false;
