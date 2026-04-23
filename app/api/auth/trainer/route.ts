@@ -13,6 +13,7 @@ const trainerSchema = z.object({
   groups: z.array(z.boolean()).length(2).optional(),
   levels: z.array(z.boolean()).length(5).optional(),
   certifications: z.array(z.string()).optional(),
+  soy_exo: z.boolean().optional(),
 });
 
 export async function POST(request: NextRequest) {
