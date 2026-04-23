@@ -23,9 +23,9 @@ export default async function Page() {
     places: trainer?.places && trainer?.places.length >= 3 
       ? trainer?.places.slice(0, 3) 
       : [false, false, false],
-    groups: trainer?.groups && trainer?.groups.length >= 2 
-      ? trainer?.groups.slice(0, 2) 
-      : [false, false],
+    groups: trainer?.groups && trainer?.groups.length >= 3
+      ? trainer?.groups.slice(0, 3)
+      : [trainer?.groups?.[0] ?? false, trainer?.groups?.[1] ?? false, trainer?.groups?.[2] ?? false],
     levels: trainer?.levels && trainer?.levels.length >= 5
       ? trainer?.levels.slice(0, 5)
       : [false, false, false, false, false],

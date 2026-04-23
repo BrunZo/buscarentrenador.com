@@ -29,6 +29,13 @@
       "when": 1776923053259,
       "tag": "0003_add_examenes_oma",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1776923191111,
+      "tag": "0004_backfill_groups_escuela",
+      "breakpoints": true
     }
   ]
 }

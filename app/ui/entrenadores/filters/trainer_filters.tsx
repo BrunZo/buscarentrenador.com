@@ -1,4 +1,5 @@
 import {
+  AcademicCapIcon,
   BuildingStorefrontIcon,
   ComputerDesktopIcon,
   HomeIcon,
@@ -18,10 +19,11 @@ const trainerFilters = [
   },
   {
     name: 'group',
-    options: ['Individual', 'Grupal'],
+    options: ['Individual', 'Grupal', 'Escuela'],
     icons: [
       <UserIcon key={0} width={24} height={24} />,
-      <UserGroupIcon key={1} width={24} height={24} />
+      <UserGroupIcon key={1} width={24} height={24} />,
+      <AcademicCapIcon key={2} width={24} height={24} />
     ]
   },
   {
