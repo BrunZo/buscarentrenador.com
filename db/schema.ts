@@ -28,6 +28,7 @@ export const trainers = pgTable('trainers', {
   hourly_rate: decimal('hourly_rate', { precision: 10, scale: 2 }),
   certifications: text('certifications').array(),
   is_visible: boolean('is_visible').default(true),
+  soy_exo: boolean('soy_exo').default(false),
   created_at: timestamp('created_at').defaultNow(),
   updated_at: timestamp('updated_at').defaultNow(),
 }, (table) => [

@@ -1,0 +1,1 @@
+ALTER TABLE "trainers" ADD COLUMN "soy_exo" boolean DEFAULT false;

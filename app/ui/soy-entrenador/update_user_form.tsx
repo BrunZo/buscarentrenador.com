@@ -9,14 +9,15 @@ import Button from '@/app/ui/form/button';
 import AchievementList from './achievement_list';
 
 export default function UpdateUserForm({ defaultOptions }: {
-  defaultOptions: { 
-    prov: string, 
+  defaultOptions: {
+    prov: string,
     city: string,
     description: string,
     certifications: string[],
     places: boolean[],
     groups: boolean[],
     levels: boolean[],
+    soy_exo: boolean,
   },
 }) {
   const router = useRouter();
@@ -27,6 +28,7 @@ export default function UpdateUserForm({ defaultOptions }: {
   const [places, setPlaces] = useState<boolean[]>(defaultOptions.places);
   const [groups, setGroups] = useState<boolean[]>(defaultOptions.groups);
   const [levels, setLevels] = useState<boolean[]>(defaultOptions.levels);
+  const [soyExo, setSoyExo] = useState<boolean>(defaultOptions.soy_exo);
   const [isSubmitting, setIsSubmitting] = useState(false);
   // TODO: errorMessage is missing
 
@@ -50,6 +52,7 @@ export default function UpdateUserForm({ defaultOptions }: {
           groups,
           levels,
           certifications,
+          soy_exo: soyExo,
         }),
       });
 
@@ -96,7 +99,26 @@ export default function UpdateUserForm({ defaultOptions }: {
         </div>
 
         <AchievementList achievements={achievements} setAchievements={setAchievements} />
-        <FilterGrid 
+
+        <div className='flex items-center justify-between py-1'>
+          <label htmlFor='soy_exo' className='text-sm font-medium text-gray-700 select-none cursor-pointer'>
+            Soy Exolímpico
+          </label>
+          <button
+            id='soy_exo'
+            type='button'
+            role='switch'
+            aria-checked={soyExo}
+            onClick={() => setSoyExo(prev => !prev)}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${soyExo ? 'bg-indigo-600' : 'bg-gray-300'}`}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${soyExo ? 'translate-x-6' : 'translate-x-1'}`}
+            />
+          </button>
+        </div>
+
+        <FilterGrid
           filters={trainerFilters} 
           defaultStates={{
             place: defaultOptions.places,

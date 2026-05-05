@@ -26,9 +26,10 @@ export default async function Page() {
     groups: trainer?.groups && trainer?.groups.length >= 2 
       ? trainer?.groups.slice(0, 2) 
       : [false, false],
-    levels: trainer?.levels && trainer?.levels.length >= 5 
-      ? trainer?.levels.slice(0, 5) 
-      : [false, false, false, false, false]
+    levels: trainer?.levels && trainer?.levels.length >= 5
+      ? trainer?.levels.slice(0, 5)
+      : [false, false, false, false, false],
+    soy_exo: trainer?.soy_exo ?? false,
   };
 
   return (

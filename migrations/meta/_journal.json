@@ -15,6 +15,13 @@
       "when": 1774056672400,
       "tag": "0001_melted_george_stacy",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1776922999424,
+      "tag": "0002_add_soy_exo",
+      "breakpoints": true
     }
   ]
 }
