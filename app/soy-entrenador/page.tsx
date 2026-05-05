@@ -30,6 +30,7 @@ export default async function Page() {
       ? trainer?.levels.slice(0, 5)
       : [false, false, false, false, false],
     soy_exo: trainer?.soy_exo ?? false,
+    examenes_oma: trainer?.examenes_oma ?? false,
   };
 
   return (

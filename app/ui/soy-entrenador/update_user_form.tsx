@@ -18,6 +18,7 @@ export default function UpdateUserForm({ defaultOptions }: {
     groups: boolean[],
     levels: boolean[],
     soy_exo: boolean,
+    examenes_oma: boolean,
   },
 }) {
   const router = useRouter();
@@ -29,6 +30,7 @@ export default function UpdateUserForm({ defaultOptions }: {
   const [groups, setGroups] = useState<boolean[]>(defaultOptions.groups);
   const [levels, setLevels] = useState<boolean[]>(defaultOptions.levels);
   const [soyExo, setSoyExo] = useState<boolean>(defaultOptions.soy_exo);
+  const [examenesOma, setExamenesOma] = useState<boolean>(defaultOptions.examenes_oma);
   const [isSubmitting, setIsSubmitting] = useState(false);
   // TODO: errorMessage is missing
 
@@ -53,6 +55,7 @@ export default function UpdateUserForm({ defaultOptions }: {
           levels,
           certifications,
           soy_exo: soyExo,
+          examenes_oma: soyExo ? examenesOma : false,
         }),
       });
 
@@ -117,6 +120,26 @@ export default function UpdateUserForm({ defaultOptions }: {
             />
           </button>
         </div>
+
+        {soyExo && (
+          <div className='flex items-center justify-between py-1'>
+            <label htmlFor='examenes_oma' className='text-sm font-medium text-gray-700 select-none cursor-pointer pr-3'>
+              Estoy dispuesto a participar en la toma de exámenes de OMA
+            </label>
+            <button
+              id='examenes_oma'
+              type='button'
+              role='switch'
+              aria-checked={examenesOma}
+              onClick={() => setExamenesOma(prev => !prev)}
+              className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${examenesOma ? 'bg-indigo-600' : 'bg-gray-300'}`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${examenesOma ? 'translate-x-6' : 'translate-x-1'}`}
+              />
+            </button>
+          </div>
+        )}
 
         <FilterGrid
           filters={trainerFilters} 

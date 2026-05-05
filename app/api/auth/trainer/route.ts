@@ -14,6 +14,7 @@ const trainerSchema = z.object({
   levels: z.array(z.boolean()).length(5).optional(),
   certifications: z.array(z.string()).optional(),
   soy_exo: z.boolean().optional(),
+  examenes_oma: z.boolean().optional(),
 });
 
 export async function POST(request: NextRequest) {
