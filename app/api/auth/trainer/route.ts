@@ -10,7 +10,7 @@ const trainerSchema = z.object({
   city: z.string().optional(),
   description: z.string().optional(),
   places: z.array(z.boolean()).length(3).optional(),
-  groups: z.array(z.boolean()).length(2).optional(),
+  groups: z.array(z.boolean()).length(3).optional(),
   levels: z.array(z.boolean()).length(5).optional(),
   certifications: z.array(z.string()).optional(),
   soy_exo: z.boolean().optional(),

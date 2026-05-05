@@ -123,7 +123,7 @@ export default function Info({ trainer, individualProfile }: {
               <span className='text-sm font-semibold text-gray-700'>Modalidad:</span>
               <div className='flex items-center gap-2'>
                 <div className='flex flex-wrap gap-2'>
-                  {renderChips(trainer.groups || [false, false], ['Individual', 'Grupal'] as string[])}
+                  {renderChips(trainer.groups || [false, false, false], ['Individual', 'Grupal', 'Escuela'] as string[])}
                 </div>
               </div>
             </div>

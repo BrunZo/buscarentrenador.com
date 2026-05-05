@@ -30,7 +30,7 @@ export default async function Page({ searchParams }: {
       city,
       province: prov,
       places: place ? place.split(',').map(v => v === 'true') : [false, false, false],
-      groups: group ? group.split(',').map(v => v === 'true') : [false, false],
+      groups: group ? group.split(',').map(v => v === 'true') : [false, false, false],
       levels: level ? level.split(',').map(v => v === 'true') : [false, false, false, false, false],
     });
   } catch (error) {
