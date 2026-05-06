@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { 
-  UserNotFoundError, 
-  InvalidCredentialsError, 
+import {
+  UserNotFoundError,
+  InvalidCredentialsError,
   EmailNotVerifiedError,
   AlreadyVerifiedError,
   InvalidTokenError,
@@ -10,7 +10,9 @@ import {
   ServerError,
   JsonError,
   UnauthorizedError,
-  EmailAlreadyInUseError
+  EmailAlreadyInUseError,
+  EmailRegisteredWithGoogleError,
+  EmailRegisteredWithCredentialsError
 } from "@/service/errors";
 import { ZodError } from "zod";
 
@@ -69,6 +71,20 @@ export function handleServiceError(error: unknown): NextResponse {
     return NextResponse.json(
       { error: "El correo electrónico ya está en uso" },
       { status: 400 }
+    );
+  }
+
+  if (error instanceof EmailRegisteredWithGoogleError) {
+    return NextResponse.json(
+      { error: "Esta cuenta está registrada con Google. Iniciá sesión con Google." },
+      { status: 409 }
+    );
+  }
+
+  if (error instanceof EmailRegisteredWithCredentialsError) {
+    return NextResponse.json(
+      { error: "Esta cuenta está registrada con email y contraseña. Iniciá sesión con tu contraseña." },
+      { status: 409 }
     );
   }
   

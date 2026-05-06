@@ -1,18 +1,21 @@
-import { pgTable, serial, varchar, text, boolean, timestamp, decimal, integer, index } from 'drizzle-orm/pg-core';
+import { pgTable, serial, varchar, text, boolean, timestamp, decimal, integer, index, uniqueIndex } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
 // Users table
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
   email: varchar('email', { length: 255 }).notNull().unique(),
-  password_hash: varchar('password_hash', { length: 255 }).notNull(),
+  password_hash: varchar('password_hash', { length: 255 }),
   name: varchar('name', { length: 255 }).notNull(),
   surname: varchar('surname', { length: 255 }).notNull(),
   email_verified: boolean('email_verified').default(false),
+  auth_provider: varchar('auth_provider', { length: 20 }).$type<'credentials' | 'google'>().notNull().default('credentials'),
+  google_id: varchar('google_id', { length: 255 }),
   created_at: timestamp('created_at').defaultNow(),
   updated_at: timestamp('updated_at').defaultNow(),
 }, (table) => [
   index('idx_users_email').on(table.email),
+  uniqueIndex('idx_users_google_id').on(table.google_id),
 ]);
 
 // Trainers table

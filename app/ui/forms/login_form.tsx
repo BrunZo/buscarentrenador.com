@@ -8,6 +8,13 @@ import { signIn } from 'next-auth/react';
 import Input from '@/app/ui/form/input';
 import Button from '@/app/ui/form/button';
 import Message from '@/app/ui/form/message';
+import GoogleSignInButton from '@/app/ui/forms/google_signin_button';
+
+const GOOGLE_ERROR_MESSAGES: Record<string, string> = {
+  email_in_use_credentials: 'Esta cuenta ya está registrada con email y contraseña. Iniciá sesión con tu contraseña.',
+  google_signup_failed: 'No pudimos crear la cuenta con Google. Intentá de nuevo.',
+  google_no_email: 'No pudimos obtener tu correo de Google. Intentá de nuevo.',
+};
 
 export default function LoginForm() {
   const router = useRouter();
@@ -19,9 +26,12 @@ export default function LoginForm() {
   const [userEmail, setUserEmail] = useState('');
 
   useEffect(() => {
-    // Check for password reset success message
     if (searchParams.get('reset') === 'success') {
       setSuccessMessage('Tu contraseña ha sido actualizada exitosamente. Podés iniciar sesión con tu nueva contraseña.');
+    }
+    const errorParam = searchParams.get('error');
+    if (errorParam && GOOGLE_ERROR_MESSAGES[errorParam]) {
+      setError(GOOGLE_ERROR_MESSAGES[errorParam]);
     }
   }, [searchParams]);
 
@@ -79,7 +89,15 @@ export default function LoginForm() {
         <LockClosedIcon className='h-5 w-5' />
       </Input>
       <Button text={isLoading ? 'Ingresando...' : 'Ingresar'} disabled={isLoading} />
-      
+
+      <div className='flex items-center gap-3'>
+        <div className='h-px flex-1 bg-gray-200' />
+        <span className='text-xs uppercase tracking-wide text-gray-400'>o</span>
+        <div className='h-px flex-1 bg-gray-200' />
+      </div>
+
+      <GoogleSignInButton label='Iniciar sesión con Google' />
+
       <div className='text-center text-gray-600 text-sm'>
         <Link
           className='text-indigo-600 hover:text-indigo-700 font-semibold hover:underline transition-colors duration-200'

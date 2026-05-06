@@ -1,14 +1,33 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/db/index";
 import { users } from "@/db/schema";
-import type { NewUser, UpdateUser, SelectUser } from "@/types/users";
+import type { NewUser, NewGoogleUser, UpdateUser, SelectUser } from "@/types/users";
 
 export async function createUser(newUser: NewUser): Promise<SelectUser | null> {
   if (await isEmailInUse(newUser.email)) {
     return null;
   }
 
-  const [result] = await db.insert(users).values(newUser).returning();
+  const [result] = await db
+    .insert(users)
+    .values({ ...newUser, auth_provider: 'credentials' })
+    .returning();
+  return result;
+}
+
+export async function createGoogleUser(newUser: NewGoogleUser): Promise<SelectUser | null> {
+  if (await isEmailInUse(newUser.email)) {
+    return null;
+  }
+
+  const [result] = await db
+    .insert(users)
+    .values({
+      ...newUser,
+      auth_provider: 'google',
+      email_verified: true,
+    })
+    .returning();
   return result;
 }
 

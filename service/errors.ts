@@ -73,9 +73,23 @@ export class ResetTokenExpiredError extends Error {
 }
 
 export class EmailAlreadyInUseError extends Error {
-  constructor() { 
+  constructor() {
     super("Email already in use");
     this.name = "EmailAlreadyInUseError";
+  }
+}
+
+export class EmailRegisteredWithGoogleError extends Error {
+  constructor() {
+    super("Email registered with Google");
+    this.name = "EmailRegisteredWithGoogleError";
+  }
+}
+
+export class EmailRegisteredWithCredentialsError extends Error {
+  constructor() {
+    super("Email registered with credentials");
+    this.name = "EmailRegisteredWithCredentialsError";
   }
 }
 
