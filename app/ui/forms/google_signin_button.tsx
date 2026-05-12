@@ -8,20 +8,26 @@ export default function GoogleSignInButton({ label = 'Continuar con Google' }: {
 
   const handleClick = async () => {
     setIsLoading(true);
+    let shouldResetLoading = true;
+
     try {
       const result = await signIn('google', { callbackUrl: '/cuenta', redirect: false });
 
       if (result?.error) {
-        window.location.href = '/login?error=google_signin_failed';
+        shouldResetLoading = false;
+        window.location.href = `/login?error=${encodeURIComponent(result.error)}`;
         return;
       }
 
       if (result?.url) {
+        shouldResetLoading = false;
         window.location.href = result.url;
         return;
       }
     } finally {
-      setIsLoading(false);
+      if (shouldResetLoading) {
+        setIsLoading(false);
+      }
     }
   };
 
