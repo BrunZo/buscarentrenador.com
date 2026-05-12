@@ -42,15 +42,6 @@ export const authConfig: NextAuthConfig = {
     GoogleProvider({
       clientId: process.env.AUTH_GOOGLE_ID!,
       clientSecret: process.env.AUTH_GOOGLE_SECRET!,
-      profile(profile) {
-        const { name, surname } = splitGoogleName(profile);
-        return {
-          id: profile.sub,
-          email: profile.email,
-          name,
-          surname,
-        } as any;
-      },
     }),
   ],
   callbacks: {
@@ -59,6 +50,7 @@ export const authConfig: NextAuthConfig = {
 
       const email = user?.email ?? profile?.email;
       if (!email) return '/login?error=google_no_email';
+      const { name, surname } = splitGoogleName(profile ?? {});
 
       const existing = await getUserByEmail(email);
 
@@ -75,8 +67,8 @@ export const authConfig: NextAuthConfig = {
 
       const created = await createGoogleUser({
         email,
-        name: user.name,
-        surname: user.surname,
+        name: user.name ?? name,
+        surname: user.surname ?? surname,
         google_id: account.providerAccountId,
       });
       if (!created) return '/login?error=google_signup_failed';
