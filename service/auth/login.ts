@@ -1,4 +1,4 @@
-import type { UserInfo } from "@/types/users";
+import type { SelectUser } from "@/types/users";
 import { compare } from "bcrypt";
 import {
   InvalidCredentialsError,
@@ -6,7 +6,7 @@ import {
   UserNotFoundError,
   EmailRegisteredWithGoogleError,
 } from "@/service/errors";
-import { getUserByEmail } from "@/data/users";
+import { getUserByEmail } from "@/service/users";
 
 /**
  * Verifies an email and password pair.
@@ -20,20 +20,20 @@ import { getUserByEmail } from "@/data/users";
  * @throws EmailNotVerifiedError - if the user's email is not verified
  * @throws InvalidCredentialsError - if the password does not match
  */
-export async function verifyLogin(email: string, password: string): Promise<UserInfo & { id: number }> {
+export async function verifyLogin(
+  email: string,
+  password: string,
+): Promise<SelectUser & { id: number }> {
   const user = await getUserByEmail(email);
-  if (!user)
-    throw new UserNotFoundError();
+  if (!user) throw new UserNotFoundError();
 
-  if (user.auth_provider === 'google')
+  if (user.auth_provider === "google")
     throw new EmailRegisteredWithGoogleError();
 
-  if (!user.email_verified)
-    throw new EmailNotVerifiedError();
+  if (!user.email_verified) throw new EmailNotVerifiedError();
 
   const isPasswordValid = await compare(password, user.password_hash!);
-  if (!isPasswordValid)
-    throw new InvalidCredentialsError();
+  if (!isPasswordValid) throw new InvalidCredentialsError();
 
   return user;
 }

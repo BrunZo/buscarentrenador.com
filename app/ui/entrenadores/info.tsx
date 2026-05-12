@@ -1,8 +1,8 @@
 import Image from 'next/image'
-import type { TrainerWithUserInfo } from '@/types/trainers'
+import type { PublicTrainerUser } from '@/types/trainers'
 
 export default function Info({ trainer, individualProfile }: {
-  trainer: TrainerWithUserInfo
+  trainer: PublicTrainerUser
   individualProfile: boolean
 }) {
   const image_src = '';

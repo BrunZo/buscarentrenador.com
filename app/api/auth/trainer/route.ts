@@ -26,14 +26,10 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json().catch(() => { throw new JsonError(); });
     const data = trainerSchema.parse(body);
-    const result = await createOrUpdateTrainer(session.user.id, data);
-    
+    await createOrUpdateTrainer(session.user.id, data);
+
     return NextResponse.json(
-      { 
-        message: result 
-          ? "Entrenador creado exitosamente" 
-          : "Información de entrenador guardada exitosamente" 
-      }, 
+      { message: "Información de entrenador guardada exitosamente" },
       { status: 201 }
     );
   } catch (error) {

@@ -1,4 +1,4 @@
-export type AuthProvider = 'credentials' | 'google';
+export type AuthProvider = "credentials" | "google";
 
 export type UserSchema = {
   id: number;
@@ -14,14 +14,26 @@ export type UserSchema = {
 };
 
 // sql helpers
-export type NewUser = Pick<UserSchema, 'email' | 'name' | 'surname'> & {
+export type NewUser = Pick<UserSchema, "email" | "name" | "surname"> & {
   password_hash: string;
 };
-export type NewGoogleUser = Pick<UserSchema, 'email' | 'name' | 'surname'> & {
+export type NewGoogleUser = Pick<UserSchema, "email" | "name" | "surname"> & {
   google_id: string;
 };
-export type UpdateUser = Partial<Pick<UserSchema, 'name' | 'surname' | 'password_hash' | 'email_verified'>>;
-export type SelectUser = Pick<UserSchema, 'id' | 'email' | 'password_hash' | 'name' | 'surname' | 'email_verified' | 'auth_provider' | 'google_id'>;
+export type UpdateUser = Partial<
+  Pick<UserSchema, "name" | "surname" | "password_hash" | "email_verified">
+>;
+export type SelectUser = Pick<
+  UserSchema,
+  | "id"
+  | "email"
+  | "password_hash"
+  | "name"
+  | "surname"
+  | "email_verified"
+  | "auth_provider"
+  | "google_id"
+>;
 
 // only visible information
-export type UserInfo = Pick<UserSchema, 'email' | 'name' | 'surname'>;
+export type PublicUser = Pick<UserSchema, "email" | "name" | "surname">;
