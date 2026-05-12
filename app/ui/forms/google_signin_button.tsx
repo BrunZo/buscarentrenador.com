@@ -34,11 +34,9 @@ export default function GoogleSignInButton({ label = 'Continuar con Google' }: {
         }
       }
 
-      if (!willRedirect) {
-        willRedirect = true;
-        router.push('/login?error=google_signin_failed');
-        return;
-      }
+      willRedirect = true;
+      router.push('/login?error=google_signin_failed');
+      return;
     } finally {
       if (!willRedirect) {
         setIsLoading(false);
