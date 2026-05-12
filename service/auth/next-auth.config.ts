@@ -3,7 +3,7 @@ import type { NextAuthConfig } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import { verifyLogin } from "@/service/auth/login";
-import { getUserByEmail, createGoogleUser } from "@/data/users";
+import { getUserByEmail, createGoogleUser, getUserByGoogleId } from "@/data/users";
 
 function splitGoogleName(profile: { name?: string | null; given_name?: string; family_name?: string }) {
   const given = profile.given_name?.trim();
@@ -48,20 +48,32 @@ export const authConfig: NextAuthConfig = {
     async signIn({ user, account, profile }: any) {
       if (account?.provider !== 'google') return true;
 
+      const googleId = account.providerAccountId;
+      if (!googleId) return '/login?error=google_signup_failed';
+
+      const existingByGoogleId = await getUserByGoogleId(googleId);
+      if (existingByGoogleId) {
+        user.id = existingByGoogleId.id;
+        user.email = existingByGoogleId.email;
+        user.name = existingByGoogleId.name;
+        user.surname = existingByGoogleId.surname;
+        return true;
+      }
+
       const email = user?.email ?? profile?.email;
       if (!email) return '/login?error=google_no_email';
       const { name, surname } = splitGoogleName(profile ?? {});
 
-      const existing = await getUserByEmail(email);
+      const existingByEmail = await getUserByEmail(email);
 
-      if (existing) {
-        if (existing.auth_provider !== 'google') {
+      if (existingByEmail) {
+        if (existingByEmail.auth_provider !== 'google') {
           return '/login?error=email_in_use_credentials';
         }
-        user.id = existing.id;
-        user.email = existing.email;
-        user.name = existing.name;
-        user.surname = existing.surname;
+        user.id = existingByEmail.id;
+        user.email = existingByEmail.email;
+        user.name = existingByEmail.name;
+        user.surname = existingByEmail.surname;
         return true;
       }
 
@@ -69,7 +81,7 @@ export const authConfig: NextAuthConfig = {
         email,
         name: user.name ?? name,
         surname: user.surname ?? surname,
-        google_id: account.providerAccountId,
+        google_id: googleId,
       });
       if (!created) return '/login?error=google_signup_failed';
 
