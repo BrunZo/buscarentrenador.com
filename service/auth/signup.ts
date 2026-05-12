@@ -1,31 +1,13 @@
 import { sendVerificationEmail } from "@/service/auth/email";
-import { createUser, getUserByEmail } from "@/data/users";
+import { createUser, getUserByEmail, createGoogleUser, getUserByGoogleId } from "@/data/users";
 import { generateVerificationToken } from "@/service/auth/verification_tokens";
 import { hashPassword } from "@/service/crypto";
-import { UserInfo } from "@/types/users";
+import type { UserInfo, SelectUser } from "@/types/users";
 import {
   EmailAlreadyInUseError,
   EmailRegisteredWithGoogleError,
 } from "@/service/errors";
 
-/**
- * Full signup flow:
- *  Creates user with provided email, password, name and surname
- *  Generates a random verification token.
- *  Sends it to the provided email address.
- *
- * @param email
- * @param password
- * @param name
- * @param surname
- * @returns The registered user's id.
- * @throws EmailAlreadyInUseError - if the email is registered with credentials
- * @throws EmailRegisteredWithGoogleError - if the email is registered with Google
- *
- * Dev notes:
- * - generateVerificationToken could throw UserNotFound or AlreadyVerifiedError, but this is not expected unless createUser is not working properly.
- * - sendVerificationEmail could throw a ServerError if something is wrong with the email sender.
- */
 export async function signupUser(
     email: string,
     password: string,
@@ -50,4 +32,44 @@ export async function signupUser(
   await sendVerificationEmail(user.email, user.name, token);
 
   return user;
+}
+
+type GoogleProfile = { name?: string | null; given_name?: string; family_name?: string };
+
+export function splitGoogleName(profile: GoogleProfile): { name: string; surname: string } {
+  const given = profile.given_name?.trim();
+  const family = profile.family_name?.trim();
+  if (given && family) return { name: given, surname: family };
+
+  const fullName = profile.name?.trim() ?? '';
+  const parts = fullName.split(/\s+/).filter(Boolean);
+
+  return {
+    name: given || parts[0] || 'Usuario',
+    surname: family || parts.slice(1).join(' ') || '-',
+  };
+}
+
+export async function handleGoogleSignIn(
+  googleId: string,
+  email: string,
+  profile: GoogleProfile
+): Promise<SelectUser | string> {
+  const existingByGoogleId = await getUserByGoogleId(googleId);
+  if (existingByGoogleId) return existingByGoogleId;
+
+  const { name, surname } = splitGoogleName(profile);
+
+  const existingByEmail = await getUserByEmail(email);
+  if (existingByEmail) {
+    if (existingByEmail.auth_provider !== 'google') {
+      return '/login?error=email_in_use_credentials';
+    }
+    return existingByEmail;
+  }
+
+  const created = await createGoogleUser({ email, name, surname, google_id: googleId });
+  if (!created) return '/login?error=google_signup_failed';
+
+  return created;
 }
