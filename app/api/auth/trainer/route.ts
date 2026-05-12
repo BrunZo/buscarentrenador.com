@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/service/auth/next-auth.config";
-import { createOrUpdateTrainer } from "@/service/auth/trainers";
+import { createOrUpdateTrainer } from "@/service/trainers";
 import { z } from "zod";
 import { handleServiceError } from "../../helper";
 import { JsonError, UnauthorizedError } from "@/service/errors";
