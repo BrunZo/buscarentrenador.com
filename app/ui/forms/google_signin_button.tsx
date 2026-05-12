@@ -1,31 +1,46 @@
 'use client';
 
 import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 export default function GoogleSignInButton({ label = 'Continuar con Google' }: { label?: string }) {
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const handleClick = async () => {
     setIsLoading(true);
-    let shouldResetLoading = true;
+    let willRedirect = false;
 
     try {
       const result = await signIn('google', { callbackUrl: '/cuenta', redirect: false });
 
       if (result?.error) {
-        shouldResetLoading = false;
-        window.location.href = `/login?error=${encodeURIComponent(result.error)}`;
+        willRedirect = true;
+        router.push(`/login?error=${encodeURIComponent(result.error)}`);
         return;
       }
 
       if (result?.url) {
-        shouldResetLoading = false;
-        window.location.href = result.url;
+        try {
+          const redirectUrl = new URL(result.url, window.location.origin);
+          if (redirectUrl.origin === window.location.origin) {
+            willRedirect = true;
+            router.push(`${redirectUrl.pathname}${redirectUrl.search}${redirectUrl.hash}`);
+            return;
+          }
+        } catch {
+          // Fall through to generic error redirect below.
+        }
+      }
+
+      if (!willRedirect) {
+        willRedirect = true;
+        router.push('/login?error=google_signin_failed');
         return;
       }
     } finally {
-      if (shouldResetLoading) {
+      if (!willRedirect) {
         setIsLoading(false);
       }
     }
