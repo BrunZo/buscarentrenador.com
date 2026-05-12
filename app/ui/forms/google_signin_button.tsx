@@ -8,7 +8,21 @@ export default function GoogleSignInButton({ label = 'Continuar con Google' }: {
 
   const handleClick = async () => {
     setIsLoading(true);
-    await signIn('google', { callbackUrl: '/cuenta' });
+    try {
+      const result = await signIn('google', { callbackUrl: '/cuenta', redirect: false });
+
+      if (result?.error) {
+        window.location.href = '/login?error=google_signin_failed';
+        return;
+      }
+
+      if (result?.url) {
+        window.location.href = result.url;
+        return;
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
