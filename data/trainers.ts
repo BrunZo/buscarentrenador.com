@@ -2,6 +2,7 @@ import { eq, and, or, desc, sql } from 'drizzle-orm';
 import { db } from '@/db/index';
 import { trainers, users } from '@/db/schema';
 import type { UpdateTrainer, SelectTrainerWithUser, SelectTrainer } from '@/types/trainers';
+import type { AnyColumn } from 'drizzle-orm';
 
 function getTrainerWithUserSelect() {
   return {
@@ -26,6 +27,14 @@ function getTrainerWithUserSelect() {
     password_hash: users.password_hash,
     email_verified: users.email_verified,
   };
+}
+
+// Postgres arrays are 1-indexed; returns an OR fragment for each true position, or null if all false.
+function boolArrayFilter(col: AnyColumn, values: boolean[]) {
+  const conditions = values
+    .map((value, index) => value ? sql`${col}[${index + 1}] = true` : null)
+    .filter((c): c is ReturnType<typeof sql> => c !== null);
+  return conditions.length ? or(...conditions)! : null;
 }
 
 export async function createTrainer(userId: number): Promise<SelectTrainer | null> {
@@ -85,34 +94,17 @@ export async function getTrainersByFilters(filters: {
     );
   }
 
-  if (filters.city) {
-    conditions.push(eq(trainers.city, filters.city));
-  }
+  if (filters.city) conditions.push(eq(trainers.city, filters.city));
+  if (filters.province) conditions.push(eq(trainers.province, filters.province));
 
-  if (filters.province) {
-    conditions.push(eq(trainers.province, filters.province));
-  }
+  const placesFilter = boolArrayFilter(trainers.places, filters.places);
+  if (placesFilter) conditions.push(placesFilter);
 
-  if (filters.places.some(v => v)) {
-    const placeConditions = filters.places
-      .map((value, index) => value ? sql`${trainers.places}[${index + 1}] = true` : null)
-      .filter((c): c is ReturnType<typeof sql> => c !== null);
-    conditions.push(or(...placeConditions)!);
-  }
+  const groupsFilter = boolArrayFilter(trainers.groups, filters.groups);
+  if (groupsFilter) conditions.push(groupsFilter);
 
-  if (filters.groups.some(v => v)) {
-    const groupConditions = filters.groups
-      .map((value, index) => value ? sql`${trainers.groups}[${index + 1}] = true` : null)
-      .filter((c): c is ReturnType<typeof sql> => c !== null);
-    conditions.push(or(...groupConditions)!);
-  }
-
-  if (filters.levels.some(v => v)) {
-    const levelConditions = filters.levels
-      .map((value, index) => value ? sql`${trainers.levels}[${index + 1}] = true` : null)
-      .filter((c): c is ReturnType<typeof sql> => c !== null);
-    conditions.push(or(...levelConditions)!);
-  }
+  const levelsFilter = boolArrayFilter(trainers.levels, filters.levels);
+  if (levelsFilter) conditions.push(levelsFilter);
 
   return db
     .select(getTrainerWithUserSelect())
