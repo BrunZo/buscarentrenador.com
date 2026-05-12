@@ -56,10 +56,9 @@ export async function resetPassword(
   if (new Date() > new Date(tokenData.expires))
     throw new ResetTokenExpiredError();
 
-  // Hash the new password and update the user
+  // Delete the token before updating so a failed update cannot be retried with the same token.
+  await deletePasswordResetTokenByUser(tokenData.id);
+
   const newPasswordHash = await hashPassword(newPassword);
   await updateUser(tokenData.id, { password_hash: newPasswordHash });
-
-  // Delete the used token
-  await deletePasswordResetTokenByUser(tokenData.id);
 }

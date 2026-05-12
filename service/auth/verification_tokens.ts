@@ -48,8 +48,9 @@ export async function verifyUserEmail(token: string) {
   if (new Date() > new Date(tokenData.expires))
     throw new TokenExpiredError();
 
-  await updateUser(tokenData.user_id, { email_verified: true });
+  // Delete the token before marking verified so a failed update cannot be retried.
   await deleteVerificationTokenByUser(tokenData.user_id);
+  await updateUser(tokenData.user_id, { email_verified: true });
 }
 
 /**
