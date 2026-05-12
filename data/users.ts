@@ -1,14 +1,37 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/db/index";
 import { users } from "@/db/schema";
-import type { NewUser, UpdateUser, SelectUser } from "@/types/users";
+import type { NewUser, NewGoogleUser, UpdateUser, SelectUser } from "@/types/users";
 
 export async function createUser(newUser: NewUser): Promise<SelectUser | null> {
   if (await isEmailInUse(newUser.email)) {
     return null;
   }
 
-  const [result] = await db.insert(users).values(newUser).returning();
+  const [result] = await db
+    .insert(users)
+    .values({ ...newUser, auth_provider: 'credentials' })
+    .returning();
+  return result;
+}
+
+export async function createGoogleUser(newUser: NewGoogleUser): Promise<SelectUser | null> {
+  if (await getUserByGoogleId(newUser.google_id)) {
+    return null;
+  }
+
+  if (await isEmailInUse(newUser.email)) {
+    return null;
+  }
+
+  const [result] = await db
+    .insert(users)
+    .values({
+      ...newUser,
+      auth_provider: 'google',
+      email_verified: true,
+    })
+    .returning();
   return result;
 }
 
@@ -37,6 +60,16 @@ export async function getUserByEmail(email: string): Promise<SelectUser | null> 
     .select()
     .from(users)
     .where(eq(users.email, email))
+    .limit(1);
+
+  return user ?? null;
+}
+
+export async function getUserByGoogleId(googleId: string): Promise<SelectUser | null> {
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.google_id, googleId))
     .limit(1);
 
   return user ?? null;

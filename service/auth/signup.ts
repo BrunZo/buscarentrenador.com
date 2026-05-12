@@ -1,9 +1,12 @@
 import { sendVerificationEmail } from "@/service/auth/email";
-import { createUser } from "@/data/users";
+import { createUser, getUserByEmail } from "@/data/users";
 import { generateVerificationToken } from "@/service/auth/verification_tokens";
 import { hashPassword } from "@/service/crypto";
-import { NewUser, UserInfo } from "@/types/users";
-import { EmailAlreadyInUseError } from "@/service/errors";
+import { UserInfo } from "@/types/users";
+import {
+  EmailAlreadyInUseError,
+  EmailRegisteredWithGoogleError,
+} from "@/service/errors";
 
 /**
  * Full signup flow:
@@ -16,7 +19,8 @@ import { EmailAlreadyInUseError } from "@/service/errors";
  * @param name
  * @param surname
  * @returns The registered user's id.
- * @throws EmailAlreadyInUseError
+ * @throws EmailAlreadyInUseError - if the email is registered with credentials
+ * @throws EmailRegisteredWithGoogleError - if the email is registered with Google
  *
  * Dev notes:
  * - generateVerificationToken could throw UserNotFound or AlreadyVerifiedError, but this is not expected unless createUser is not working properly.
@@ -28,6 +32,14 @@ export async function signupUser(
     name: string,
     surname: string
 ): Promise<UserInfo> {
+  const existing = await getUserByEmail(email);
+  if (existing) {
+    if (existing.auth_provider === 'google') {
+      throw new EmailRegisteredWithGoogleError();
+    }
+    throw new EmailAlreadyInUseError();
+  }
+
   const password_hash = await hashPassword(password);
 
   const user = await createUser({ email, password_hash, name, surname });

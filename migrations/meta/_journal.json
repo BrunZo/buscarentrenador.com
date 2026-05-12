@@ -36,6 +36,13 @@
       "when": 1776923191111,
       "tag": "0004_backfill_groups_escuela",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1778200062459,
+      "tag": "0005_add_google_oauth",
+      "breakpoints": true
     }
   ]
 }

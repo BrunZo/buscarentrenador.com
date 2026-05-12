@@ -9,6 +9,7 @@ import Input from '@/app/ui/form/input';
 import Message from '@/app/ui/form/message';
 import PasswordStrengthIndicator from '@/app/ui/signup/password_strength_indicator';
 import validateForm from '@/app/ui/signup/client_validation';
+import GoogleSignInButton from '@/app/ui/forms/google_signin_button';
 
 export default function SignupForm() {
   const router = useRouter();
@@ -152,7 +153,15 @@ export default function SignupForm() {
       </div>
       
       <Button text={isLoading ? 'Creando cuenta...' : 'Crear cuenta'} disabled={isLoading} />
-      
+
+      <div className='flex items-center gap-3'>
+        <div className='h-px flex-1 bg-gray-200' />
+        <span className='text-xs uppercase tracking-wide text-gray-400'>o</span>
+        <div className='h-px flex-1 bg-gray-200' />
+      </div>
+
+      <GoogleSignInButton label='Registrarse con Google' />
+
       <div className='space-y-2 text-center text-gray-600'>
         Si ya tenés cuenta,&nbsp;
         <Link
