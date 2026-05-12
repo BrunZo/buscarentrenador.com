@@ -29,13 +29,14 @@ export default function GoogleSignInButton({ label = 'Continuar con Google' }: {
             router.push(`${redirectUrl.pathname}${redirectUrl.search}${redirectUrl.hash}`);
             return;
           }
-        } catch {
+        } catch (error) {
+          console.error('Google sign-in redirect URL parsing failed:', error);
           // Fall through to generic error redirect below.
         }
       }
 
       willRedirect = true;
-      router.push('/login?error=unexpected_signin_response');
+      router.push('/login?error=signin_failed');
       return;
     } finally {
       if (!willRedirect) {
