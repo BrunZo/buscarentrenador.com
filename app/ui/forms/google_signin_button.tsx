@@ -35,7 +35,7 @@ export default function GoogleSignInButton({ label = 'Continuar con Google' }: {
       }
 
       willRedirect = true;
-      router.push('/login?error=google_signin_failed');
+      router.push('/login?error=unexpected_signin_response');
       return;
     } finally {
       if (!willRedirect) {
