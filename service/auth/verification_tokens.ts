@@ -1,5 +1,5 @@
 import { AlreadyVerifiedError, TokenExpiredError, InvalidTokenError, UserNotFoundError } from "@/service/errors";
-import { getUserByEmail, updateUser } from "@/data/users";
+import { getUserByEmail, updateUser } from "@/service/users";
 import { createVerificationToken, deleteVerificationTokenByUser, getUserByToken } from "@/data/verification_tokens";
 import { generateRandomToken } from "@/service/crypto";
 import { sendVerificationEmail } from "@/service/auth/email";

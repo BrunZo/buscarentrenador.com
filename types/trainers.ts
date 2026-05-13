@@ -1,4 +1,4 @@
-import { SelectUser, UserInfo, UserSchema } from "./users";
+import { PublicUser } from "./users";
 
 export type TrainerSchema = {
   id: number;
@@ -16,16 +16,72 @@ export type TrainerSchema = {
   examenes_oma?: boolean | null;
   created_at: Date | null;
   updated_at: Date | null;
-}
+};
 
-export type NewTrainer = Pick<TrainerSchema, 'user_id' | 'city' | 'province' | 'description' | 'places' | 'groups' | 'levels' | 'hourly_rate' | 'certifications' | 'is_visible' | 'soy_exo' | 'examenes_oma'>;
+export type NewTrainer = Pick<
+  TrainerSchema,
+  | "user_id"
+  | "city"
+  | "province"
+  | "description"
+  | "places"
+  | "groups"
+  | "levels"
+  | "hourly_rate"
+  | "certifications"
+  | "is_visible"
+  | "soy_exo"
+  | "examenes_oma"
+>;
 
-export type UpdateTrainer = Pick<TrainerSchema, 'city' | 'province' | 'description' | 'places' | 'groups' | 'levels' | 'hourly_rate' | 'certifications' | 'is_visible' | 'soy_exo' | 'examenes_oma'>;
+export type UpdateTrainer = Pick<
+  TrainerSchema,
+  | "city"
+  | "province"
+  | "description"
+  | "places"
+  | "groups"
+  | "levels"
+  | "hourly_rate"
+  | "certifications"
+  | "is_visible"
+  | "soy_exo"
+  | "examenes_oma"
+>;
 
-export type SelectTrainer = Pick<TrainerSchema, 'id' | 'city' | 'province' | 'description' | 'places' | 'groups' | 'levels' | 'hourly_rate' | 'certifications' | 'is_visible' | 'soy_exo' | 'examenes_oma' | 'created_at' | 'updated_at'>;
+export type SelectTrainer = Pick<
+  TrainerSchema,
+  | "id"
+  | "city"
+  | "province"
+  | "description"
+  | "places"
+  | "groups"
+  | "levels"
+  | "hourly_rate"
+  | "certifications"
+  | "is_visible"
+  | "soy_exo"
+  | "examenes_oma"
+  | "created_at"
+  | "updated_at"
+>;
 
-export type TrainerInfo = Pick<TrainerSchema, 'city' | 'province' | 'description' | 'places' | 'groups' | 'levels' | 'hourly_rate' | 'certifications' | 'is_visible' | 'soy_exo' | 'examenes_oma' | 'id'>;
+export type PublicTrainer = Pick<
+  TrainerSchema,
+  | "id"
+  | "city"
+  | "province"
+  | "description"
+  | "places"
+  | "groups"
+  | "levels"
+  | "hourly_rate"
+  | "certifications"
+  | "is_visible"
+  | "soy_exo"
+  | "examenes_oma"
+>;
 
-export type SelectTrainerWithUser = SelectTrainer & Omit<SelectUser, 'auth_provider' | 'google_id' | 'password_hash' | 'email_verified'>;
-
-export type TrainerWithUserInfo = TrainerInfo & UserInfo;
+// only visible information
+export type PublicTrainerUser = PublicTrainer & PublicUser;

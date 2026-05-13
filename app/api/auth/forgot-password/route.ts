@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generatePasswordResetToken } from "@/service/auth/password_reset";
 import { sendPasswordResetEmail } from "@/service/auth/email";
-import { getUserByEmail } from "@/data/users";
+import { getUserByEmail } from "@/service/users";
 import { isRateLimited, RATE_LIMIT_RESPONSE } from "@/service/ratelimit";
 
 const SUCCESS_MESSAGE =

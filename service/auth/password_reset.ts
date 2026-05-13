@@ -3,7 +3,7 @@ import {
   ResetTokenExpiredError,
   UserNotFoundError,
 } from "@/service/errors";
-import { getUserByEmail, updateUser } from "@/data/users";
+import { getUserByEmail, updateUser } from "@/service/users";
 import {
   createPasswordResetToken,
   deletePasswordResetTokenByUser,

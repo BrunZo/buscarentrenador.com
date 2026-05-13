@@ -3,7 +3,7 @@
 import UpdateUserForm from '../ui/soy-entrenador/update_user_form';
 import { redirect } from 'next/navigation';
 import { auth } from '@/service/auth/next-auth.config';
-import { getTrainerByUserId } from '@/data/trainers';
+import { getTrainerByUserId } from '@/service/trainers';
 
 export default async function Page() {
   const session = await auth();

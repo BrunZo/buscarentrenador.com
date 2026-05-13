@@ -4,10 +4,10 @@ import clsx from "clsx"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import Info from "@/app/ui/entrenadores/info"
-import type { TrainerWithUserInfo } from "@/types/trainers"
+import type { PublicTrainerUser } from "@/types/trainers"
 
 export default function TrainerProfile({ trainer }: {
-  trainer: TrainerWithUserInfo
+  trainer: PublicTrainerUser
 }) {
   const router = useRouter()
   const [isVisible, setIsVisible] = useState(trainer.is_visible ?? true)
