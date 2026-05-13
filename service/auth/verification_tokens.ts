@@ -1,8 +1,15 @@
-import { AlreadyVerifiedError, TokenExpiredError, InvalidTokenError, UserNotFoundError } from "@/service/errors";
+import {
+  AlreadyVerifiedError,
+  TokenExpiredError,
+  InvalidTokenError,
+  UserNotFoundError,
+} from "@/service/errors";
 import { getUserByEmail, updateUser } from "@/service/users";
-import { createVerificationToken, deleteVerificationTokenByUser, getUserByToken } from "@/data/verification_tokens";
-import { generateRandomToken } from "@/service/crypto";
+import { tokenStore } from "@/service/token_store";
+import { verificationTokens } from "@/db/schema";
 import { sendVerificationEmail } from "@/service/auth/email";
+
+const store = tokenStore(verificationTokens, 24 * 60 * 60 * 1000);
 
 /**
  * - Finds a user with the provided email
@@ -16,18 +23,10 @@ import { sendVerificationEmail } from "@/service/auth/email";
  */
 export async function generateVerificationToken(email: string): Promise<string> {
   const user = await getUserByEmail(email);
-  if (!user)
-    throw new UserNotFoundError();
+  if (!user) throw new UserNotFoundError();
+  if (user.email_verified) throw new AlreadyVerifiedError();
 
-  if (user.email_verified)
-    throw new AlreadyVerifiedError();
-
-  await deleteVerificationTokenByUser(user.id);
-
-  const newToken = generateRandomToken();
-  const tokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
-  await createVerificationToken({ user_id: user.id, token: newToken, expires: tokenExpires });
-  return newToken;
+  return store.issue(user.id);
 }
 
 /**
@@ -38,18 +37,13 @@ export async function generateVerificationToken(email: string): Promise<string> 
  * @throws TokenExpiredError - if the token has already expired.
  */
 export async function verifyUserEmail(token: string) {
-  const tokenData = await getUserByToken(token);
-  if (!tokenData)
-    throw new InvalidTokenError();
-
-  if (tokenData.email_verified)
-    throw new AlreadyVerifiedError();
-
-  if (new Date() > new Date(tokenData.expires))
-    throw new TokenExpiredError();
+  const tokenData = await store.lookup(token);
+  if (!tokenData) throw new InvalidTokenError();
+  if (tokenData.email_verified) throw new AlreadyVerifiedError();
+  if (new Date() > new Date(tokenData.expires)) throw new TokenExpiredError();
 
   // Delete the token before marking verified so a failed update cannot be retried.
-  await deleteVerificationTokenByUser(tokenData.user_id);
+  await store.revoke(tokenData.user_id);
   await updateUser(tokenData.user_id, { email_verified: true });
 }
 
