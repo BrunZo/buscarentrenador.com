@@ -43,6 +43,13 @@
       "when": 1778200062459,
       "tag": "0005_add_google_oauth",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1778706761048,
+      "tag": "0006_migrate_user_ids_and_accounts",
+      "breakpoints": true
     }
   ]
 }

@@ -10,17 +10,17 @@ import { generateRandomToken } from "@/service/crypto";
 type TokenTable = typeof verificationTokens | typeof passwordResetTokens;
 
 export type TokenLookup = {
-  user_id: number;
+  user_id: string;
   email: string;
   name: string;
   surname: string;
-  email_verified: boolean | null;
+  emailVerified: Date | null;
   expires: Date;
 };
 
 export function tokenStore(table: TokenTable, ttlMs: number) {
   return {
-    async issue(userId: number): Promise<string> {
+    async issue(userId: string): Promise<string> {
       await db.delete(table).where(eq(table.user_id, userId));
       const token = generateRandomToken();
       const expires = new Date(Date.now() + ttlMs);
@@ -35,7 +35,7 @@ export function tokenStore(table: TokenTable, ttlMs: number) {
           email: users.email,
           name: users.name,
           surname: users.surname,
-          email_verified: users.email_verified,
+          emailVerified: users.emailVerified,
           expires: table.expires,
         })
         .from(table)
@@ -45,7 +45,7 @@ export function tokenStore(table: TokenTable, ttlMs: number) {
       return row ?? null;
     },
 
-    async revoke(userId: number): Promise<void> {
+    async revoke(userId: string): Promise<void> {
       await db.delete(table).where(eq(table.user_id, userId));
     },
   };

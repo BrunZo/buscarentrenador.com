@@ -2,7 +2,7 @@ import { PublicUser } from "./users";
 
 export type TrainerSchema = {
   id: number;
-  user_id: number;
+  user_id: string;
   city?: string | null;
   province?: string | null;
   description?: string | null;
