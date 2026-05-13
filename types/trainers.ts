@@ -26,6 +26,6 @@ export type SelectTrainer = Pick<TrainerSchema, 'id' | 'city' | 'province' | 'de
 
 export type TrainerInfo = Pick<TrainerSchema, 'city' | 'province' | 'description' | 'places' | 'groups' | 'levels' | 'hourly_rate' | 'certifications' | 'is_visible' | 'soy_exo' | 'examenes_oma' | 'id'>;
 
-export type SelectTrainerWithUser = SelectTrainer & Omit<SelectUser, 'auth_provider' | 'google_id'>;
+export type SelectTrainerWithUser = SelectTrainer & Omit<SelectUser, 'auth_provider' | 'google_id' | 'password_hash' | 'email_verified'>;
 
 export type TrainerWithUserInfo = TrainerInfo & UserInfo;
