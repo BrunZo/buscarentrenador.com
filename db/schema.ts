@@ -1,78 +1,153 @@
-import { pgTable, serial, varchar, text, boolean, timestamp, decimal, integer, index, uniqueIndex } from 'drizzle-orm/pg-core';
-import { relations } from 'drizzle-orm';
+import {
+  pgTable,
+  serial,
+  varchar,
+  text,
+  boolean,
+  timestamp,
+  decimal,
+  integer,
+  index,
+  uniqueIndex,
+  primaryKey,
+} from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 
 // Users table
-export const users = pgTable('users', {
-  id: serial('id').primaryKey(),
-  email: varchar('email', { length: 255 }).notNull().unique(),
-  password_hash: varchar('password_hash', { length: 255 }),
-  name: varchar('name', { length: 255 }).notNull(),
-  surname: varchar('surname', { length: 255 }).notNull(),
-  email_verified: boolean('email_verified').default(false),
-  auth_provider: varchar('auth_provider', { length: 20 }).$type<'credentials' | 'google'>().notNull().default('credentials'),
-  google_id: varchar('google_id', { length: 255 }),
-  created_at: timestamp('created_at').defaultNow(),
-  updated_at: timestamp('updated_at').defaultNow(),
-}, (table) => [
-  index('idx_users_email').on(table.email),
-  uniqueIndex('idx_users_google_id').on(table.google_id),
-]);
+export const users = pgTable(
+  "users",
+  {
+    id: serial("id").primaryKey(),
+    email: varchar("email", { length: 255 }).notNull().unique(),
+    password_hash: varchar("password_hash", { length: 255 }),
+    name: varchar("name", { length: 255 }).notNull(),
+    surname: varchar("surname", { length: 255 }).notNull(),
+    email_verified: boolean("email_verified").default(false),
+    auth_provider: varchar("auth_provider", { length: 20 })
+      .$type<"credentials" | "google">()
+      .notNull()
+      .default("credentials"),
+    google_id: varchar("google_id", { length: 255 }),
+    created_at: timestamp("created_at").defaultNow(),
+    updated_at: timestamp("updated_at").defaultNow(),
+  },
+  (table) => [
+    index("idx_users_email").on(table.email),
+    uniqueIndex("idx_users_google_id").on(table.google_id),
+  ],
+);
 
 // Trainers table
-export const trainers = pgTable('trainers', {
-  id: serial('id').primaryKey(),
-  user_id: integer('user_id').references(() => users.id, { onDelete: 'cascade' }),
-  city: varchar('city', { length: 255 }),
-  province: varchar('province', { length: 255 }),
-  description: text('description'),
-  places: boolean('places').array(),
-  groups: boolean('groups').array(),
-  levels: boolean('levels').array(),
-  hourly_rate: decimal('hourly_rate', { precision: 10, scale: 2 }),
-  certifications: text('certifications').array(),
-  is_visible: boolean('is_visible').default(true),
-  soy_exo: boolean('soy_exo').default(false),
-  examenes_oma: boolean('examenes_oma').default(false),
-  created_at: timestamp('created_at').defaultNow(),
-  updated_at: timestamp('updated_at').defaultNow(),
-}, (table) => [
-  index('idx_trainers_user_id').on(table.user_id),
-]);
+export const trainers = pgTable(
+  "trainers",
+  {
+    id: serial("id").primaryKey(),
+    user_id: integer("user_id").references(() => users.id, {
+      onDelete: "cascade",
+    }),
+    city: varchar("city", { length: 255 }),
+    province: varchar("province", { length: 255 }),
+    description: text("description"),
+    places: boolean("places").array(),
+    groups: boolean("groups").array(),
+    levels: boolean("levels").array(),
+    hourly_rate: decimal("hourly_rate", { precision: 10, scale: 2 }),
+    certifications: text("certifications").array(),
+    is_visible: boolean("is_visible").default(true),
+    soy_exo: boolean("soy_exo").default(false),
+    examenes_oma: boolean("examenes_oma").default(false),
+    created_at: timestamp("created_at").defaultNow(),
+    updated_at: timestamp("updated_at").defaultNow(),
+  },
+  (table) => [index("idx_trainers_user_id").on(table.user_id)],
+);
 
-export const sessions = pgTable('sessions', {
-  id: varchar('id', { length: 255 }).primaryKey(),
-  user_id: integer('user_id').references(() => users.id, { onDelete: 'cascade' }),
-  expires_at: timestamp('expires_at').notNull(),
-  created_at: timestamp('created_at').defaultNow(),
-}, (table) => [
-  index('idx_sessions_user_id').on(table.user_id),
-  index('idx_sessions_expires_at').on(table.expires_at),
-]);
+// Auth.js accounts table
+export const accounts = pgTable(
+  "accounts",
+  {
+    user_id: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    type: varchar("type", { length: 50 }).notNull(),
+    provider: varchar("provider", { length: 50 }).notNull(),
+    provider_account_id: varchar("provider_account_id", {
+      length: 255,
+    }).notNull(),
+    refresh_token: text("refresh_token"),
+    access_token: text("access_token"),
+    expires_at: integer("expires_at"),
+    token_type: varchar("token_type", { length: 50 }),
+    scope: text("scope"),
+    id_token: text("id_token"),
+    session_state: varchar("session_state", { length: 255 }),
+  },
+  (table) => [
+    primaryKey({ columns: [table.provider, table.provider_account_id] }),
+    index("idx_accounts_user_id").on(table.user_id),
+  ],
+);
+
+export const sessions = pgTable(
+  "sessions",
+  {
+    id: varchar("id", { length: 255 }).primaryKey(),
+    user_id: integer("user_id").references(() => users.id, {
+      onDelete: "cascade",
+    }),
+    expires_at: timestamp("expires_at").notNull(),
+    created_at: timestamp("created_at").defaultNow(),
+  },
+  (table) => [
+    index("idx_sessions_user_id").on(table.user_id),
+    index("idx_sessions_expires_at").on(table.expires_at),
+  ],
+);
 
 // Verification tokens for email verification
-export const verificationTokens = pgTable('verification_tokens', {
-  user_id: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  token: varchar('token', { length: 255 }).primaryKey(),
-  expires: timestamp('expires').notNull(),
-}, (table) => [
-  index('idx_verification_tokens_user_id').on(table.user_id),
-  index('idx_verification_tokens_token').on(table.token),
-]);
+export const verificationTokens = pgTable(
+  "verification_tokens",
+  {
+    user_id: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    token: varchar("token", { length: 255 }).primaryKey(),
+    expires: timestamp("expires").notNull(),
+  },
+  (table) => [
+    index("idx_verification_tokens_user_id").on(table.user_id),
+    index("idx_verification_tokens_token").on(table.token),
+  ],
+);
 
 // Password reset tokens
-export const passwordResetTokens = pgTable('password_reset_tokens', {
-  user_id: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  token: varchar('token', { length: 255 }).primaryKey(),
-  expires: timestamp('expires').notNull(),
-}, (table) => [
-  index('idx_password_reset_tokens_user_id').on(table.user_id),
-  index('idx_password_reset_tokens_token').on(table.token),
-]);
+export const passwordResetTokens = pgTable(
+  "password_reset_tokens",
+  {
+    user_id: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    token: varchar("token", { length: 255 }).primaryKey(),
+    expires: timestamp("expires").notNull(),
+  },
+  (table) => [
+    index("idx_password_reset_tokens_user_id").on(table.user_id),
+    index("idx_password_reset_tokens_token").on(table.token),
+  ],
+);
 
 // Relations
 export const usersRelations = relations(users, ({ one, many }) => ({
   trainer: one(trainers),
   sessions: many(sessions),
+  accounts: many(accounts),
+}));
+
+export const accountsRelations = relations(accounts, ({ one }) => ({
+  user: one(users, {
+    fields: [accounts.user_id],
+    references: [users.id],
+  }),
 }));
 
 export const trainersRelations = relations(trainers, ({ one }) => ({
