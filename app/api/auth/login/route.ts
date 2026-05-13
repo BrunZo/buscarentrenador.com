@@ -3,7 +3,7 @@ import { verifyLogin } from "@/service/auth/login";
 import { z } from "zod";
 import { handleServiceError } from "../../helper";
 import { JsonError } from "@/service/errors";
-import { isRateLimited, RATE_LIMIT_RESPONSE } from "@/service/ratelimit";
+import { rateLimiter, RATE_LIMIT_RESPONSE } from "@/service/rate_limiter";
 
 const loginSchema = z.object({
   email: z.string().email("El correo electrónico no es válido"),
@@ -12,7 +12,7 @@ const loginSchema = z.object({
 
 export async function POST(request: NextRequest) {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
-  if (isRateLimited(`login:${ip}`, 10, 15 * 60 * 1000)) {
+  if (await rateLimiter.check(`login:${ip}`, 10, 15 * 60 * 1000)) {
     return NextResponse.json(RATE_LIMIT_RESPONSE, { status: 429 });
   }
 

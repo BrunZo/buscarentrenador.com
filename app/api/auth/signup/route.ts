@@ -3,7 +3,7 @@ import { z } from "zod";
 import { signupUser } from "@/service/auth/signup";
 import { handleServiceError } from "../../helper";
 import { JsonError } from "@/service/errors";
-import { isRateLimited, RATE_LIMIT_RESPONSE } from "@/service/ratelimit";
+import { rateLimiter, RATE_LIMIT_RESPONSE } from "@/service/rate_limiter";
 
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
 const nameRegex = /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s]+$/;
@@ -32,7 +32,7 @@ const signupSchema = z.object({
 
 export async function POST(request: NextRequest) {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
-  if (isRateLimited(`signup:${ip}`, 5, 60 * 60 * 1000)) {
+  if (await rateLimiter.check(`signup:${ip}`, 5, 60 * 60 * 1000)) {
     return NextResponse.json(RATE_LIMIT_RESPONSE, { status: 429 });
   }
 

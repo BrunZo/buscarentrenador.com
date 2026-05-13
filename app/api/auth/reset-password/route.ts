@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { resetPassword } from '@/service/auth/password_reset';
 import { handleServiceError } from '@/app/api/helper';
-import { isRateLimited, RATE_LIMIT_RESPONSE } from '@/service/ratelimit';
+import { rateLimiter, RATE_LIMIT_RESPONSE } from '@/service/rate_limiter';
 
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
 
 export async function POST(request: NextRequest) {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
-  if (isRateLimited(`reset-password:${ip}`, 5, 15 * 60 * 1000)) {
+  if (await rateLimiter.check(`reset-password:${ip}`, 5, 15 * 60 * 1000)) {
     return NextResponse.json(RATE_LIMIT_RESPONSE, { status: 429 });
   }
 

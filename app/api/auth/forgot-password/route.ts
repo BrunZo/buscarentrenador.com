@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generatePasswordResetToken } from "@/service/auth/password_reset";
-import { sendPasswordResetEmail } from "@/service/auth/email";
+import { mailer } from "@/service/mailer";
 import { getUserByEmail } from "@/service/users";
-import { isRateLimited, RATE_LIMIT_RESPONSE } from "@/service/ratelimit";
+import { rateLimiter, RATE_LIMIT_RESPONSE } from "@/service/rate_limiter";
 
 const SUCCESS_MESSAGE =
   "Si existe una cuenta con ese correo, recibirás un enlace para resetear tu contraseña";
@@ -12,7 +12,7 @@ const MIN_RESPONSE_MS = 800;
 
 export async function POST(request: NextRequest) {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
-  if (isRateLimited(`forgot-password:${ip}`, 5, 60 * 60 * 1000)) {
+  if (await rateLimiter.check(`forgot-password:${ip}`, 5, 60 * 60 * 1000)) {
     return NextResponse.json(RATE_LIMIT_RESPONSE, { status: 429 });
   }
 
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
 
     if (user) {
       const token = await generatePasswordResetToken(email);
-      await sendPasswordResetEmail({ email: user.email, name: user.name, token });
+      await mailer.sendPasswordReset(user.email, user.name, token);
     }
 
     const elapsed = Date.now() - started;
