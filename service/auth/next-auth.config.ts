@@ -68,6 +68,7 @@ export const authConfig: NextAuthConfig = {
     async signIn({ profile, account }) {
       if (account?.provider !== "google") return true;
       if (!profile?.email) return "/login?error=google_no_email";
+      if (profile?.email_verified !== true) return "/login?error=google_email_unverified";
 
       const existing = await getUserByEmail(profile.email);
       if (existing && existing.password_hash) {
