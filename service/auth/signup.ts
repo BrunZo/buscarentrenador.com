@@ -1,4 +1,4 @@
-import { sendVerificationEmail } from "@/service/auth/email";
+import { mailer } from "@/service/mailer";
 import {
   createUser,
   getUserByEmail,
@@ -33,7 +33,7 @@ export async function signupUser(
   if (!user) throw new EmailAlreadyInUseError();
 
   const token = await generateVerificationToken(email);
-  await sendVerificationEmail(user.email, user.name, token);
+  await mailer.sendVerification(user.email, user.name, token);
 
   return user;
 }

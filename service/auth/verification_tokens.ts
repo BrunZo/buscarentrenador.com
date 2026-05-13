@@ -7,7 +7,7 @@ import {
 import { getUserByEmail, updateUser } from "@/service/users";
 import { tokenStore } from "@/service/token_store";
 import { verificationTokens } from "@/db/schema";
-import { sendVerificationEmail } from "@/service/auth/email";
+import { mailer } from "@/service/mailer";
 
 const store = tokenStore(verificationTokens, 24 * 60 * 60 * 1000);
 
@@ -59,5 +59,5 @@ export async function resendVerificationEmail(email: string): Promise<void> {
   // generateVerificationToken throws UserNotFoundError if no user exists, so user is guaranteed here
   const token = await generateVerificationToken(email);
   const user = await getUserByEmail(email);
-  await sendVerificationEmail(user!.email, user!.name, token);
+  await mailer.sendVerification(user!.email, user!.name, token);
 }
