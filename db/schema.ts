@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import {
   pgTable,
   serial,
@@ -8,41 +9,33 @@ import {
   decimal,
   integer,
   index,
-  uniqueIndex,
   primaryKey,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
-// Users table
 export const users = pgTable(
   "users",
   {
-    id: serial("id").primaryKey(),
+    id: varchar("id", { length: 255 })
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
     email: varchar("email", { length: 255 }).notNull().unique(),
     password_hash: varchar("password_hash", { length: 255 }),
     name: varchar("name", { length: 255 }).notNull(),
     surname: varchar("surname", { length: 255 }).notNull(),
-    email_verified: boolean("email_verified").default(false),
-    auth_provider: varchar("auth_provider", { length: 20 })
-      .$type<"credentials" | "google">()
-      .notNull()
-      .default("credentials"),
-    google_id: varchar("google_id", { length: 255 }),
+    emailVerified: timestamp("email_verified"),
+    image: text("image"),
     created_at: timestamp("created_at").defaultNow(),
     updated_at: timestamp("updated_at").defaultNow(),
   },
-  (table) => [
-    index("idx_users_email").on(table.email),
-    uniqueIndex("idx_users_google_id").on(table.google_id),
-  ],
+  (table) => [index("idx_users_email").on(table.email)],
 );
 
-// Trainers table
 export const trainers = pgTable(
   "trainers",
   {
     id: serial("id").primaryKey(),
-    user_id: integer("user_id").references(() => users.id, {
+    user_id: varchar("user_id", { length: 255 }).references(() => users.id, {
       onDelete: "cascade",
     }),
     city: varchar("city", { length: 255 }),
@@ -62,16 +55,15 @@ export const trainers = pgTable(
   (table) => [index("idx_trainers_user_id").on(table.user_id)],
 );
 
-// Auth.js accounts table
 export const accounts = pgTable(
   "accounts",
   {
-    user_id: integer("user_id")
+    userId: varchar("user_id", { length: 255 })
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     type: varchar("type", { length: 50 }).notNull(),
     provider: varchar("provider", { length: 50 }).notNull(),
-    provider_account_id: varchar("provider_account_id", {
+    providerAccountId: varchar("provider_account_id", {
       length: 255,
     }).notNull(),
     refresh_token: text("refresh_token"),
@@ -83,8 +75,8 @@ export const accounts = pgTable(
     session_state: varchar("session_state", { length: 255 }),
   },
   (table) => [
-    primaryKey({ columns: [table.provider, table.provider_account_id] }),
-    index("idx_accounts_user_id").on(table.user_id),
+    primaryKey({ columns: [table.provider, table.providerAccountId] }),
+    index("idx_accounts_user_id").on(table.userId),
   ],
 );
 
@@ -92,7 +84,7 @@ export const sessions = pgTable(
   "sessions",
   {
     id: varchar("id", { length: 255 }).primaryKey(),
-    user_id: integer("user_id").references(() => users.id, {
+    user_id: varchar("user_id", { length: 255 }).references(() => users.id, {
       onDelete: "cascade",
     }),
     expires_at: timestamp("expires_at").notNull(),
@@ -104,11 +96,10 @@ export const sessions = pgTable(
   ],
 );
 
-// Verification tokens for email verification
 export const verificationTokens = pgTable(
   "verification_tokens",
   {
-    user_id: integer("user_id")
+    user_id: varchar("user_id", { length: 255 })
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     token: varchar("token", { length: 255 }).primaryKey(),
@@ -120,11 +111,10 @@ export const verificationTokens = pgTable(
   ],
 );
 
-// Password reset tokens
 export const passwordResetTokens = pgTable(
   "password_reset_tokens",
   {
-    user_id: integer("user_id")
+    user_id: varchar("user_id", { length: 255 })
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     token: varchar("token", { length: 255 }).primaryKey(),
@@ -136,7 +126,6 @@ export const passwordResetTokens = pgTable(
   ],
 );
 
-// Relations
 export const usersRelations = relations(users, ({ one, many }) => ({
   trainer: one(trainers),
   sessions: many(sessions),
@@ -145,7 +134,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
 
 export const accountsRelations = relations(accounts, ({ one }) => ({
   user: one(users, {
-    fields: [accounts.user_id],
+    fields: [accounts.userId],
     references: [users.id],
   }),
 }));

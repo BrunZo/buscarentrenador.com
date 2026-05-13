@@ -24,7 +24,7 @@ const store = tokenStore(verificationTokens, 24 * 60 * 60 * 1000);
 export async function generateVerificationToken(email: string): Promise<string> {
   const user = await getUserByEmail(email);
   if (!user) throw new UserNotFoundError();
-  if (user.email_verified) throw new AlreadyVerifiedError();
+  if (user.emailVerified) throw new AlreadyVerifiedError();
 
   return store.issue(user.id);
 }
@@ -39,12 +39,12 @@ export async function generateVerificationToken(email: string): Promise<string> 
 export async function verifyUserEmail(token: string) {
   const tokenData = await store.lookup(token);
   if (!tokenData) throw new InvalidTokenError();
-  if (tokenData.email_verified) throw new AlreadyVerifiedError();
+  if (tokenData.emailVerified) throw new AlreadyVerifiedError();
   if (new Date() > new Date(tokenData.expires)) throw new TokenExpiredError();
 
   // Delete the token before marking verified so a failed update cannot be retried.
   await store.revoke(tokenData.user_id);
-  await updateUser(tokenData.user_id, { email_verified: true });
+  await updateUser(tokenData.user_id, { emailVerified: new Date() });
 }
 
 /**

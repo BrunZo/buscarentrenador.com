@@ -23,16 +23,15 @@ import { getUserByEmail } from "@/service/users";
 export async function verifyLogin(
   email: string,
   password: string,
-): Promise<SelectUser & { id: number }> {
+): Promise<SelectUser> {
   const user = await getUserByEmail(email);
   if (!user) throw new UserNotFoundError();
 
-  if (user.auth_provider === "google")
-    throw new EmailRegisteredWithGoogleError();
+  if (!user.password_hash) throw new EmailRegisteredWithGoogleError();
 
-  if (!user.email_verified) throw new EmailNotVerifiedError();
+  if (!user.emailVerified) throw new EmailNotVerifiedError();
 
-  const isPasswordValid = await compare(password, user.password_hash!);
+  const isPasswordValid = await compare(password, user.password_hash);
   if (!isPasswordValid) throw new InvalidCredentialsError();
 
   return user;

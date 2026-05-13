@@ -47,8 +47,13 @@
     {
       "idx": 6,
       "version": "7",
+<<<<<<< HEAD
       "when": 1778705227643,
       "tag": "0006_material_ricochet",
+=======
+      "when": 1778706761048,
+      "tag": "0006_migrate_user_ids_and_accounts",
+>>>>>>> user_uuid_migration
       "breakpoints": true
     }
   ]
