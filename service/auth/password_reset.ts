@@ -4,12 +4,11 @@ import {
   UserNotFoundError,
 } from "@/service/errors";
 import { getUserByEmail, updateUser } from "@/service/users";
-import {
-  createPasswordResetToken,
-  deletePasswordResetTokenByUser,
-  getUserByResetToken,
-} from "@/data/password_reset_tokens";
-import { generateRandomToken, hashPassword } from "@/service/crypto";
+import { tokenStore } from "@/service/token_store";
+import { passwordResetTokens } from "@/db/schema";
+import { hashPassword } from "@/service/crypto";
+
+const store = tokenStore(passwordResetTokens, 60 * 60 * 1000);
 
 /**
  * Generates a password reset token for the user with the provided email.
@@ -21,20 +20,11 @@ import { generateRandomToken, hashPassword } from "@/service/crypto";
  * @returns The newly generated token
  * @throws UserNotFoundError - if there's no user with provided email
  */
-export async function generatePasswordResetToken(
-  email: string,
-): Promise<string> {
+export async function generatePasswordResetToken(email: string): Promise<string> {
   const user = await getUserByEmail(email);
   if (!user) throw new UserNotFoundError();
-  // Delete any existing reset tokens for this user
-  await deletePasswordResetTokenByUser(user.id);
 
-  // Generate new token with 1 hour expiration (shorter than email verification for security)
-  const newToken = generateRandomToken();
-  const tokenExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
-  await createPasswordResetToken({ user_id: user.id, token: newToken, expires: tokenExpires });
-
-  return newToken;
+  return store.issue(user.id);
 }
 
 /**
@@ -45,20 +35,14 @@ export async function generatePasswordResetToken(
  * @throws InvalidResetTokenError - if there's no such token
  * @throws ResetTokenExpiredError - if the token has already expired
  */
-export async function resetPassword(
-  token: string,
-  newPassword: string,
-): Promise<void> {
-  const tokenData = await getUserByResetToken(token);
-
+export async function resetPassword(token: string, newPassword: string): Promise<void> {
+  const tokenData = await store.lookup(token);
   if (!tokenData) throw new InvalidResetTokenError();
-
-  if (new Date() > new Date(tokenData.expires))
-    throw new ResetTokenExpiredError();
+  if (new Date() > new Date(tokenData.expires)) throw new ResetTokenExpiredError();
 
   // Delete the token before updating so a failed update cannot be retried with the same token.
-  await deletePasswordResetTokenByUser(tokenData.id);
+  await store.revoke(tokenData.user_id);
 
   const newPasswordHash = await hashPassword(newPassword);
-  await updateUser(tokenData.id, { password_hash: newPasswordHash });
+  await updateUser(tokenData.user_id, { password_hash: newPasswordHash });
 }
