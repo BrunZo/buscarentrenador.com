@@ -14,7 +14,10 @@ const GOOGLE_ERROR_MESSAGES: Record<string, string> = {
   email_in_use_credentials: 'Esta cuenta ya está registrada con email y contraseña. Iniciá sesión con tu contraseña.',
   google_signup_failed: 'No pudimos crear la cuenta con Google. Intentá de nuevo.',
   google_no_email: 'No pudimos obtener tu correo de Google. Intentá de nuevo.',
+  google_email_unverified: 'Tu cuenta de Google no tiene el correo verificado.',
 };
+
+const GENERIC_LOGIN_ERROR = 'Correo electrónico o contraseña incorrectos.';
 
 export default function LoginForm() {
   const router = useRouter();
@@ -22,8 +25,6 @@ export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [showResendVerification, setShowResendVerification] = useState(false);
-  const [userEmail, setUserEmail] = useState('');
 
   useEffect(() => {
     if (searchParams.get('reset') === 'success') {
@@ -39,40 +40,24 @@ export default function LoginForm() {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
-    setShowResendVerification(false);
 
     const formData = new FormData(e.currentTarget);
     const email = formData.get('email') as string;
     const password = formData.get('pass') as string;
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.error);
-        if (response.status === 403) {
-          setShowResendVerification(true);
-          setUserEmail(email);
-        }
-        return;
-      }
-
       const result = await signIn('credentials', {
         email,
         password,
         redirect: false,
       });
 
-      if (result?.error) {
-        setError('Error al iniciar sesión. Por favor, intentá de nuevo.');
-      } else {
-        router.push('/cuenta');
+      if (!result || result.error) {
+        setError(GENERIC_LOGIN_ERROR);
+        return;
       }
+
+      router.push('/cuenta');
     } catch (error) {
       setError('Ocurrió un error. Por favor, intentá de nuevo.');
     } finally {
@@ -98,12 +83,18 @@ export default function LoginForm() {
 
       <GoogleSignInButton label='Iniciar sesión con Google' />
 
-      <div className='text-center text-gray-600 text-sm'>
+      <div className='flex flex-col items-center gap-2 text-gray-600 text-sm'>
         <Link
           className='text-indigo-600 hover:text-indigo-700 font-semibold hover:underline transition-colors duration-200'
           href='/forgot-password'
         >
           ¿Olvidaste tu contraseña?
+        </Link>
+        <Link
+          className='text-indigo-600 hover:text-indigo-700 font-semibold hover:underline transition-colors duration-200'
+          href='/resend-verification'
+        >
+          ¿No recibiste el correo de verificación?
         </Link>
       </div>
 
@@ -128,37 +119,6 @@ export default function LoginForm() {
           type='error'
           msg={error}
         />
-      )}
-      {showResendVerification && (
-        <div className='mt-4 p-4 bg-linear-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 flex flex-col justify-center'>
-          <p className='text-sm text-blue-800 mb-3 font-medium'>
-            ¿No recibiste el correo de verificación?
-          </p>
-          <button
-            type='button'
-            onClick={async () => {
-              try {
-                const response = await fetch('/api/auth/resend-verification', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ email: userEmail }),
-                });
-                const data = await response.json();
-                if (response.ok) {
-                  setError('Correo de verificación reenviado. Por favor, revisá tu bandeja de entrada.');
-                  setShowResendVerification(false);
-                } else {
-                  setError(data.error || 'Error al reenviar el correo');
-                }
-              } catch (err) {
-                setError('Error al reenviar el correo');
-              }
-            }}
-            className='text-sm text-center text-indigo-600 hover:text-indigo-700 hover:underline font-semibold transition-colors duration-200'
-          >
-            Reenviar correo de verificación
-          </button>
-        </div>
       )}
     </form>
   )

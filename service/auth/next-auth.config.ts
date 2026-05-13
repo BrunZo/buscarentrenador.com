@@ -37,6 +37,8 @@ export const authConfig: NextAuthConfig = {
       const email = user?.email ?? profile?.email;
       if (!email) return '/login?error=google_no_email';
 
+      if (profile?.email_verified !== true) return '/login?error=google_email_unverified';
+
       const result = await handleGoogleSignIn(googleId, email, profile ?? {});
       if (typeof result === 'string') return result;
 
