@@ -1,11 +1,7 @@
 export interface RateLimiter {
-  /** Returns true when the key has exceeded `limit` hits in the trailing `windowMs`. */
   check(key: string, limit: number, windowMs: number): Promise<boolean>;
 }
 
-// In-memory sliding window. Each serverless instance maintains its own state —
-// for cross-instance enforcement in production, swap in a distributed adapter
-// (Vercel KV, Upstash, Redis). The interface is the seam.
 class MemoryRateLimiter implements RateLimiter {
   private windows = new Map<string, number[]>();
 
