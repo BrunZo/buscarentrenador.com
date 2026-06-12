@@ -27,66 +27,6 @@ export class UserNotFoundError extends AppError {
   }
 }
 
-export class InvalidCredentialsError extends AppError {
-  constructor() {
-    super("Invalid credentials", 401, "Correo electrónico o contraseña incorrectos");
-  }
-}
-
-export class EmailNotVerifiedError extends AppError {
-  constructor() {
-    super("Email not verified", 403, "Tu correo electrónico no está verificado");
-  }
-}
-
-export class AlreadyVerifiedError extends AppError {
-  constructor() {
-    super("Email already verified", 400, "El correo ya está verificado");
-  }
-}
-
-export class InvalidTokenError extends AppError {
-  constructor() {
-    super("Invalid verification token", 400, "Token inválido");
-  }
-}
-
-export class TokenExpiredError extends AppError {
-  constructor() {
-    super("Verification token expired", 400, "El token ha expirado");
-  }
-}
-
-export class InvalidResetTokenError extends AppError {
-  constructor() {
-    super("Invalid password reset token", 400, "Token de reseteo inválido o ya utilizado");
-  }
-}
-
-export class ResetTokenExpiredError extends AppError {
-  constructor() {
-    super("Password reset token expired", 400, "El token de reseteo ha expirado. Por favor, solicitá uno nuevo.");
-  }
-}
-
-export class EmailAlreadyInUseError extends AppError {
-  constructor() {
-    super("Email already in use", 400, "El correo electrónico ya está en uso");
-  }
-}
-
-export class EmailRegisteredWithGoogleError extends AppError {
-  constructor() {
-    super("Email registered with Google", 409, "Esta cuenta está registrada con Google. Iniciá sesión con Google.");
-  }
-}
-
-export class EmailRegisteredWithCredentialsError extends AppError {
-  constructor() {
-    super("Email registered with credentials", 409, "Esta cuenta está registrada con email y contraseña. Iniciá sesión con tu contraseña.");
-  }
-}
-
 export class TrainerNotFoundError extends AppError {
   constructor() {
     super("Trainer not found", 404, "No se encontró el perfil de entrenador");

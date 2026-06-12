@@ -33,8 +33,9 @@ def main():
         with conn:
             cur = conn.cursor()
             cur.execute("""
-                DROP TABLE IF EXISTS password_reset_tokens CASCADE;
-                DROP TABLE IF EXISTS verification_tokens CASCADE;
+                DROP TABLE IF EXISTS rate_limits CASCADE;
+                DROP TABLE IF EXISTS verifications CASCADE;
+                DROP TABLE IF EXISTS accounts CASCADE;
                 DROP TABLE IF EXISTS sessions CASCADE;
                 DROP TABLE IF EXISTS trainers CASCADE;
                 DROP TABLE IF EXISTS users CASCADE;

@@ -1,27 +1,8 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/db/index";
 import { users } from "@/db/schema";
-import type { NewUser, UpdateUser, SelectUser } from "@/types/users";
+import type { UpdateUser, SelectUser } from "@/types/users";
 import { UserNotFoundError } from "@/service/errors";
-
-async function isEmailInUse(email: string): Promise<boolean> {
-  const [user] = await db
-    .select()
-    .from(users)
-    .where(eq(users.email, email))
-    .limit(1);
-
-  return !!user;
-}
-
-export async function createUser(newUser: NewUser): Promise<SelectUser | null> {
-  if (await isEmailInUse(newUser.email)) {
-    return null;
-  }
-
-  const [result] = await db.insert(users).values(newUser).returning();
-  return result;
-}
 
 export async function updateUser(
   id: string,
@@ -34,18 +15,6 @@ export async function updateUser(
     .returning();
 
   return result ?? null;
-}
-
-export async function getUserByEmail(
-  email: string,
-): Promise<SelectUser | null> {
-  const [user] = await db
-    .select()
-    .from(users)
-    .where(eq(users.email, email))
-    .limit(1);
-
-  return user ?? null;
 }
 
 export async function updateUserProfile(

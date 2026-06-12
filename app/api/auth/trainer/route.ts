@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/service/auth/next-auth.config";
+import { headers } from "next/headers";
+import { auth } from "@/service/auth/auth";
 import { createOrUpdateTrainer } from "@/service/trainers";
 import { z } from "zod";
 import { handleServiceError } from "../../helper";
@@ -19,7 +20,7 @@ const trainerSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth();
+    const session = await auth.api.getSession({ headers: await headers() });
     if (!session?.user?.id) {
       throw new UnauthorizedError();
     }

@@ -4,20 +4,22 @@ import { LockClosedIcon, UserIcon } from '@heroicons/react/24/outline';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { signIn } from 'next-auth/react';
+import { authClient } from '@/service/auth/auth-client';
 import Input from '@/app/ui/form/input';
 import Button from '@/app/ui/form/button';
 import Message from '@/app/ui/form/message';
 import GoogleSignInButton from '@/app/ui/forms/google_signin_button';
 
 const GOOGLE_ERROR_MESSAGES: Record<string, string> = {
-  email_in_use_credentials: 'Esta cuenta ya está registrada con email y contraseña. Iniciá sesión con tu contraseña.',
-  google_signup_failed: 'No pudimos crear la cuenta con Google. Intentá de nuevo.',
-  google_no_email: 'No pudimos obtener tu correo de Google. Intentá de nuevo.',
-  google_email_unverified: 'Tu cuenta de Google no tiene el correo verificado.',
+  account_not_linked: 'Esta cuenta ya está registrada con email y contraseña. Iniciá sesión con tu contraseña.',
+  signup_disabled: 'No pudimos crear la cuenta con Google. Intentá de nuevo.',
+  email_not_found: 'No pudimos obtener tu correo de Google. Intentá de nuevo.',
 };
 
+const GENERIC_GOOGLE_ERROR = 'No pudimos iniciar sesión con Google. Intentá de nuevo.';
 const GENERIC_LOGIN_ERROR = 'Correo electrónico o contraseña incorrectos.';
+const UNVERIFIED_ERROR = 'Tu correo electrónico no está verificado. Te enviamos un nuevo enlace de verificación.';
+const RATE_LIMIT_ERROR = 'Demasiados intentos. Intentá de nuevo más tarde.';
 
 export default function LoginForm() {
   const router = useRouter();
@@ -31,8 +33,8 @@ export default function LoginForm() {
       setSuccessMessage('Tu contraseña ha sido actualizada exitosamente. Podés iniciar sesión con tu nueva contraseña.');
     }
     const errorParam = searchParams.get('error');
-    if (errorParam && GOOGLE_ERROR_MESSAGES[errorParam]) {
-      setError(GOOGLE_ERROR_MESSAGES[errorParam]);
+    if (errorParam) {
+      setError(GOOGLE_ERROR_MESSAGES[errorParam] ?? GENERIC_GOOGLE_ERROR);
     }
   }, [searchParams]);
 
@@ -46,18 +48,20 @@ export default function LoginForm() {
     const password = formData.get('pass') as string;
 
     try {
-      const result = await signIn('credentials', {
+      const { error: signInError } = await authClient.signIn.email({
         email,
         password,
-        redirect: false,
       });
 
-      if (!result || result.error) {
-        setError(GENERIC_LOGIN_ERROR);
+      if (signInError) {
+        if (signInError.status === 403) setError(UNVERIFIED_ERROR);
+        else if (signInError.status === 429) setError(RATE_LIMIT_ERROR);
+        else setError(GENERIC_LOGIN_ERROR);
         return;
       }
 
       router.push('/cuenta');
+      router.refresh();
     } catch (error) {
       setError('Ocurrió un error. Por favor, intentá de nuevo.');
     } finally {

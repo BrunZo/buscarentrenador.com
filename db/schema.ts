@@ -1,4 +1,3 @@
-import crypto from "crypto";
 import {
   pgTable,
   serial,
@@ -8,28 +7,90 @@ import {
   timestamp,
   decimal,
   integer,
+  bigint,
   index,
-  primaryKey,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
+
+// Better Auth core tables. JS keys must match Better Auth's field names
+// (camelCase); column names stay snake_case in Postgres.
 
 export const users = pgTable(
   "users",
   {
-    id: varchar("id", { length: 255 })
-      .primaryKey()
-      .$defaultFn(() => crypto.randomUUID()),
-    email: varchar("email", { length: 255 }).notNull().unique(),
-    password_hash: varchar("password_hash", { length: 255 }),
+    id: varchar("id", { length: 255 }).primaryKey(),
     name: varchar("name", { length: 255 }).notNull(),
     surname: varchar("surname", { length: 255 }).notNull(),
-    emailVerified: timestamp("email_verified"),
+    email: varchar("email", { length: 255 }).notNull().unique(),
+    emailVerified: boolean("email_verified").notNull().default(false),
     image: text("image"),
-    created_at: timestamp("created_at").defaultNow(),
-    updated_at: timestamp("updated_at").defaultNow(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
   (table) => [index("idx_users_email").on(table.email)],
 );
+
+export const sessions = pgTable(
+  "sessions",
+  {
+    id: varchar("id", { length: 255 }).primaryKey(),
+    expiresAt: timestamp("expires_at").notNull(),
+    token: text("token").notNull().unique(),
+    ipAddress: text("ip_address"),
+    userAgent: text("user_agent"),
+    userId: varchar("user_id", { length: 255 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("idx_sessions_user_id").on(table.userId),
+    index("idx_sessions_token").on(table.token),
+  ],
+);
+
+export const accounts = pgTable(
+  "accounts",
+  {
+    id: varchar("id", { length: 255 }).primaryKey(),
+    accountId: text("account_id").notNull(),
+    providerId: text("provider_id").notNull(),
+    userId: varchar("user_id", { length: 255 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    accessToken: text("access_token"),
+    refreshToken: text("refresh_token"),
+    idToken: text("id_token"),
+    accessTokenExpiresAt: timestamp("access_token_expires_at"),
+    refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
+    scope: text("scope"),
+    password: text("password"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [index("idx_accounts_user_id").on(table.userId)],
+);
+
+export const verifications = pgTable(
+  "verifications",
+  {
+    id: varchar("id", { length: 255 }).primaryKey(),
+    identifier: text("identifier").notNull(),
+    value: text("value").notNull(),
+    expiresAt: timestamp("expires_at").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [index("idx_verifications_identifier").on(table.identifier)],
+);
+
+export const rateLimits = pgTable("rate_limits", {
+  id: varchar("id", { length: 255 }).primaryKey(),
+  key: text("key"),
+  count: integer("count"),
+  lastRequest: bigint("last_request", { mode: "number" }),
+});
 
 export const trainers = pgTable(
   "trainers",
@@ -55,77 +116,6 @@ export const trainers = pgTable(
   (table) => [index("idx_trainers_user_id").on(table.user_id)],
 );
 
-export const accounts = pgTable(
-  "accounts",
-  {
-    userId: varchar("user_id", { length: 255 })
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    type: varchar("type", { length: 50 }).notNull(),
-    provider: varchar("provider", { length: 50 }).notNull(),
-    providerAccountId: varchar("provider_account_id", {
-      length: 255,
-    }).notNull(),
-    refresh_token: text("refresh_token"),
-    access_token: text("access_token"),
-    expires_at: integer("expires_at"),
-    token_type: varchar("token_type", { length: 50 }),
-    scope: text("scope"),
-    id_token: text("id_token"),
-    session_state: varchar("session_state", { length: 255 }),
-  },
-  (table) => [
-    primaryKey({ columns: [table.provider, table.providerAccountId] }),
-    index("idx_accounts_user_id").on(table.userId),
-  ],
-);
-
-export const sessions = pgTable(
-  "sessions",
-  {
-    id: varchar("id", { length: 255 }).primaryKey(),
-    user_id: varchar("user_id", { length: 255 }).references(() => users.id, {
-      onDelete: "cascade",
-    }),
-    expires_at: timestamp("expires_at").notNull(),
-    created_at: timestamp("created_at").defaultNow(),
-  },
-  (table) => [
-    index("idx_sessions_user_id").on(table.user_id),
-    index("idx_sessions_expires_at").on(table.expires_at),
-  ],
-);
-
-export const verificationTokens = pgTable(
-  "verification_tokens",
-  {
-    user_id: varchar("user_id", { length: 255 })
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    token: varchar("token", { length: 255 }).primaryKey(),
-    expires: timestamp("expires").notNull(),
-  },
-  (table) => [
-    index("idx_verification_tokens_user_id").on(table.user_id),
-    index("idx_verification_tokens_token").on(table.token),
-  ],
-);
-
-export const passwordResetTokens = pgTable(
-  "password_reset_tokens",
-  {
-    user_id: varchar("user_id", { length: 255 })
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    token: varchar("token", { length: 255 }).primaryKey(),
-    expires: timestamp("expires").notNull(),
-  },
-  (table) => [
-    index("idx_password_reset_tokens_user_id").on(table.user_id),
-    index("idx_password_reset_tokens_token").on(table.token),
-  ],
-);
-
 export const usersRelations = relations(users, ({ one, many }) => ({
   trainer: one(trainers),
   sessions: many(sessions),
@@ -148,7 +138,7 @@ export const trainersRelations = relations(trainers, ({ one }) => ({
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
   user: one(users, {
-    fields: [sessions.user_id],
+    fields: [sessions.userId],
     references: [users.id],
   }),
 }));

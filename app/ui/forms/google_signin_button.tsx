@@ -1,14 +1,19 @@
 'use client';
 
-import { signIn } from 'next-auth/react';
 import { useState } from 'react';
+import { authClient } from '@/service/auth/auth-client';
 
 export default function GoogleSignInButton({ label = 'Continuar con Google' }: { label?: string }) {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleClick = () => {
     setIsLoading(true);
-    signIn('google', { callbackUrl: '/cuenta' });
+    authClient.signIn.social({
+      provider: 'google',
+      callbackURL: '/cuenta',
+      errorCallbackURL: '/login',
+      newUserCallbackURL: '/cuenta',
+    });
   };
 
   return (

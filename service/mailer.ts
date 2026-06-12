@@ -4,8 +4,8 @@ import { Resend } from "resend";
 import { ServerError } from "@/service/errors";
 
 export interface Mailer {
-  sendVerification(email: string, name: string, token: string): Promise<void>;
-  sendPasswordReset(email: string, name: string, token: string): Promise<void>;
+  sendVerification(email: string, name: string, url: string): Promise<void>;
+  sendPasswordReset(email: string, name: string, url: string): Promise<void>;
 }
 
 function getEnv(key: string): string {
@@ -31,13 +31,11 @@ async function loadTemplate(
 }
 
 class ResendMailer implements Mailer {
-  async sendVerification(email: string, name: string, token: string): Promise<void> {
-    const url = `${getEnv("NEXT_PUBLIC_APP_URL")}/verify-email?token=${token}`;
+  async sendVerification(email: string, name: string, url: string): Promise<void> {
     await this.send(email, "Verificá tu correo electrónico - BuscarEntrenador.com", "verify-email", { name, url });
   }
 
-  async sendPasswordReset(email: string, name: string, token: string): Promise<void> {
-    const url = `${getEnv("NEXT_PUBLIC_APP_URL")}/reset-password?token=${token}`;
+  async sendPasswordReset(email: string, name: string, url: string): Promise<void> {
     await this.send(email, "Resetear tu contraseña - BuscarEntrenador.com", "reset-password", { name, url });
   }
 
