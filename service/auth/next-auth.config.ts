@@ -7,6 +7,7 @@ import { db } from "@/db/index";
 import { users, accounts } from "@/db/schema";
 import { verifyLogin } from "@/service/auth/login";
 import { getUserByEmail } from "@/service/users";
+import { rateLimiter } from "@/service/rate_limiter";
 
 type NameParts = {
   name?: string | null;
@@ -37,8 +38,15 @@ export const authConfig: NextAuthConfig = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, request) {
         if (!credentials?.email || !credentials?.password) return null;
+
+        // The limiter counts all attempts (not just failures), so keep limits
+        // loose enough that a legitimate user retrying doesn't lock themselves out.
+        const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+        if (await rateLimiter.check(`login:${ip}`, 10, 15 * 60 * 1000)) return null;
+        if (await rateLimiter.check(`login-email:${credentials.email}`, 10, 15 * 60 * 1000)) return null;
+
         try {
           return await verifyLogin(
             credentials.email as string,
