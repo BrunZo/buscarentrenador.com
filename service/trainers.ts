@@ -62,7 +62,7 @@ export async function getTrainerById(
     .select(publicTrainerSelect())
     .from(trainers)
     .innerJoin(users, eq(trainers.user_id, users.id))
-    .where(eq(trainers.id, id))
+    .where(and(eq(trainers.id, id), eq(trainers.is_visible, true)))
     .limit(1);
 
   return result ?? null;
