@@ -33,7 +33,7 @@ function boolArrayFilter(col: AnyColumn, values: boolean[]) {
   return conditions.length ? or(...conditions)! : null;
 }
 
-async function createTrainer(userId: number): Promise<{ id: number } | null> {
+async function createTrainer(userId: string): Promise<{ id: number } | null> {
   const [result] = await db
     .insert(trainers)
     .values({ user_id: userId })
@@ -69,7 +69,7 @@ export async function getTrainerById(
 }
 
 export async function getTrainerByUserId(
-  userId: number,
+  userId: string,
 ): Promise<PublicTrainerUser | null> {
   const [result] = await db
     .select(publicTrainerSelect())
@@ -119,7 +119,7 @@ export async function getTrainersByFilters(filters: {
 }
 
 export async function createOrUpdateTrainer(
-  userId: number,
+  userId: string,
   trainerData: UpdateTrainer,
 ): Promise<{ id: number }> {
   let trainerId: number;
@@ -138,7 +138,7 @@ export async function createOrUpdateTrainer(
 }
 
 export async function updateTrainerVisibility(
-  userId: number,
+  userId: string,
   isVisible: boolean,
 ): Promise<{ id: number } | void> {
   const trainer = await getTrainerByUserId(userId);
