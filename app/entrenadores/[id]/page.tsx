@@ -2,6 +2,7 @@
 
 import Info from "@/app/ui/entrenadores/info";
 import { getTrainerById } from "@/service/trainers";
+import { auth } from "@/service/auth/next-auth.config";
 import { notFound } from 'next/navigation';
 
 export default async function Page({ params }: {
@@ -13,6 +14,11 @@ export default async function Page({ params }: {
   let trainer = await getTrainerById(Number(id));
   if (!trainer) {
     notFound();
+  }
+
+  const session = await auth();
+  if (!session?.user) {
+    trainer = { ...trainer, email: null };
   }
 
   return (
