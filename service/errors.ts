@@ -35,7 +35,6 @@ export class TrainerNotFoundError extends AppError {
 
 export class ServerError extends AppError {
   constructor(message?: string) {
-    const msg = message || "Server error";
-    super(msg, 500, msg);
+    super(message || "Server error", 500, "Error interno del servidor");
   }
 }
