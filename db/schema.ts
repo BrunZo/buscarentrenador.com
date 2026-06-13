@@ -12,9 +12,6 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
-// Better Auth core tables. JS keys must match Better Auth's field names
-// (camelCase); column names stay snake_case in Postgres.
-
 export const users = pgTable(
   "users",
   {

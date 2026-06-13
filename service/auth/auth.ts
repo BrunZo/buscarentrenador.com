@@ -34,7 +34,7 @@ function validatePassword(password: unknown) {
   if (typeof password !== "string" || !passwordRegex.test(password)) {
     throw new APIError("BAD_REQUEST", {
       message:
-        "La contraseña debe tener al menos 8 caracteres e incluir mayúscula, minúscula y número",
+        "La contraseña debe tener al menos 8 caracteres e incluir mayúscula, minúscula y dígitos",
     });
   }
 }
@@ -64,8 +64,8 @@ export const auth = betterAuth({
   session: { modelName: "sessions" },
   account: {
     modelName: "accounts",
-    // A Google sign-in for an email that already has a password must not
-    // attach itself to that user; it fails with account_not_linked instead.
+    // I learnt that the reason for this is that if anyone posess the account
+    // alice@gmail.com, linking allows him/her to control all alice@example.com
     accountLinking: { enabled: false },
   },
   verification: { modelName: "verifications" },
