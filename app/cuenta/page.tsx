@@ -1,4 +1,3 @@
-'use server'
 
 import Dashboard from '@/app/ui/cuenta/dashboard';
 import { redirect } from 'next/navigation';

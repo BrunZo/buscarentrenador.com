@@ -1,4 +1,3 @@
-'use server'
 
 import Search from '@/app/ui/entrenadores/search';
 import FilterGrid from '@/app/ui/entrenadores/filters/filter_grid';
