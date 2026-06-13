@@ -1,4 +1,3 @@
-'use server'
 
 import UpdateUserForm from '../ui/soy-entrenador/update_user_form';
 import { redirect } from 'next/navigation';

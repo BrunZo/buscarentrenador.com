@@ -1,4 +1,3 @@
-'use server';
 
 import Info from "@/app/ui/entrenadores/info";
 import { getTrainerById, getTrainerEmail } from "@/service/trainers";
