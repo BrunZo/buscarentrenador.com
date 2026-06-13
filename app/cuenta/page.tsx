@@ -13,7 +13,8 @@ export default async function Page() {
   }
 
   // trainer will be null if the user is not a trainer
-  const trainer = await getTrainerByUserId(session.user.id).catch(() => null);
+  const trainerData = await getTrainerByUserId(session.user.id).catch(() => null);
+  const trainer = trainerData ? { ...trainerData, email: session.user.email } : null;
 
   return (
     <div className='animate-fade-in'>

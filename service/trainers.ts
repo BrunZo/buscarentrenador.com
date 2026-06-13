@@ -9,7 +9,6 @@ function publicTrainerSelect() {
   return {
     id: trainers.id,
     name: users.name,
-    email: users.email,
     surname: users.surname,
     city: trainers.city,
     province: trainers.province,
@@ -79,6 +78,19 @@ export async function getTrainerByUserId(
     .limit(1);
 
   return result ?? null;
+}
+
+export async function getTrainerEmail(
+  trainerId: number,
+): Promise<string | null> {
+  const [result] = await db
+    .select({ email: users.email })
+    .from(trainers)
+    .innerJoin(users, eq(trainers.user_id, users.id))
+    .where(eq(trainers.id, trainerId))
+    .limit(1);
+
+  return result?.email ?? null;
 }
 
 export async function getTrainersByFilters(filters: {
