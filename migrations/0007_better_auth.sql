@@ -29,6 +29,7 @@ CREATE TABLE "accounts" (
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );--> statement-breakpoint
 ALTER TABLE "accounts" ADD CONSTRAINT "accounts_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+DROP INDEX IF EXISTS "idx_accounts_user_id";--> statement-breakpoint
 CREATE INDEX "idx_accounts_user_id" ON "accounts" USING btree ("user_id");--> statement-breakpoint
 INSERT INTO "accounts" ("id", "account_id", "provider_id", "user_id", "access_token", "refresh_token", "id_token", "access_token_expires_at", "scope")
 SELECT gen_random_uuid()::text, "provider_account_id", "provider", "user_id", "access_token", "refresh_token", "id_token", to_timestamp("expires_at"), "scope"
@@ -78,4 +79,5 @@ CREATE TABLE "rate_limits" (
 	"key" text,
 	"count" integer,
 	"last_request" bigint
-);
+);--> statement-breakpoint
+CREATE INDEX "idx_rate_limits_key" ON "rate_limits" USING btree ("key");

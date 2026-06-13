@@ -82,12 +82,16 @@ export const verifications = pgTable(
   (table) => [index("idx_verifications_identifier").on(table.identifier)],
 );
 
-export const rateLimits = pgTable("rate_limits", {
-  id: varchar("id", { length: 255 }).primaryKey(),
-  key: text("key"),
-  count: integer("count"),
-  lastRequest: bigint("last_request", { mode: "number" }),
-});
+export const rateLimits = pgTable(
+  "rate_limits",
+  {
+    id: varchar("id", { length: 255 }).primaryKey(),
+    key: text("key"),
+    count: integer("count"),
+    lastRequest: bigint("last_request", { mode: "number" }),
+  },
+  (table) => [index("idx_rate_limits_key").on(table.key)],
+);
 
 export const trainers = pgTable(
   "trainers",
