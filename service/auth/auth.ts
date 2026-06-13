@@ -2,10 +2,8 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { createAuthMiddleware, APIError } from "better-auth/api";
 import { nextCookies } from "better-auth/next-js";
-import { compare } from "bcrypt";
 import { db } from "@/db/index";
 import * as schema from "@/db/schema";
-import { hashPassword } from "@/service/crypto";
 import { mailer } from "@/service/mailer";
 
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
@@ -74,12 +72,6 @@ export const auth = betterAuth({
     requireEmailVerification: true,
     minPasswordLength: 8,
     resetPasswordTokenExpiresIn: 60 * 60,
-    // Keep bcrypt (instead of Better Auth's default scrypt) so hashes
-    // migrated from the previous auth system keep working.
-    password: {
-      hash: (password) => hashPassword(password),
-      verify: ({ hash, password }) => compare(password, hash),
-    },
     sendResetPassword: async ({ user, url }) => {
       await mailer.sendPasswordReset(user.email, user.name, url);
     },
