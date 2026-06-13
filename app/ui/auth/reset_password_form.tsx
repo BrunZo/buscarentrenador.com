@@ -8,11 +8,14 @@ import Input from '@/app/ui/form/input';
 import Button from '@/app/ui/form/button';
 import Message from '@/app/ui/form/message';
 import PasswordStrengthIndicator from '@/app/ui/signup/password_strength_indicator';
+import { authClient } from '@/service/auth/auth-client';
 
 export default function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const token = searchParams.get('token');
+  // Better Auth's reset link redirects here with ?token=…, or ?error=… when
+  // the link is invalid or already used.
+  const token = searchParams.get('error') ? null : searchParams.get('token');
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -56,15 +59,19 @@ export default function ResetPasswordForm() {
     setError(null);
 
     try {
-      const response = await fetch('/api/auth/reset-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, password }),
+      const { error: resetError } = await authClient.resetPassword({
+        newPassword: password,
+        token,
       });
-      const data = await response.json();
 
-      if (!response.ok) {
-        setError(data.error || 'Ocurrió un error. Por favor, intentá de nuevo.');
+      if (resetError) {
+        if (resetError.status === 429) {
+          setError('Demasiados intentos. Intentá de nuevo más tarde.');
+        } else if (resetError.code === 'INVALID_TOKEN') {
+          setError('Token de reseteo inválido o expirado. Por favor, solicitá uno nuevo.');
+        } else {
+          setError(resetError.message || 'Ocurrió un error. Por favor, intentá de nuevo.');
+        }
         return;
       }
 

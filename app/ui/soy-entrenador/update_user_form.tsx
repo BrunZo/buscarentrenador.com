@@ -32,11 +32,12 @@ export default function UpdateUserForm({ defaultOptions }: {
   const [soyExo, setSoyExo] = useState<boolean>(defaultOptions.soy_exo);
   const [examenesOma, setExamenesOma] = useState<boolean>(defaultOptions.examenes_oma);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // TODO: errorMessage is missing
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitError(null);
 
     try {
       const certifications = achievements.filter(a => a.trim() !== '');
@@ -68,7 +69,7 @@ export default function UpdateUserForm({ defaultOptions }: {
       router.push('/cuenta');
       router.refresh();
     } catch (error) {
-      console.error('Error submitting form:', error);
+      setSubmitError(error instanceof Error ? error.message : 'Error al guardar la información');
     } finally {
       setIsSubmitting(false);
     }
@@ -153,6 +154,12 @@ export default function UpdateUserForm({ defaultOptions }: {
           onGroupChange={setGroups}
           onLevelChange={setLevels}
         />
+
+        {submitError && (
+          <div className='p-3 bg-red-50 border border-red-200 rounded-lg'>
+            <p className='text-red-800 text-sm'>{submitError}</p>
+          </div>
+        )}
 
         <Button text={isSubmitting ? 'Guardando...' : 'Publicar información'} disabled={isSubmitting} />
       </form>

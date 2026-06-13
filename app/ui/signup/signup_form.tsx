@@ -10,6 +10,13 @@ import Message from '@/app/ui/form/message';
 import PasswordStrengthIndicator from '@/app/ui/signup/password_strength_indicator';
 import validateForm from '@/app/ui/signup/client_validation';
 import GoogleSignInButton from '@/app/ui/forms/google_signin_button';
+import { authClient } from '@/service/auth/auth-client';
+
+const SIGNUP_ERROR_MESSAGES: Record<string, string> = {
+  USER_ALREADY_EXISTS: 'El correo electrónico ya está en uso',
+  INVALID_EMAIL: 'El correo electrónico no es válido',
+  PASSWORD_TOO_SHORT: 'La contraseña debe tener al menos 8 caracteres',
+};
 
 export default function SignupForm() {
   const router = useRouter();
@@ -40,32 +47,29 @@ export default function SignupForm() {
     }
 
     try {
-      const response = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password,
-          name,
-          surname,
-        }),
+      const { error: signUpError } = await authClient.signUp.email({
+        email,
+        password,
+        name,
+        surname,
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.error || 'Ocurrió un error durante el registro');
+      if (signUpError) {
+        const mapped = signUpError.code ? SIGNUP_ERROR_MESSAGES[signUpError.code] : undefined;
+        if (signUpError.status === 429) {
+          setError('Demasiados intentos. Intentá de nuevo más tarde.');
+        } else {
+          // Validation hooks on the server already produce Spanish messages.
+          setError(mapped || signUpError.message || 'Ocurrió un error durante el registro');
+        }
       } else {
-        setSuccess(data.message || '¡Cuenta creada exitosamente! Te enviamos un correo de verificación. Por favor, revisá tu bandeja de entrada.');
+        setSuccess('¡Cuenta creada exitosamente! Te enviamos un correo de verificación. Por favor, revisá tu bandeja de entrada antes de iniciar sesión.');
         setEmail('');
         setPassword('');
         setRepeat('');
         setName('');
         setSurname('');
         setFieldErrors({});
-        router.push('/login');
       }
     } catch (error) {
       setError('Ocurrió un error. Por favor, intentá de nuevo.');
