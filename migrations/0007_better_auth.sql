@@ -78,4 +78,5 @@ CREATE TABLE "rate_limits" (
 	"key" text,
 	"count" integer,
 	"last_request" bigint
-);
+);--> statement-breakpoint
+CREATE INDEX "idx_rate_limits_key" ON "rate_limits" USING btree ("key");
