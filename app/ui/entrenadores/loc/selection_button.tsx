@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import Menu from "./menu";
 
-// Normaliza para comparar sin distinguir mayúsculas ni tildes/diacríticos.
 const normalize = (str: string) =>
   str
     .toLowerCase()
