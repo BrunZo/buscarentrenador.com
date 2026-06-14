@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     const statusParam = request.nextUrl.searchParams.get("status") ?? undefined;
     const status = statusSchema.parse(statusParam);
 
-    const trainers = await listTrainersForAdmin(status);
+    const trainers = await getTrainersByFilters({"status": status});
     return NextResponse.json({ trainers }, { status: 200 });
   } catch (error) {
     return handleServiceError(error);
