@@ -6,7 +6,7 @@ import { db } from "@/db/index";
 import * as schema from "@/db/schema";
 import { mailer } from "@/service/mailer";
 
-const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d\W]{8,}$/;
 const nameRegex = /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s]+$/;
 
 type NameParts = {

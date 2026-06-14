@@ -23,7 +23,6 @@ export default async function Page({ searchParams }: {
 }) {
   const { query, city, prov, place, group, level, page } = await searchParams;
   
-  const currentPage = Number(page || 1)
   let trainers;
   try {
     trainers = await getTrainersByFilters({
@@ -37,6 +36,8 @@ export default async function Page({ searchParams }: {
   } catch (error) {
     redirect('/login');
   }
+  const trainerCount = trainers.length;
+  const currentPage = Math.min(Number(page || 1), Math.ceil(trainerCount / 4) || 1);
 
   // Trainer cards are client components, so the whole object reaches the
   // browser even if the email is never rendered — strip it for visitors.
