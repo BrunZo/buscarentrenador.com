@@ -1,100 +1,64 @@
 # Buscarentrenador.com
 
-A platform for finding trainers for the Argentine Mathematical Olympiad.
-
-## Features
-
-- User authentication with BetterAuth
-- PostgreSQL database
-- Trainer profiles and search
-- User dashboard
+A platform for finding math olympiad trainers in Argentina.
 
 ## Tech Stack
 
-- **Frontend**: Next.js 15, React 19, TypeScript
-- **Authentication**: BetterAuth (NextAuth.js v5)
-- **Database**: PostgreSQL
-- **Styling**: Tailwind CSS
-- **Icons**: Heroicons
+- **Frontend**: Next.js App Router, React 19, TypeScript, Tailwind CSS
+- **Authentication**: BetterAuth (email/password + Google OAuth)
+- **Database**: PostgreSQL via Drizzle ORM (`@vercel/postgres`)
+- **Email**: Resend
 
-## Setup Instructions
+## Setup
 
-### 1. Install Dependencies
+### 1. Install dependencies
 
 ```bash
 npm install
 ```
 
-### 2. Database Setup
+### 2. Configure environment variables
 
-1. Install PostgreSQL on your system
-2. Create a new database named `buscarentrenador`
-3. Copy the environment variables:
-
-```bash
-cp env.example .env.local
-```
-
-4. Update the `.env.local` file with your database credentials:
+Create `.env.local` with:
 
 ```env
-POSTGRES_USER=your_username
-POSTGRES_HOST=localhost
-POSTGRES_DATABASE=buscarentrenador
-POSTGRES_PASSWORD=your_password
-POSTGRES_PORT=5432
+POSTGRES_URL=postgresql://user:password@localhost:5432/buscarentrenador
 
-NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=your_generated_secret
+BETTER_AUTH_SECRET=<openssl rand -base64 32>
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+AUTH_GOOGLE_ID=
+AUTH_GOOGLE_SECRET=
+
+RESEND_API_KEY=
+RESEND_FROM_NAME=BuscarEntrenador
+RESEND_FROM_EMAIL=noreply@buscarentrenador.com
 ```
 
-5. Generate a NextAuth secret:
-
-```bash
-openssl rand -base64 32
-```
-
-6. Initialize the database:
-
-```bash
-npm run init-db
-```
-
-### 3. Run the Development Server
+### 3. Run the development server
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Migrations run automatically on `npm run build`. To generate a new migration after schema changes:
+
+```bash
+npx drizzle-kit generate
+```
 
 ## Database Schema
 
-The application uses the following main tables:
-
-- **users**: User accounts with authentication
-- **trainers**: Trainer profiles linked to users
-- **sessions**: BetterAuth session management
-- **verification_tokens**: BetterAuth email verification
-
-## Authentication Flow
-
-1. Users can register with email, password, name, and surname
-2. Passwords are hashed using bcrypt
-3. Login uses BetterAuth with credentials provider
-4. Sessions are managed with JWT strategy
-5. Protected routes redirect to login if not authenticated
+- **users** — accounts managed by BetterAuth (`id` is a varchar UUID)
+- **trainers** — trainer profiles linked to users (`id` is a serial integer)
+- **sessions / accounts / verifications / rateLimits** — BetterAuth internal tables
 
 ## API Routes
 
-- `/api/auth/[...nextauth]`: BetterAuth API routes
-- `/api/auth/signup`: User registration endpoint
+Custom mutation routes (all require an authenticated session):
 
-## Migration from Supabase
+- `POST /api/auth/trainer` — create or update trainer profile
+- `PATCH /api/auth/trainer/visibility` — toggle trainer visibility
+- `PATCH /api/auth/user` — update user name/surname
 
-This project has been migrated from Supabase to:
-- BetterAuth for authentication
-- PostgreSQL for database
-- Custom database connection pool
-
-The migration removes the dependency on Supabase while maintaining the same functionality.
+BetterAuth handles all auth flows (sign-up, sign-in, email verification, password reset, Google OAuth) via `/api/auth/[...all]`.
