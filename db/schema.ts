@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import {
   pgTable,
+  pgEnum,
   serial,
   varchar,
   text,
@@ -13,6 +14,13 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
+export const userRole = pgEnum("user_role", ["user", "admin"]);
+export const trainerStatus = pgEnum("trainer_status", [
+  "pending",
+  "approved",
+  "rejected",
+]);
+
 export const users = pgTable(
   "users",
   {
@@ -23,6 +31,7 @@ export const users = pgTable(
     password_hash: varchar("password_hash", { length: 255 }),
     name: varchar("name", { length: 255 }).notNull(),
     surname: varchar("surname", { length: 255 }).notNull(),
+    role: userRole("role").notNull().default("user"),
     emailVerified: timestamp("email_verified"),
     image: text("image"),
     created_at: timestamp("created_at").defaultNow(),
@@ -47,6 +56,7 @@ export const trainers = pgTable(
     hourly_rate: decimal("hourly_rate", { precision: 10, scale: 2 }),
     certifications: text("certifications").array(),
     is_visible: boolean("is_visible").default(true),
+    status: trainerStatus("status").notNull().default("pending"),
     soy_exo: boolean("soy_exo").default(false),
     examenes_oma: boolean("examenes_oma").default(false),
     created_at: timestamp("created_at").defaultNow(),

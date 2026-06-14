@@ -1,9 +1,12 @@
+export type UserRole = "user" | "admin";
+
 export type UserSchema = {
   id: string;
   email: string;
   password_hash: string | null;
   name: string;
   surname: string;
+  role: UserRole;
   emailVerified: Date | null;
   image: string | null;
   created_at: Date | null;
@@ -18,7 +21,7 @@ export type UpdateUser = Partial<
 >;
 export type SelectUser = Pick<
   UserSchema,
-  "id" | "email" | "password_hash" | "name" | "surname" | "emailVerified"
+  "id" | "email" | "password_hash" | "name" | "surname" | "role" | "emailVerified"
 >;
 
 export type PublicUser = Pick<UserSchema, "email" | "name" | "surname">;

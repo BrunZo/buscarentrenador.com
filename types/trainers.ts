@@ -1,5 +1,7 @@
 import { PublicUser } from "./users";
 
+export type TrainerStatus = "pending" | "approved" | "rejected";
+
 export type TrainerSchema = {
   id: number;
   user_id: string;
@@ -12,6 +14,7 @@ export type TrainerSchema = {
   hourly_rate?: string | null;
   certifications?: string[] | null;
   is_visible?: boolean | null;
+  status: TrainerStatus;
   soy_exo?: boolean | null;
   examenes_oma?: boolean | null;
   created_at: Date | null;
@@ -61,6 +64,7 @@ export type SelectTrainer = Pick<
   | "hourly_rate"
   | "certifications"
   | "is_visible"
+  | "status"
   | "soy_exo"
   | "examenes_oma"
   | "created_at"
@@ -79,6 +83,7 @@ export type PublicTrainer = Pick<
   | "hourly_rate"
   | "certifications"
   | "is_visible"
+  | "status"
   | "soy_exo"
   | "examenes_oma"
 >;

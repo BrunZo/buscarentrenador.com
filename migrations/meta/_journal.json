@@ -50,6 +50,13 @@
       "when": 1778706761048,
       "tag": "0006_migrate_user_ids_and_accounts",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1781418686654,
+      "tag": "0007_add_role_and_trainer_status",
+      "breakpoints": true
     }
   ]
 }

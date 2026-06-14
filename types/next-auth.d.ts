@@ -1,4 +1,5 @@
 import NextAuth from "next-auth"
+import type { UserRole } from "@/types/users"
 
 declare module "next-auth" {
   interface Session {
@@ -7,6 +8,7 @@ declare module "next-auth" {
       email: string
       name: string
       surname: string
+      role: UserRole
     }
   }
 
@@ -15,6 +17,9 @@ declare module "next-auth" {
     email: string
     name: string
     surname: string
+    // Optional on sign-in: Google's profile has no role; it is resolved from
+    // the database in the jwt callback. New users fall back to the DB default.
+    role?: UserRole
   }
 }
 
@@ -24,5 +29,6 @@ declare module "@auth/core/jwt" {
     email: string
     name: string
     surname: string
+    role: UserRole
   }
 }
