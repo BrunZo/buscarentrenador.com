@@ -48,6 +48,16 @@ export async function getUserByEmail(
   return user ?? null;
 }
 
+export async function getUserById(id: string): Promise<SelectUser | null> {
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.id, id))
+    .limit(1);
+
+  return user ?? null;
+}
+
 export async function updateUserProfile(
   userId: string,
   updates: UpdateUser,

@@ -90,6 +90,10 @@ export const authConfig: NextAuthConfig = {
         token.email = user.email ?? "";
         token.name = user.name ?? "";
         token.surname = (user as { surname?: string }).surname ?? "";
+        // Load the role from the DB on sign-in so it works the same for both
+        // credentials and Google (the Google profile has no role of its own).
+        const dbUser = await getUserByEmail(token.email);
+        token.role = dbUser?.role ?? "user";
       }
       if (trigger === "update" && session) {
         token.name = session.name;
@@ -102,6 +106,7 @@ export const authConfig: NextAuthConfig = {
       session.user.email = token.email;
       session.user.name = token.name;
       session.user.surname = token.surname;
+      session.user.role = token.role;
       return session;
     },
   },

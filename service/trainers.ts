@@ -2,7 +2,11 @@ import { eq, and, or, desc, sql } from "drizzle-orm";
 import type { AnyColumn } from "drizzle-orm";
 import { db } from "@/db/index";
 import { trainers, users } from "@/db/schema";
-import type { UpdateTrainer, PublicTrainerUser } from "@/types/trainers";
+import type {
+  UpdateTrainer,
+  PublicTrainerUser,
+  TrainerStatus,
+} from "@/types/trainers";
 import { TrainerNotFoundError } from "@/service/errors";
 
 function publicTrainerSelect() {
@@ -20,6 +24,7 @@ function publicTrainerSelect() {
     groups: trainers.groups,
     certifications: trainers.certifications,
     is_visible: trainers.is_visible,
+    status: trainers.status,
     soy_exo: trainers.soy_exo,
     examenes_oma: trainers.examenes_oma,
   };
@@ -44,7 +49,7 @@ async function createTrainer(userId: string): Promise<{ id: number } | null> {
 
 async function updateTrainer(
   trainerId: number,
-  updates: UpdateTrainer,
+  updates: UpdateTrainer & { status?: TrainerStatus },
 ): Promise<{ id: number } | null> {
   const [result] = await db
     .update(trainers)
@@ -62,7 +67,13 @@ export async function getTrainerById(
     .select(publicTrainerSelect())
     .from(trainers)
     .innerJoin(users, eq(trainers.user_id, users.id))
-    .where(and(eq(trainers.id, id), eq(trainers.is_visible, true)))
+    .where(
+      and(
+        eq(trainers.id, id),
+        eq(trainers.is_visible, true),
+        eq(trainers.status, "approved"),
+      ),
+    )
     .limit(1);
 
   return result ?? null;
@@ -89,7 +100,10 @@ export async function getTrainersByFilters(filters: {
   groups: boolean[];
   levels: boolean[];
 }): Promise<PublicTrainerUser[]> {
-  const conditions = [eq(trainers.is_visible, true)];
+  const conditions = [
+    eq(trainers.is_visible, true),
+    eq(trainers.status, "approved"),
+  ];
 
   if (filters.query) {
     conditions.push(
@@ -132,7 +146,15 @@ export async function createOrUpdateTrainer(
     trainerId = created.id;
   }
 
-  const updatedTrainer = await updateTrainer(trainerId, trainerData);
+  // A rejected trainer who edits and resubmits goes back into the queue, as if
+  // they were recreating the profile. Approved/pending edits keep their status.
+  const statusReset: { status?: TrainerStatus } =
+    existingTrainer?.status === "rejected" ? { status: "pending" } : {};
+
+  const updatedTrainer = await updateTrainer(trainerId, {
+    ...trainerData,
+    ...statusReset,
+  });
   if (!updatedTrainer) throw new TrainerNotFoundError();
   return updatedTrainer;
 }
@@ -147,6 +169,30 @@ export async function updateTrainerVisibility(
   const updatedTrainer = await updateTrainer(trainer.id, {
     is_visible: isVisible ? true : null,
   });
+  if (!updatedTrainer) throw new TrainerNotFoundError();
+  return updatedTrainer;
+}
+
+// Admin-only listing: unlike the public search, it ignores is_visible/status
+// filters so moderators can see every profile, optionally narrowed by status.
+export async function getTrainersForAdmin(
+  status?: TrainerStatus,
+): Promise<PublicTrainerUser[]> {
+  const conditions = status ? [eq(trainers.status, status)] : [];
+
+  return db
+    .select(publicTrainerSelect())
+    .from(trainers)
+    .innerJoin(users, eq(trainers.user_id, users.id))
+    .where(conditions.length ? and(...conditions) : undefined)
+    .orderBy(desc(trainers.created_at));
+}
+
+export async function updateTrainerStatus(
+  trainerId: number,
+  status: TrainerStatus,
+): Promise<{ id: number }> {
+  const updatedTrainer = await updateTrainer(trainerId, { status });
   if (!updatedTrainer) throw new TrainerNotFoundError();
   return updatedTrainer;
 }
