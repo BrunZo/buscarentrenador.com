@@ -1,6 +1,5 @@
 import { PublicUser } from "./users";
 
-export type TrainerStatus = "pending" | "approved" | "rejected";
 
 export type TrainerSchema = {
   id: number;
