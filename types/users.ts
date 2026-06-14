@@ -1,4 +1,3 @@
-export type UserRole = "user" | "admin";
 
 export type UserSchema = {
   id: string;
