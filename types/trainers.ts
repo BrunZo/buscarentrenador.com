@@ -48,6 +48,7 @@ export type UpdateTrainer = Pick<
   | "hourly_rate"
   | "certifications"
   | "is_visible"
+  | "status"
   | "soy_exo"
   | "examenes_oma"
 >;
