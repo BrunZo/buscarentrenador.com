@@ -186,27 +186,3 @@ export async function updateTrainerVisibility(
   return updatedTrainer;
 }
 
-// Admin-only listing: unlike the public search, it ignores is_visible/status
-// filters so moderators can see every profile, optionally narrowed by status.
-// Includes the email since admins are authorized to contact applicants.
-export async function getTrainersForAdmin(
-  status?: TrainerStatus,
-): Promise<TrainerWithEmail[]> {
-  const conditions = status ? [eq(trainers.status, status)] : [];
-
-  return db
-    .select({ ...publicTrainerSelect(), email: users.email })
-    .from(trainers)
-    .innerJoin(users, eq(trainers.user_id, users.id))
-    .where(conditions.length ? and(...conditions) : undefined)
-    .orderBy(desc(trainers.created_at));
-}
-
-export async function updateTrainerStatus(
-  trainerId: number,
-  status: TrainerStatus,
-): Promise<{ id: number }> {
-  const updatedTrainer = await updateTrainer(trainerId, { status });
-  if (!updatedTrainer) throw new TrainerNotFoundError();
-  return updatedTrainer;
-}
