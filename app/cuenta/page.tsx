@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
 import { auth } from '@/service/auth/auth';
 import { getTrainerByUserId } from '@/service/trainers';
+import { userHasPasswordAccount } from '@/service/users';
 
 export default async function Page() {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -15,6 +16,8 @@ export default async function Page() {
   const trainerData = await getTrainerByUserId(session.user.id).catch(() => null);
   const trainer = trainerData ? { ...trainerData, email: session.user.email } : null;
 
+  const hasPassword = await userHasPasswordAccount(session.user.id);
+
   return (
     <div className='animate-fade-in'>
       <div className='mb-8'>
@@ -25,7 +28,7 @@ export default async function Page() {
           Gestioná tu información personal y perfil de entrenador
         </p>
       </div>
-      <Dashboard user={session.user} trainer={trainer}/>
+      <Dashboard user={session.user} trainer={trainer} hasPassword={hasPassword}/>
     </div>
   );
 };

@@ -4,13 +4,15 @@ import { useState } from 'react'
 import type { TrainerWithEmail } from '@/types/trainers'
 import type { SessionUser } from '@/types/users'
 import AccountInfo from '@/app/ui/cuenta/account_info'
+import ChangePassword from '@/app/ui/cuenta/change_password'
 import VerticalNavbar from '@/app/ui/cuenta/vertical_navbar'
 import TrainerProfile from '@/app/ui/cuenta/trainer_profile'
 import Students from '@/app/ui/cuenta/students'
 
-export default function Dashboard({ user, trainer }: {
+export default function Dashboard({ user, trainer, hasPassword }: {
   user: SessionUser,
-  trainer: TrainerWithEmail | null
+  trainer: TrainerWithEmail | null,
+  hasPassword: boolean
 }) {
   const [selected, setSelected] = useState(0)
 
@@ -29,7 +31,12 @@ export default function Dashboard({ user, trainer }: {
       />
       <div className='flex-1 min-w-0'>
         <div className='bg-white rounded-2xl shadow-large border border-gray-100 p-6 md:p-8'>
-          {selected === 0 && <AccountInfo user={user}/>}
+          {selected === 0 && (
+            <div className='space-y-8'>
+              <AccountInfo user={user}/>
+              <ChangePassword hasPassword={hasPassword}/>
+            </div>
+          )}
           {trainer && selected === 1 && <TrainerProfile trainer={trainer}/>}
           {trainer && selected === 2 && <Students />}
         </div>

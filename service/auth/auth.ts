@@ -118,6 +118,9 @@ export const auth = betterAuth({
       if (ctx.path === "/reset-password") {
         validatePassword(ctx.body?.newPassword);
       }
+      if (ctx.path === "/change-password") {
+        validatePassword(ctx.body?.newPassword);
+      }
     }),
   },
   plugins: [nextCookies()],

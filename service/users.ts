@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/db/index";
-import { users } from "@/db/schema";
+import { users, accounts } from "@/db/schema";
 import type { UpdateUser, SelectUser } from "@/types/users";
 import { UserNotFoundError } from "@/service/errors";
 
@@ -25,4 +25,18 @@ export async function updateUserProfile(
   if (!user) throw new UserNotFoundError();
 
   return user;
+}
+
+// Google-only users have no password account, so the change-password form is
+// hidden for them.
+export async function userHasPasswordAccount(userId: string): Promise<boolean> {
+  const [row] = await db
+    .select({ id: accounts.id })
+    .from(accounts)
+    .where(
+      and(eq(accounts.userId, userId), eq(accounts.providerId, "credential")),
+    )
+    .limit(1);
+
+  return !!row;
 }
