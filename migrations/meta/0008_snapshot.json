@@ -1,6 +1,6 @@
 {
-  "id": "a3f173ed-fe57-4426-91b5-184904441a59",
-  "prevId": "a98e9883-29b1-41fa-866c-22de715431ac",
+  "id": "00000000-0008-0008-0008-000000000008",
+  "prevId": "a3f173ed-fe57-4426-91b5-184904441a59",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -378,6 +378,14 @@
           "primaryKey": false,
           "notNull": false,
           "default": "now()"
+        },
+        "status": {
+          "name": "status",
+          "type": "trainer_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pending'"
         }
       },
       "indexes": {
@@ -472,6 +480,14 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "role": {
+          "name": "role",
+          "type": "user_role",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'user'"
         }
       },
       "indexes": {
@@ -574,7 +590,25 @@
       "isRLSEnabled": false
     }
   },
-  "enums": {},
+  "enums": {
+    "public.user_role": {
+      "name": "user_role",
+      "schema": "public",
+      "values": [
+        "user",
+        "admin"
+      ]
+    },
+    "public.trainer_status": {
+      "name": "trainer_status",
+      "schema": "public",
+      "values": [
+        "pending",
+        "approved",
+        "rejected"
+      ]
+    }
+  },
   "schemas": {},
   "sequences": {},
   "roles": {},

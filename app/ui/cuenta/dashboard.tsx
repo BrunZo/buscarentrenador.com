@@ -1,16 +1,16 @@
 'use client'
 
 import { useState } from 'react'
-import type { PublicTrainerUser } from '@/types/trainers'
-import { User } from 'next-auth'
+import type { TrainerWithEmail } from '@/types/trainers'
+import type { SessionUser } from '@/types/users'
 import AccountInfo from '@/app/ui/cuenta/account_info'
 import VerticalNavbar from '@/app/ui/cuenta/vertical_navbar'
 import TrainerProfile from '@/app/ui/cuenta/trainer_profile'
 import Students from '@/app/ui/cuenta/students'
 
 export default function Dashboard({ user, trainer }: {
-  user: User,
-  trainer: PublicTrainerUser | null
+  user: SessionUser,
+  trainer: TrainerWithEmail | null
 }) {
   const [selected, setSelected] = useState(0)
 

@@ -5,6 +5,7 @@ import { trainers, users } from "@/db/schema";
 import type {
   UpdateTrainer,
   PublicTrainerUser,
+  TrainerWithEmail,
   TrainerStatus,
 } from "@/types/trainers";
 import { TrainerNotFoundError } from "@/service/errors";
@@ -13,7 +14,6 @@ function publicTrainerSelect() {
   return {
     id: trainers.id,
     name: users.name,
-    email: users.email,
     surname: users.surname,
     city: trainers.city,
     province: trainers.province,
@@ -90,6 +90,19 @@ export async function getTrainerByUserId(
     .limit(1);
 
   return result ?? null;
+}
+
+export async function getTrainerEmail(
+  trainerId: number,
+): Promise<string | null> {
+  const [result] = await db
+    .select({ email: users.email })
+    .from(trainers)
+    .innerJoin(users, eq(trainers.user_id, users.id))
+    .where(eq(trainers.id, trainerId))
+    .limit(1);
+
+  return result?.email ?? null;
 }
 
 export async function getTrainersByFilters(filters: {
@@ -175,13 +188,14 @@ export async function updateTrainerVisibility(
 
 // Admin-only listing: unlike the public search, it ignores is_visible/status
 // filters so moderators can see every profile, optionally narrowed by status.
+// Includes the email since admins are authorized to contact applicants.
 export async function getTrainersForAdmin(
   status?: TrainerStatus,
-): Promise<PublicTrainerUser[]> {
+): Promise<TrainerWithEmail[]> {
   const conditions = status ? [eq(trainers.status, status)] : [];
 
   return db
-    .select(publicTrainerSelect())
+    .select({ ...publicTrainerSelect(), email: users.email })
     .from(trainers)
     .innerJoin(users, eq(trainers.user_id, users.id))
     .where(conditions.length ? and(...conditions) : undefined)

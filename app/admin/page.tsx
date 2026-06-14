@@ -1,5 +1,3 @@
-'use server'
-
 import { redirect } from 'next/navigation';
 import { listTrainersForAdmin } from '@/service/admin';
 import AdminTrainerList from '@/app/ui/admin/trainer_list';

@@ -1,4 +1,3 @@
-'use server'
 
 import Search from '@/app/ui/entrenadores/search';
 import FilterGrid from '@/app/ui/entrenadores/filters/filter_grid';
@@ -7,7 +6,8 @@ import CardGrid from '@/app/ui/entrenadores/card';
 import Pagination from '@/app/ui/entrenadores/pagination';
 import LocationFilter from '@/app/ui/entrenadores/loc/location_filter';
 import { getTrainersByFilters } from '@/service/trainers';
-import { auth } from '@/service/auth/next-auth.config';
+import { auth } from '@/service/auth/auth';
+import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 export default async function Page({ searchParams }: {
@@ -23,7 +23,6 @@ export default async function Page({ searchParams }: {
 }) {
   const { query, city, prov, place, group, level, page } = await searchParams;
   
-  const currentPage = Number(page || 1)
   let trainers;
   try {
     trainers = await getTrainersByFilters({
@@ -37,10 +36,12 @@ export default async function Page({ searchParams }: {
   } catch (error) {
     redirect('/login');
   }
+  const trainerCount = trainers.length;
+  const currentPage = Math.min(Number(page || 1), Math.ceil(trainerCount / 4) || 1);
 
   // Trainer cards are client components, so the whole object reaches the
   // browser even if the email is never rendered — strip it for visitors.
-  const session = await auth();
+  const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user) {
     trainers = trainers.map((trainer) => ({ ...trainer, email: null }));
   }

@@ -1,4 +1,3 @@
-"use server";
 
 import { Suspense } from "react";
 import LoginForm from "@/app/ui/forms/login_form";

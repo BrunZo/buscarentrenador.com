@@ -6,6 +6,10 @@ import { useState } from 'react';
 import Input from '@/app/ui/form/input';
 import Button from '@/app/ui/form/button';
 import Message from '@/app/ui/form/message';
+import { authClient } from '@/service/auth/auth-client';
+
+const SUCCESS_MESSAGE =
+  'Si existe una cuenta con ese correo, recibirás un enlace para resetear tu contraseña';
 
 export default function ForgotPasswordForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -22,19 +26,22 @@ export default function ForgotPasswordForm() {
     const email = formData.get('email') as string;
 
     try {
-      const response = await fetch('/api/auth/forgot-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+      const { error: resetError } = await authClient.requestPasswordReset({
+        email,
+        redirectTo: '/reset-password',
       });
-      const data = await response.json();
 
-      if (!response.ok) {
-        setError(data.error || 'Ocurrió un error. Por favor, intentá de nuevo.');
+      if (resetError) {
+        setError(
+          resetError.status === 429
+            ? 'Demasiados intentos. Intentá de nuevo más tarde.'
+            : 'Ocurrió un error. Por favor, intentá de nuevo.',
+        );
         return;
       }
 
-      setMessage(data.message);
+      // Uniform message regardless of whether the account exists.
+      setMessage(SUCCESS_MESSAGE);
     } catch (error) {
       setError('Ocurrió un error. Por favor, intentá de nuevo.');
     } finally {

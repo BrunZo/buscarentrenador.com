@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/service/auth/next-auth.config";
+import { headers } from "next/headers";
+import { auth } from "@/service/auth/auth";
 import { updateUserProfile } from "@/service/users";
 import { z } from "zod";
 import { handleServiceError } from "../../helper";
@@ -12,7 +13,7 @@ const updateUserSchema = z.object({
 
 export async function PATCH(request: NextRequest) {
   try {
-    const session = await auth();  
+    const session = await auth.api.getSession({ headers: await headers() });
     if (!session?.user?.id) {
       throw new UnauthorizedError();
     }

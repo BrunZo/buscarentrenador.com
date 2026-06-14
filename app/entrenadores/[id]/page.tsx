@@ -1,8 +1,9 @@
-'use server';
 
 import Info from "@/app/ui/entrenadores/info";
-import { getTrainerById } from "@/service/trainers";
-import { auth } from "@/service/auth/next-auth.config";
+import { getTrainerById, getTrainerEmail } from "@/service/trainers";
+import type { TrainerWithEmail } from "@/types/trainers";
+import { auth } from "@/service/auth/auth";
+import { headers } from "next/headers";
 import { notFound } from 'next/navigation';
 
 export default async function Page({ params }: {
@@ -11,15 +12,14 @@ export default async function Page({ params }: {
   }>
 }) {
   const { id } = await params;
-  let trainer = await getTrainerById(Number(id));
+  const trainer = await getTrainerById(Number(id));
   if (!trainer) {
     notFound();
   }
 
-  const session = await auth();
-  if (!session?.user) {
-    trainer = { ...trainer, email: null };
-  }
+  const session = await auth.api.getSession({ headers: await headers() });
+  const email = session?.user ? await getTrainerEmail(Number(id)) : null;
+  const trainerWithEmail: TrainerWithEmail = { ...trainer, email };
 
   return (
     <div className='animate-fade-in'>
@@ -32,7 +32,7 @@ export default async function Page({ params }: {
         </p>
       </div>
       <div className='bg-white rounded-2xl shadow-large border border-gray-100 p-6 md:p-8'>
-        <Info trainer={trainer} individualProfile={true}/>
+        <Info trainer={trainerWithEmail} individualProfile={true}/>
       </div>
     </div> 
   )

@@ -3,10 +3,10 @@
 import clsx from 'clsx'
 import { useState } from 'react'
 import Info from '@/app/ui/entrenadores/info'
-import type { PublicTrainerUser } from '@/types/trainers'
+import type { TrainerWithEmail } from '@/types/trainers'
 
 export default function AdminTrainerList({ trainers }: {
-  trainers: PublicTrainerUser[]
+  trainers: TrainerWithEmail[]
 }) {
   const [pending, setPending] = useState(trainers)
   const [loadingId, setLoadingId] = useState<number | null>(null)

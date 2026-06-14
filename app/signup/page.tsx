@@ -1,4 +1,3 @@
-'use server'
 
 import SignupForm from "@/app/ui/signup/signup_form";
 

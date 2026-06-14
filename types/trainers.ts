@@ -88,6 +88,7 @@ export type PublicTrainer = Pick<
   | "examenes_oma"
 >;
 
-// only visible information; email is null when the viewer is not authenticated
-export type PublicTrainerUser = PublicTrainer &
-  Omit<PublicUser, "email"> & { email: string | null };
+export type PublicTrainerUser = PublicTrainer & Omit<PublicUser, "email">;
+
+// email is fetched separately and is null for unauthenticated viewers
+export type TrainerWithEmail = PublicTrainerUser & { email: string | null };

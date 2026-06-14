@@ -5,6 +5,7 @@ import Button from '@/app/ui/form/button';
 import Input from '@/app/ui/form/input';
 import Message from '@/app/ui/form/message';
 import { UserIcon } from '@heroicons/react/24/outline';
+import { authClient } from '@/service/auth/auth-client';
 
 interface ResendVerificationProps {
   initialEmail?: string;
@@ -23,20 +24,16 @@ export default function ResendVerification({ initialEmail = '' }: ResendVerifica
     setSuccess(null);
 
     try {
-      const response = await fetch('/api/auth/resend-verification', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
+      const { error: resendError } = await authClient.sendVerificationEmail({
+        email,
+        callbackURL: '/verify-email',
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.error || 'Ocurrió un error al reenviar el correo');
+      if (resendError && resendError.status === 429) {
+        setError('Demasiados intentos. Intentá de nuevo más tarde.');
       } else {
-        setSuccess(data.message || 'Correo de verificación enviado exitosamente');
+        // Uniform message regardless of whether the account exists.
+        setSuccess('Si el correo está registrado y no fue verificado, te enviamos un nuevo enlace de verificación.');
       }
     } catch (error) {
       setError('Ocurrió un error. Por favor, intentá de nuevo.');

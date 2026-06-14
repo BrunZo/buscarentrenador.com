@@ -1,15 +1,13 @@
 'use client'
 
-import { User } from "next-auth"
+import type { SessionUser } from "@/types/users"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { useSession } from "next-auth/react"
 
 export default function AccountInfo({ user }: {
-  user: User
+  user: SessionUser
 }) {
   const router = useRouter()
-  const { update } = useSession()
   const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -43,14 +41,9 @@ export default function AccountInfo({ user }: {
 
       setSuccess(data.message)
       setIsEditing(false)
-      
-      // Update the session with new data
-      await update({
-        name: formData.name,
-        surname: formData.surname
-      })
-      
-      // Refresh the page to update the UI
+
+      // Sessions are database-backed: re-rendering the server page
+      // picks up the new name/surname directly.
       router.refresh()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error desconocido')

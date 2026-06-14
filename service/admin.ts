@@ -1,34 +1,30 @@
-import { auth } from "@/service/auth/next-auth.config";
-import { getUserById } from "@/service/users";
+import { headers } from "next/headers";
+import { auth } from "@/service/auth/auth";
 import {
   getTrainersForAdmin,
   updateTrainerStatus,
 } from "@/service/trainers";
 import { ForbiddenError, UnauthorizedError } from "@/service/errors";
-import type { SelectUser } from "@/types/users";
-import type { PublicTrainerUser, TrainerStatus } from "@/types/trainers";
+import type { TrainerWithEmail, TrainerStatus } from "@/types/trainers";
 
 /**
  * Ensures the current request comes from an admin.
- * The role is re-read from the database instead of trusting the (possibly
- * stale) JWT, so a demoted admin loses access immediately.
- * @returns The authenticated admin user.
+ * Better Auth sessions are backed by the database, so the role reflects the
+ * current value (a demoted admin loses access immediately).
  * @throws UnauthorizedError - if there is no session
  * @throws ForbiddenError - if the user is not an admin
  */
-export async function requireAdmin(): Promise<SelectUser> {
-  const session = await auth();
-  if (!session?.user?.id) throw new UnauthorizedError();
+export async function requireAdmin() {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user) throw new UnauthorizedError();
+  if (session.user.role !== "admin") throw new ForbiddenError();
 
-  const user = await getUserById(session.user.id);
-  if (!user || user.role !== "admin") throw new ForbiddenError();
-
-  return user;
+  return session.user;
 }
 
 export async function listTrainersForAdmin(
   status?: TrainerStatus,
-): Promise<PublicTrainerUser[]> {
+): Promise<TrainerWithEmail[]> {
   await requireAdmin();
   return getTrainersForAdmin(status);
 }

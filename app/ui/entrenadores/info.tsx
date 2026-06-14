@@ -1,9 +1,9 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import type { PublicTrainerUser } from '@/types/trainers'
+import type { TrainerWithEmail } from '@/types/trainers'
 
 export default function Info({ trainer, individualProfile }: {
-  trainer: PublicTrainerUser
+  trainer: TrainerWithEmail
   individualProfile: boolean
 }) {
   const image_src = '';

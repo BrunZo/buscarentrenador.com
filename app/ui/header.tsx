@@ -1,16 +1,25 @@
 'use client'
 
 import Link from 'next/link'
-import { useSession, signOut } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
+import { authClient } from '@/service/auth/auth-client'
 
 export default function Header() {
-  const { data: session, status } = useSession();
+  const router = useRouter();
+  const { data: session, isPending } = authClient.useSession();
+  const status = isPending ? 'loading' : 'ready';
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const closeMenu = () => setIsMenuOpen(false);
+
+  const handleSignOut = async () => {
+    await authClient.signOut();
+    router.push('/');
+    router.refresh();
+  };
 
   return (
     <div className='flex justify-between items-center py-4 px-4 sm:px-32 relative bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-soft z-50'>
@@ -72,7 +81,7 @@ export default function Header() {
               )}
               <li>
                 <button
-                  onClick={() => signOut({ callbackUrl: '/' })}
+                  onClick={handleSignOut}
                   className='text-gray-700 hover:text-red-600 font-medium px-3 py-2 rounded-lg hover:bg-red-50 transition-all duration-200'
                 >
                   Logout
@@ -126,10 +135,10 @@ export default function Header() {
                   />
                 )}
                 <li>
-                  <button 
+                  <button
                     onClick={() => {
                       closeMenu();
-                      signOut({ callbackUrl: '/' });
+                      handleSignOut();
                     }}
                     className='w-full text-left px-4 py-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors duration-200'
                   >
