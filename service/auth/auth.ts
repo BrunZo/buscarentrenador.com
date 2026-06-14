@@ -115,10 +115,7 @@ export const auth = betterAuth({
         validateName(ctx.body?.name, "El nombre");
         validateName(ctx.body?.surname, "El apellido");
       }
-      if (ctx.path === "/reset-password") {
-        validatePassword(ctx.body?.newPassword);
-      }
-      if (ctx.path === "/change-password") {
+      if (ctx.path === "/reset-password" || ctx.path === "/change-password") {
         validatePassword(ctx.body?.newPassword);
       }
     }),
