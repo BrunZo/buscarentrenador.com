@@ -64,8 +64,14 @@ export default function Header() {
                 text='Mi cuenta'
                 href='/cuenta'
               />
+              {session.user?.role === 'admin' && (
+                <MenuButton
+                  text='Admin'
+                  href='/admin'
+                />
+              )}
               <li>
-                <button 
+                <button
                   onClick={() => signOut({ callbackUrl: '/' })}
                   className='text-gray-700 hover:text-red-600 font-medium px-3 py-2 rounded-lg hover:bg-red-50 transition-all duration-200'
                 >
@@ -112,6 +118,13 @@ export default function Header() {
                   href='/cuenta'
                   onClick={closeMenu}
                 />
+                {session.user?.role === 'admin' && (
+                  <MobileMenuButton
+                    text='Admin'
+                    href='/admin'
+                    onClick={closeMenu}
+                  />
+                )}
                 <li>
                   <button 
                     onClick={() => {

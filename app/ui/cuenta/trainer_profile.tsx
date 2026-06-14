@@ -51,6 +51,21 @@ export default function TrainerProfile({ trainer }: {
         </p>
       </div>
 
+      {/* Approval Status Section */}
+      <div className={clsx({
+        'p-4 rounded-lg border text-sm': true,
+        'bg-yellow-50 border-yellow-200 text-yellow-800': trainer.status === 'pending',
+        'bg-green-50 border-green-200 text-green-800': trainer.status === 'approved',
+        'bg-red-50 border-red-200 text-red-800': trainer.status === 'rejected',
+      })}>
+        {trainer.status === 'pending' &&
+          'Tu perfil está en revisión. Hasta que un administrador lo apruebe, no aparece en las búsquedas.'}
+        {trainer.status === 'approved' &&
+          'Tu perfil fue aprobado y aparece en las búsquedas de entrenadores.'}
+        {trainer.status === 'rejected' &&
+          'Tu perfil fue rechazado. Editá tu información y volvé a enviarlo para una nueva revisión.'}
+      </div>
+
       {/* Visibility Toggle Section */}
       <div className='p-4 bg-gray-50 rounded-lg border border-gray-200'>
         <div className='flex items-center justify-between'>
