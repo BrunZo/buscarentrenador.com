@@ -112,6 +112,8 @@ export async function getTrainersByFilters(filters: {
   places: boolean[];
   groups: boolean[];
   levels: boolean[];
+  require_visible: boolean;
+  status: "approved" | "pending" | "rejected";
 }): Promise<PublicTrainerUser[]> {
   const conditions = [
     eq(trainers.is_visible, true),
