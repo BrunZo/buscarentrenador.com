@@ -1,4 +1,3 @@
-
 export type UserSchema = {
   id: string;
   email: string;

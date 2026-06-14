@@ -1,6 +1,5 @@
 import { PublicUser } from "./users";
 
-
 export type TrainerSchema = {
   id: number;
   user_id: string;
@@ -36,20 +35,22 @@ export type NewTrainer = Pick<
   | "examenes_oma"
 >;
 
-export type UpdateTrainer = Pick<
-  TrainerSchema,
-  | "city"
-  | "province"
-  | "description"
-  | "places"
-  | "groups"
-  | "levels"
-  | "hourly_rate"
-  | "certifications"
-  | "is_visible"
-  | "status"
-  | "soy_exo"
-  | "examenes_oma"
+export type UpdateTrainer = Partial<
+  Pick<
+    TrainerSchema,
+    | "city"
+    | "province"
+    | "description"
+    | "places"
+    | "groups"
+    | "levels"
+    | "hourly_rate"
+    | "certifications"
+    | "is_visible"
+    | "status"
+    | "soy_exo"
+    | "examenes_oma"
+  >
 >;
 
 export type SelectTrainer = Pick<

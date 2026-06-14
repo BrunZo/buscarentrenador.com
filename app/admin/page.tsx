@@ -1,16 +1,30 @@
 import { redirect } from 'next/navigation';
-import { listTrainersForAdmin } from '@/service/admin';
+import { headers } from 'next/headers';
+import { auth } from '@/service/auth/auth';
+import { getTrainersByFilters, getTrainerEmail } from '@/service/trainers';
 import AdminTrainerList from '@/app/ui/admin/trainer_list';
+import type { TrainerWithEmail } from '@/types/trainers';
 
 export default async function Page() {
-  // listTrainersForAdmin runs requireAdmin first, so a non-admin (or a guest)
-  // throws and gets redirected away.
-  let trainers;
-  try {
-    trainers = await listTrainersForAdmin('pending');
-  } catch (error) {
-    redirect('/');
-  }
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (session?.user?.role !== 'admin') redirect('/');
+
+  const pending = await getTrainersByFilters({
+    places: [],
+    groups: [],
+    levels: [],
+    require_visible: false,
+    status: 'pending',
+  });
+
+  // Admins contact trainers directly, so attach each email (same pattern as the
+  // individual trainer profile page).
+  const trainers: TrainerWithEmail[] = await Promise.all(
+    pending.map(async (trainer) => ({
+      ...trainer,
+      email: await getTrainerEmail(trainer.id),
+    })),
+  );
 
   return (
     <div className='animate-fade-in'>

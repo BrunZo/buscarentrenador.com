@@ -2,12 +2,7 @@ import { eq, and, or, desc, sql } from "drizzle-orm";
 import type { AnyColumn } from "drizzle-orm";
 import { db } from "@/db/index";
 import { trainers, users } from "@/db/schema";
-import type {
-  UpdateTrainer,
-  PublicTrainerUser,
-  TrainerWithEmail,
-  TrainerStatus,
-} from "@/types/trainers";
+import type { UpdateTrainer, PublicTrainerUser } from "@/types/trainers";
 import { TrainerNotFoundError } from "@/service/errors";
 
 function publicTrainerSelect() {
@@ -47,7 +42,7 @@ async function createTrainer(userId: string): Promise<{ id: number } | null> {
   return result ?? null;
 }
 
-async function updateTrainer(
+export async function updateTrainer(
   trainerId: number,
   updates: UpdateTrainer,
 ): Promise<{ id: number } | null> {
@@ -115,9 +110,10 @@ export async function getTrainersByFilters(filters: {
   require_visible: boolean;
   status: "approved" | "pending" | "rejected";
 }): Promise<PublicTrainerUser[]> {
-  const conditions = [eq(trainers.status, status);
-  if (require_visible) 
-      conditions.push(eq(trainers.is_visible, true);
+  const conditions = [eq(trainers.status, filters.status)];
+  // The public search only shows visible trainers; the admin panel passes
+  // require_visible: false to review hidden ones too.
+  if (filters.require_visible) conditions.push(eq(trainers.is_visible, true));
 
   if (filters.query) {
     conditions.push(
@@ -162,13 +158,10 @@ export async function createOrUpdateTrainer(
 
   // A rejected trainer who edits and resubmits goes back into the queue, as if
   // they were recreating the profile. Approved/pending edits keep their status.
-  const statusReset: { status?: TrainerStatus } =
-    existingTrainer?.status === "rejected" ? { status: "pending" } : {};
+  const updates: UpdateTrainer = { ...trainerData };
+  if (existingTrainer?.status === "rejected") updates.status = "pending";
 
-  const updatedTrainer = await updateTrainer(trainerId, {
-    ...trainerData,
-    ...statusReset,
-  });
+  const updatedTrainer = await updateTrainer(trainerId, updates);
   if (!updatedTrainer) throw new TrainerNotFoundError();
   return updatedTrainer;
 }
