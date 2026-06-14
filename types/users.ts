@@ -4,7 +4,7 @@ export type UserSchema = {
   email: string;
   name: string;
   surname: string;
-  role: UserRole;
+  role: "user" | "admin";
   emailVerified: boolean;
   image: string | null;
   createdAt: Date;
