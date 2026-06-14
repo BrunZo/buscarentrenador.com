@@ -49,7 +49,7 @@ async function createTrainer(userId: string): Promise<{ id: number } | null> {
 
 async function updateTrainer(
   trainerId: number,
-  updates: UpdateTrainer & { status?: TrainerStatus },
+  updates: UpdateTrainer,
 ): Promise<{ id: number } | null> {
   const [result] = await db
     .update(trainers)
