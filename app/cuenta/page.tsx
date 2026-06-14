@@ -16,8 +16,7 @@ export default async function Page() {
   const trainerData = await getTrainerByUserId(session.user.id).catch(() => null);
   const trainer = trainerData ? { ...trainerData, email: session.user.email } : null;
 
-  const hasPassword = await userHasPasswordAccount(session.user.id);
-
+  const hasPassword = await userHasPasswordAccount(session.user.id).catch(() => false);
   return (
     <div className='animate-fade-in'>
       <div className='mb-8'>
