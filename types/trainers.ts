@@ -13,7 +13,7 @@ export type TrainerSchema = {
   hourly_rate?: string | null;
   certifications?: string[] | null;
   is_visible?: boolean | null;
-  status: TrainerStatus;
+  status: "pending" | "approved" | "rejected";
   soy_exo?: boolean | null;
   examenes_oma?: boolean | null;
   created_at: Date | null;
