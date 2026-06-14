@@ -115,10 +115,9 @@ export async function getTrainersByFilters(filters: {
   require_visible: boolean;
   status: "approved" | "pending" | "rejected";
 }): Promise<PublicTrainerUser[]> {
-  const conditions = [
-    eq(trainers.is_visible, true),
-    eq(trainers.status, "approved"),
-  ];
+  const conditions = [eq(trainers.status, status);
+  if (require_visible) 
+      conditions.push(eq(trainers.is_visible, true);
 
   if (filters.query) {
     conditions.push(
