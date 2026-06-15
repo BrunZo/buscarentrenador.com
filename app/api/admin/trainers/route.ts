@@ -27,6 +27,7 @@ export async function GET(request: NextRequest) {
       levels: [],
       require_visible: false,
       status,
+      include_email: true,
     });
     return NextResponse.json({ trainers }, { status: 200 });
   } catch (error) {

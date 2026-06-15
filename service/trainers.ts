@@ -2,7 +2,11 @@ import { eq, and, or, desc, sql } from "drizzle-orm";
 import type { AnyColumn } from "drizzle-orm";
 import { db } from "@/db/index";
 import { trainers, users } from "@/db/schema";
-import type { UpdateTrainer, PublicTrainerUser } from "@/types/trainers";
+import type {
+  UpdateTrainer,
+  PublicTrainerUser,
+  TrainerWithEmail,
+} from "@/types/trainers";
 import { TrainerNotFoundError } from "@/service/errors";
 
 function publicTrainerSelect() {
@@ -100,7 +104,7 @@ export async function getTrainerEmail(
   return result?.email ?? null;
 }
 
-export async function getTrainersByFilters(filters: {
+type TrainerFilters = {
   query?: string;
   city?: string;
   province?: string;
@@ -109,7 +113,19 @@ export async function getTrainersByFilters(filters: {
   levels: boolean[];
   require_visible: boolean;
   status: "approved" | "pending" | "rejected";
-}): Promise<PublicTrainerUser[]> {
+  // Only admin callers should request the email; public reads omit it.
+  include_email?: boolean;
+};
+
+export async function getTrainersByFilters(
+  filters: TrainerFilters & { include_email: true },
+): Promise<TrainerWithEmail[]>;
+export async function getTrainersByFilters(
+  filters: TrainerFilters & { include_email?: false },
+): Promise<PublicTrainerUser[]>;
+export async function getTrainersByFilters(
+  filters: TrainerFilters,
+): Promise<PublicTrainerUser[] | TrainerWithEmail[]> {
   const conditions = [eq(trainers.status, filters.status)];
   // The public search only shows visible trainers; the admin panel passes
   // require_visible: false to review hidden ones too.
@@ -134,8 +150,12 @@ export async function getTrainersByFilters(filters: {
   const levelsFilter = boolArrayFilter(trainers.levels, filters.levels);
   if (levelsFilter) conditions.push(levelsFilter);
 
+  const selection = filters.include_email
+    ? { ...publicTrainerSelect(), email: users.email }
+    : publicTrainerSelect();
+
   return db
-    .select(publicTrainerSelect())
+    .select(selection)
     .from(trainers)
     .innerJoin(users, eq(trainers.user_id, users.id))
     .where(and(...conditions))

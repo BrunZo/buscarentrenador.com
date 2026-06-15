@@ -1,30 +1,23 @@
 import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
 import { auth } from '@/service/auth/auth';
-import { getTrainersByFilters, getTrainerEmail } from '@/service/trainers';
+import { getTrainersByFilters } from '@/service/trainers';
 import AdminTrainerList from '@/app/ui/admin/trainer_list';
-import type { TrainerWithEmail } from '@/types/trainers';
 
 export default async function Page() {
   const session = await auth.api.getSession({ headers: await headers() });
   if (session?.user?.role !== 'admin') redirect('/');
 
-  const pending = await getTrainersByFilters({
+  // Admins contact trainers directly, so include_email pulls the email in the
+  // same query instead of one lookup per trainer.
+  const trainers = await getTrainersByFilters({
     places: [],
     groups: [],
     levels: [],
     require_visible: false,
     status: 'pending',
+    include_email: true,
   });
-
-  // Admins contact trainers directly, so attach each email (same pattern as the
-  // individual trainer profile page).
-  const trainers: TrainerWithEmail[] = await Promise.all(
-    pending.map(async (trainer) => ({
-      ...trainer,
-      email: await getTrainerEmail(trainer.id),
-    })),
-  );
 
   return (
     <div className='animate-fade-in'>
