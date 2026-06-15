@@ -18,7 +18,7 @@ async function loadTemplate(
   name: string,
   vars: Record<string, string>,
 ): Promise<{ html: string; text: string }> {
-  const dir = path.join(process.cwd(), "service/templates");
+  const dir = path.join(process.cwd(), "src/service/templates");
   const [html, text] = await Promise.all([
     readFile(path.join(dir, `${name}.html`), "utf-8"),
     readFile(path.join(dir, `${name}.txt`), "utf-8"),
