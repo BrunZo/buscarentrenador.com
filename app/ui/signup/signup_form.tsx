@@ -158,6 +158,18 @@ export default function SignupForm() {
       
       <Button text={isLoading ? 'Creando cuenta...' : 'Crear cuenta'} disabled={isLoading} />
 
+      <p className='text-center text-sm text-gray-500'>
+        Al continuar, aceptás los{' '}
+        <Link
+          href='/terminos'
+          target='_blank'
+          className='text-indigo-600 hover:text-indigo-700 font-semibold hover:underline transition-colors duration-200'
+        >
+          términos y condiciones
+        </Link>
+        {' '}del sitio web.
+      </p>
+
       <div className='flex items-center gap-3'>
         <div className='h-px flex-1 bg-gray-200' />
         <span className='text-xs uppercase tracking-wide text-gray-400'>o</span>
