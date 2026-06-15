@@ -7,6 +7,7 @@ import trainerFilters from '@/app/ui/entrenadores/filters/trainer_filters';
 import LocationFilter from '@/app/ui/entrenadores/loc/location_filter';
 import Button from '@/app/ui/form/button';
 import AchievementList from './achievement_list';
+import { saveTrainer } from '@/actions/trainer';
 
 export default function UpdateUserForm({ defaultOptions }: {
   defaultOptions: {
@@ -42,34 +43,27 @@ export default function UpdateUserForm({ defaultOptions }: {
     try {
       const certifications = achievements.filter(a => a.trim() !== '');
 
-      const response = await fetch('/api/auth/trainer', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          province,
-          city,
-          description,
-          places,
-          groups,
-          levels,
-          certifications,
-          soy_exo: soyExo,
-          examenes_oma: soyExo ? examenesOma : false,
-        }),
+      const result = await saveTrainer({
+        province,
+        city,
+        description,
+        places,
+        groups,
+        levels,
+        certifications,
+        soy_exo: soyExo,
+        examenes_oma: soyExo ? examenesOma : false,
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Error al guardar la información');
+      if (!result.ok) {
+        setSubmitError(result.error);
+        return;
       }
 
       router.push('/cuenta');
       router.refresh();
     } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : 'Error al guardar la información');
+      setSubmitError('Error al guardar la información');
     } finally {
       setIsSubmitting(false);
     }
