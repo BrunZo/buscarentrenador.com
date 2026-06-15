@@ -3,6 +3,7 @@ export type UserSchema = {
   email: string;
   name: string;
   surname: string;
+  role: "user" | "admin";
   emailVerified: boolean;
   image: string | null;
   createdAt: Date;
@@ -12,7 +13,7 @@ export type UserSchema = {
 export type UpdateUser = Partial<Pick<UserSchema, "name" | "surname">>;
 export type SelectUser = Pick<
   UserSchema,
-  "id" | "email" | "name" | "surname" | "emailVerified"
+  "id" | "email" | "name" | "surname" | "role" | "emailVerified"
 >;
 
 export type PublicUser = Pick<UserSchema, "email" | "name" | "surname">;

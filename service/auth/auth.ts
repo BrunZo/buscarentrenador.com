@@ -57,6 +57,9 @@ export const auth = betterAuth({
     modelName: "users",
     additionalFields: {
       surname: { type: "string", required: true, input: true },
+      // Admin flag, surfaced in the session. input: false so it can't be set
+      // through signup; it is managed in the database (default 'user').
+      role: { type: "string", required: false, input: false },
     },
   },
   session: { modelName: "sessions" },

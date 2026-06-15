@@ -2,7 +2,11 @@ import { eq, and, or, desc, sql } from "drizzle-orm";
 import type { AnyColumn } from "drizzle-orm";
 import { db } from "@/db/index";
 import { trainers, users } from "@/db/schema";
-import type { UpdateTrainer, PublicTrainerUser } from "@/types/trainers";
+import type {
+  UpdateTrainer,
+  PublicTrainerUser,
+  TrainerWithEmail,
+} from "@/types/trainers";
 import { TrainerNotFoundError } from "@/service/errors";
 
 function publicTrainerSelect() {
@@ -19,6 +23,7 @@ function publicTrainerSelect() {
     groups: trainers.groups,
     certifications: trainers.certifications,
     is_visible: trainers.is_visible,
+    status: trainers.status,
     soy_exo: trainers.soy_exo,
     examenes_oma: trainers.examenes_oma,
   };
@@ -41,7 +46,7 @@ async function createTrainer(userId: string): Promise<{ id: number } | null> {
   return result ?? null;
 }
 
-async function updateTrainer(
+export async function updateTrainer(
   trainerId: number,
   updates: UpdateTrainer,
 ): Promise<{ id: number } | null> {
@@ -61,7 +66,13 @@ export async function getTrainerById(
     .select(publicTrainerSelect())
     .from(trainers)
     .innerJoin(users, eq(trainers.user_id, users.id))
-    .where(and(eq(trainers.id, id), eq(trainers.is_visible, true)))
+    .where(
+      and(
+        eq(trainers.id, id),
+        eq(trainers.is_visible, true),
+        eq(trainers.status, "approved"),
+      ),
+    )
     .limit(1);
 
   return result ?? null;
@@ -93,15 +104,32 @@ export async function getTrainerEmail(
   return result?.email ?? null;
 }
 
-export async function getTrainersByFilters(filters: {
+type TrainerFilters = {
   query?: string;
   city?: string;
   province?: string;
   places: boolean[];
   groups: boolean[];
   levels: boolean[];
-}): Promise<PublicTrainerUser[]> {
-  const conditions = [eq(trainers.is_visible, true)];
+  require_visible: boolean;
+  status: "approved" | "pending" | "rejected";
+  // Only admin callers should request the email; public reads omit it.
+  include_email?: boolean;
+};
+
+export async function getTrainersByFilters(
+  filters: TrainerFilters & { include_email: true },
+): Promise<TrainerWithEmail[]>;
+export async function getTrainersByFilters(
+  filters: TrainerFilters & { include_email?: false },
+): Promise<PublicTrainerUser[]>;
+export async function getTrainersByFilters(
+  filters: TrainerFilters,
+): Promise<PublicTrainerUser[] | TrainerWithEmail[]> {
+  const conditions = [eq(trainers.status, filters.status)];
+  // The public search only shows visible trainers; the admin panel passes
+  // require_visible: false to review hidden ones too.
+  if (filters.require_visible) conditions.push(eq(trainers.is_visible, true));
 
   if (filters.query) {
     conditions.push(
@@ -122,8 +150,12 @@ export async function getTrainersByFilters(filters: {
   const levelsFilter = boolArrayFilter(trainers.levels, filters.levels);
   if (levelsFilter) conditions.push(levelsFilter);
 
+  const selection = filters.include_email
+    ? { ...publicTrainerSelect(), email: users.email }
+    : publicTrainerSelect();
+
   return db
-    .select(publicTrainerSelect())
+    .select(selection)
     .from(trainers)
     .innerJoin(users, eq(trainers.user_id, users.id))
     .where(and(...conditions))
@@ -144,7 +176,12 @@ export async function createOrUpdateTrainer(
     trainerId = created.id;
   }
 
-  const updatedTrainer = await updateTrainer(trainerId, trainerData);
+  // A rejected trainer who edits and resubmits goes back into the queue, as if
+  // they were recreating the profile. Approved/pending edits keep their status.
+  const updates: UpdateTrainer = { ...trainerData };
+  if (existingTrainer?.status === "rejected") updates.status = "pending";
+
+  const updatedTrainer = await updateTrainer(trainerId, updates);
   if (!updatedTrainer) throw new TrainerNotFoundError();
   return updatedTrainer;
 }
@@ -162,3 +199,4 @@ export async function updateTrainerVisibility(
   if (!updatedTrainer) throw new TrainerNotFoundError();
   return updatedTrainer;
 }
+

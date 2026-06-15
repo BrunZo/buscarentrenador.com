@@ -12,6 +12,7 @@ export type TrainerSchema = {
   hourly_rate?: string | null;
   certifications?: string[] | null;
   is_visible?: boolean | null;
+  status: "pending" | "approved" | "rejected";
   soy_exo?: boolean | null;
   examenes_oma?: boolean | null;
   created_at: Date | null;
@@ -34,19 +35,22 @@ export type NewTrainer = Pick<
   | "examenes_oma"
 >;
 
-export type UpdateTrainer = Pick<
-  TrainerSchema,
-  | "city"
-  | "province"
-  | "description"
-  | "places"
-  | "groups"
-  | "levels"
-  | "hourly_rate"
-  | "certifications"
-  | "is_visible"
-  | "soy_exo"
-  | "examenes_oma"
+export type UpdateTrainer = Partial<
+  Pick<
+    TrainerSchema,
+    | "city"
+    | "province"
+    | "description"
+    | "places"
+    | "groups"
+    | "levels"
+    | "hourly_rate"
+    | "certifications"
+    | "is_visible"
+    | "status"
+    | "soy_exo"
+    | "examenes_oma"
+  >
 >;
 
 export type SelectTrainer = Pick<
@@ -61,6 +65,7 @@ export type SelectTrainer = Pick<
   | "hourly_rate"
   | "certifications"
   | "is_visible"
+  | "status"
   | "soy_exo"
   | "examenes_oma"
   | "created_at"
@@ -79,6 +84,7 @@ export type PublicTrainer = Pick<
   | "hourly_rate"
   | "certifications"
   | "is_visible"
+  | "status"
   | "soy_exo"
   | "examenes_oma"
 >;

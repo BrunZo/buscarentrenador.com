@@ -21,6 +21,12 @@ export class UnauthorizedError extends AppError {
   }
 }
 
+export class ForbiddenError extends AppError {
+  constructor() {
+    super("Forbidden", 403, "No tenés permisos para realizar esta acción.");
+  }
+}
+
 export class UserNotFoundError extends AppError {
   constructor() {
     super("User not found", 404, "Usuario no encontrado");

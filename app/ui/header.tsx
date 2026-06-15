@@ -73,6 +73,12 @@ export default function Header() {
                 text='Mi cuenta'
                 href='/cuenta'
               />
+              {session.user?.role === 'admin' && (
+                <MenuButton
+                  text='Admin'
+                  href='/admin'
+                />
+              )}
               <li>
                 <button
                   onClick={handleSignOut}
@@ -121,6 +127,13 @@ export default function Header() {
                   href='/cuenta'
                   onClick={closeMenu}
                 />
+                {session.user?.role === 'admin' && (
+                  <MobileMenuButton
+                    text='Admin'
+                    href='/admin'
+                    onClick={closeMenu}
+                  />
+                )}
                 <li>
                   <button
                     onClick={() => {
