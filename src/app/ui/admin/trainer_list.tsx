@@ -4,6 +4,7 @@ import clsx from 'clsx'
 import { useState } from 'react'
 import Info from '@/app/ui/entrenadores/info'
 import type { TrainerWithEmail } from '@/types/trainers'
+import { decideTrainer } from '@/actions/admin'
 
 export default function AdminTrainerList({ trainers }: {
   trainers: TrainerWithEmail[]
@@ -17,19 +18,13 @@ export default function AdminTrainerList({ trainers }: {
     setMessage(null)
 
     try {
-      const response = await fetch(`/api/admin/trainers/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status }),
-      })
+      const result = await decideTrainer({ id, status })
 
-      const data = await response.json()
-
-      if (response.ok) {
+      if (result.ok) {
         setPending((prev) => prev.filter((t) => t.id !== id))
-        setMessage({ type: 'success', text: data.message })
+        setMessage({ type: 'success', text: result.message })
       } else {
-        setMessage({ type: 'error', text: data.error || 'Error al actualizar el entrenador' })
+        setMessage({ type: 'error', text: result.error })
       }
     } catch (error) {
       setMessage({ type: 'error', text: 'Error de conexión. Intentá de nuevo.' })

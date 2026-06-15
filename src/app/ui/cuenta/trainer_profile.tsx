@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import Info from "@/app/ui/entrenadores/info"
 import type { TrainerWithEmail } from "@/types/trainers"
+import { setTrainerVisibility } from "@/actions/trainer"
 
 export default function TrainerProfile({ trainer }: {
   trainer: TrainerWithEmail
@@ -19,21 +20,13 @@ export default function TrainerProfile({ trainer }: {
     setMessage(null)
     
     try {
-      const response = await fetch('/api/auth/trainer/visibility', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ is_visible: !isVisible }),
-      })
+      const result = await setTrainerVisibility({ is_visible: !isVisible })
 
-      const data = await response.json()
-
-      if (response.ok) {
+      if (result.ok) {
         setIsVisible(!isVisible)
-        setMessage({ type: 'success', text: data.message })
+        setMessage({ type: 'success', text: result.message })
       } else {
-        setMessage({ type: 'error', text: data.error || 'Error al actualizar la visibilidad' })
+        setMessage({ type: 'error', text: result.error })
       }
     } catch (error) {
       setMessage({ type: 'error', text: 'Error de conexión. Intentá de nuevo.' })
