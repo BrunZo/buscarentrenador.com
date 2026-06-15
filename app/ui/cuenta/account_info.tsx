@@ -3,6 +3,7 @@
 import type { SessionUser } from "@/types/users"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { updateProfile } from "@/actions/user"
 
 export default function AccountInfo({ user }: {
   user: SessionUser
@@ -25,28 +26,21 @@ export default function AccountInfo({ user }: {
     setSuccess(null)
 
     try {
-      const response = await fetch('/api/auth/user', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      })
+      const result = await updateProfile(formData)
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Error al actualizar la información')
+      if (!result.ok) {
+        setError(result.error)
+        return
       }
 
-      setSuccess(data.message)
+      setSuccess(result.message)
       setIsEditing(false)
 
       // Sessions are database-backed: re-rendering the server page
       // picks up the new name/surname directly.
       router.refresh()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error desconocido')
+      setError('Error desconocido')
     } finally {
       setIsLoading(false)
     }
