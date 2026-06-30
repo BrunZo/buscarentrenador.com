@@ -61,7 +61,6 @@ export default function UpdateUserForm({ defaultOptions }: {
       }
 
       router.push('/cuenta');
-      router.refresh();
     } catch (error) {
       setSubmitError('Error al guardar la información');
     } finally {
