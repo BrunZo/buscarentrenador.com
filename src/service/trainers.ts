@@ -194,7 +194,7 @@ export async function updateTrainerVisibility(
   if (!trainer) throw new TrainerNotFoundError();
 
   const updatedTrainer = await updateTrainer(trainer.id, {
-    is_visible: isVisible ? true : null,
+    is_visible: isVisible,
   });
   if (!updatedTrainer) throw new TrainerNotFoundError();
   return updatedTrainer;
