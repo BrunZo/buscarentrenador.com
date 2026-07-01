@@ -186,8 +186,6 @@ export async function createOrUpdateTrainer(
   const updatedTrainer = await updateTrainer(trainerId, updates);
   if (!updatedTrainer) throw new TrainerNotFoundError();
 
-  // Notify admins of a newly registered trainer. Non-critical: a mail failure
-  // must not fail the trainer creation.
   if (created) {
     try {
       await mailer.sendNewTrainer();
