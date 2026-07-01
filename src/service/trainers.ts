@@ -8,6 +8,7 @@ import type {
   TrainerWithEmail,
 } from "@/types/trainers";
 import { TrainerNotFoundError } from "@/service/errors";
+import { mailer } from "@/service/mailer";
 
 function publicTrainerSelect() {
   return {
@@ -168,12 +169,13 @@ export async function createOrUpdateTrainer(
 ): Promise<{ id: number }> {
   let trainerId: number;
   const existingTrainer = await getTrainerByUserId(userId);
+  const created = !existingTrainer;
   if (existingTrainer) {
     trainerId = existingTrainer.id;
   } else {
-    const created = await createTrainer(userId);
-    if (!created) throw new TrainerNotFoundError();
-    trainerId = created.id;
+    const newTrainer = await createTrainer(userId);
+    if (!newTrainer) throw new TrainerNotFoundError();
+    trainerId = newTrainer.id;
   }
 
   // A rejected trainer who edits and resubmits goes back into the queue, as if
@@ -183,6 +185,17 @@ export async function createOrUpdateTrainer(
 
   const updatedTrainer = await updateTrainer(trainerId, updates);
   if (!updatedTrainer) throw new TrainerNotFoundError();
+
+  // Notify admins of a newly registered trainer. Non-critical: a mail failure
+  // must not fail the trainer creation.
+  if (created) {
+    try {
+      await mailer.sendNewTrainer();
+    } catch (error) {
+      console.error("Failed to send new trainer notification:", error);
+    }
+  }
+
   return updatedTrainer;
 }
 
