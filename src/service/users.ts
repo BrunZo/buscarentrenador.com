@@ -27,6 +27,15 @@ export async function updateUserProfile(
   return user;
 }
 
+export async function listAdmins(): Promise<
+  Pick<SelectUser, "email" | "name">[]
+> {
+  return db
+    .select({ email: users.email, name: users.name })
+    .from(users)
+    .where(eq(users.role, "admin"));
+}
+
 // Google-only users have no password account, so the change-password form is
 // hidden for them.
 export async function userHasPasswordAccount(userId: string): Promise<boolean> {
