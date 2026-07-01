@@ -49,8 +49,18 @@ function validateName(value: unknown, label: string) {
   }
 }
 
+// Vercel uses it's custom URLs for preview branches, which would prevent
+// the Google OAuth working with the env provided public app URL.
+// Thus, we must ensure the appropriate URL is generated from Vercel envs.
+function getAppUrl(): string | undefined {
+  if (process.env.VERCEL_ENV === "preview" && process.env.VERCEL_BRANCH_URL) {
+    return `https://${process.env.VERCEL_BRANCH_URL}`;
+  }
+  return process.env.NEXT_PUBLIC_APP_URL;
+}
+
 export const auth = betterAuth({
-  baseURL: process.env.NEXT_PUBLIC_APP_URL,
+  baseURL: getAppUrl(),
   secret: process.env.BETTER_AUTH_SECRET,
   database: drizzleAdapter(db, { provider: "pg", schema }),
   user: {
@@ -84,7 +94,7 @@ export const auth = betterAuth({
     autoSignInAfterVerification: false,
     expiresIn: 24 * 60 * 60,
     sendVerificationEmail: async ({ user, token }) => {
-      const url = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/verify-email?token=${token}&callbackURL=/verify-email`;
+      const url = `${getAppUrl()}/api/auth/verify-email?token=${token}&callbackURL=/verify-email`;
       await mailer.sendVerification(user.email, user.name, url);
     },
   },
