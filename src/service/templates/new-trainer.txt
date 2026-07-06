@@ -1,0 +1,8 @@
+Hola {{name}},
+
+Un nuevo entrenador se registró en BuscarEntrenador.com y está pendiente de revisión.
+
+Revisalo en el panel de administración:
+{{url}}
+
+BuscarEntrenador.com - Tu plataforma para encontrar entrenadores personales

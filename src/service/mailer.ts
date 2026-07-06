@@ -2,10 +2,12 @@ import { readFile } from "fs/promises";
 import path from "path";
 import { Resend } from "resend";
 import { ServerError } from "@/service/errors";
+import { listAdmins } from "@/service/users";
 
 export interface Mailer {
   sendVerification(email: string, name: string, url: string): Promise<void>;
   sendPasswordReset(email: string, name: string, url: string): Promise<void>;
+  sendNewTrainer(): Promise<void>;
 }
 
 function getEnv(key: string): string {
@@ -37,6 +39,21 @@ class ResendMailer implements Mailer {
 
   async sendPasswordReset(email: string, name: string, url: string): Promise<void> {
     await this.send(email, "Resetear tu contraseña - BuscarEntrenador.com", "reset-password", { name, url });
+  }
+
+  async sendNewTrainer(): Promise<void> {
+    const admins = await listAdmins();
+    const url = `${getEnv("NEXT_PUBLIC_APP_URL")}/admin`;
+    await Promise.all(
+      admins.map((admin) =>
+        this.send(
+          admin.email,
+          "Nuevo entrenador registrado - BuscarEntrenador.com",
+          "new-trainer",
+          { name: admin.name, url },
+        ),
+      ),
+    );
   }
 
   private async send(
