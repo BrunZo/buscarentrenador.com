@@ -24,10 +24,6 @@ export default async function Page({ searchParams }: {
   const { query, city, prov, place, group, level, page } = await searchParams;
 
   const session = await auth.api.getSession({ headers: await headers() });
-  // Logged-in users get a stable per-account shuffle order. Server components
-  // can't set cookies to hand anonymous visitors a session id, so we fall
-  // back to their IP — stable across their own pagination clicks, distinct
-  // between visitors.
   const salt = session?.user?.id
     ?? (await headers()).get('x-forwarded-for')?.split(',')[0]?.trim()
     ?? '';
@@ -48,8 +44,6 @@ export default async function Page({ searchParams }: {
   try {
     const totalCount = await getTrainersCount(filterParams);
     totalPages = Math.ceil(totalCount / 4) || 1;
-    // Clamp so a filter change that shrinks the result set can't leave the
-    // page pointing past the last valid offset.
     const currentPage = Math.min(Math.max(Number(page || 1), 1), totalPages);
 
     trainers = await getTrainersByFilters({
