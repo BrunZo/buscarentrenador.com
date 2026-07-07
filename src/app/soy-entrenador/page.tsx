@@ -14,8 +14,8 @@ export default async function Page() {
   const trainer = await getTrainerByUserId(session.user.id).catch(() => null);
 
   const defaultOptions = {
-    prov: trainer?.province || '',
-    city: trainer?.city || '',
+    provinceId: trainer?.province_id ?? null,
+    cityId: trainer?.city_id ?? null,
     description: trainer?.description || '',
     certifications: trainer?.certifications && trainer?.certifications.length > 0 
       ? trainer?.certifications 

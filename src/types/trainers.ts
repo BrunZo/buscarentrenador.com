@@ -3,8 +3,11 @@ import { PublicUser } from "./users";
 export type TrainerSchema = {
   id: number;
   user_id: string;
+  // display names, joined from cities/provinces for read paths
   city?: string | null;
   province?: string | null;
+  city_id?: number | null;
+  province_id?: number | null;
   description?: string | null;
   places?: boolean[] | null;
   groups?: boolean[] | null;
@@ -22,8 +25,8 @@ export type TrainerSchema = {
 export type NewTrainer = Pick<
   TrainerSchema,
   | "user_id"
-  | "city"
-  | "province"
+  | "city_id"
+  | "province_id"
   | "description"
   | "places"
   | "groups"
@@ -38,8 +41,8 @@ export type NewTrainer = Pick<
 export type UpdateTrainer = Partial<
   Pick<
     TrainerSchema,
-    | "city"
-    | "province"
+    | "city_id"
+    | "province_id"
     | "description"
     | "places"
     | "groups"
@@ -58,6 +61,8 @@ export type SelectTrainer = Pick<
   | "id"
   | "city"
   | "province"
+  | "city_id"
+  | "province_id"
   | "description"
   | "places"
   | "groups"
@@ -77,6 +82,8 @@ export type PublicTrainer = Pick<
   | "id"
   | "city"
   | "province"
+  | "city_id"
+  | "province_id"
   | "description"
   | "places"
   | "groups"

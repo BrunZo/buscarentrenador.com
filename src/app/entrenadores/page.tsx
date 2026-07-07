@@ -13,22 +13,22 @@ import { redirect } from 'next/navigation';
 export default async function Page({ searchParams }: {
   searchParams: Promise<{
     query?: string,
-    city?: string,
-    prov?: string,
+    cityId?: string,
+    provId?: string,
     place?: string,
     group?: string,
     level?: string,
-    page?: string 
+    page?: string
   }>
 }) {
-  const { query, city, prov, place, group, level, page } = await searchParams;
-  
+  const { query, cityId, provId, place, group, level, page } = await searchParams;
+
   let trainers;
   try {
     trainers = await getTrainersByFilters({
       query,
-      city,
-      province: prov,
+      city_id: cityId ? Number(cityId) : undefined,
+      province_id: provId ? Number(provId) : undefined,
       places: place ? place.split(',').map(v => v === 'true') : [false, false, false],
       groups: group ? group.split(',').map(v => v === 'true') : [false, false, false],
       levels: level ? level.split(',').map(v => v === 'true') : [false, false, false, false, false],
@@ -82,7 +82,10 @@ export default async function Page({ searchParams }: {
               <h2 className='text-sm font-bold text-gray-800'>Por ubicación</h2>
             </div>
             <LocationFilter
-              defaultOptions={{prov: prov, city: city}}
+              defaultOptions={{
+                provinceId: provId ? Number(provId) : undefined,
+                cityId: cityId ? Number(cityId) : undefined,
+              }}
               replaceUrl={true}
             />
           </div>
