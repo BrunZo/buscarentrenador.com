@@ -10,6 +10,7 @@ import {
   integer,
   bigint,
   index,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -102,6 +103,42 @@ export const rateLimits = pgTable(
   (table) => [index("idx_rate_limits_key").on(table.key)],
 );
 
+export const provinces = pgTable("provinces", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull().unique(),
+});
+
+export const cities = pgTable(
+  "cities",
+  {
+    id: serial("id").primaryKey(),
+    name: varchar("name", { length: 255 }).notNull(),
+    province_id: integer("province_id")
+      .notNull()
+      .references(() => provinces.id, { onDelete: "cascade" }),
+    latitude: decimal("latitude", { precision: 9, scale: 6 }),
+    longitude: decimal("longitude", { precision: 9, scale: 6 }),
+  },
+  (table) => [
+    index("idx_cities_province_id").on(table.province_id),
+    uniqueIndex("idx_cities_province_id_name").on(
+      table.province_id,
+      table.name,
+    ),
+  ],
+);
+
+export const citiesRelations = relations(cities, ({ one }) => ({
+  province: one(provinces, {
+    fields: [cities.province_id],
+    references: [provinces.id],
+  }),
+}));
+
+export const provincesRelations = relations(provinces, ({ many }) => ({
+  cities: many(cities),
+}));
+
 export const trainers = pgTable(
   "trainers",
   {
@@ -109,8 +146,12 @@ export const trainers = pgTable(
     user_id: varchar("user_id", { length: 255 }).references(() => users.id, {
       onDelete: "cascade",
     }),
-    city: varchar("city", { length: 255 }),
-    province: varchar("province", { length: 255 }),
+    city_id: integer("city_id").references(() => cities.id, {
+      onDelete: "set null",
+    }),
+    province_id: integer("province_id").references(() => provinces.id, {
+      onDelete: "set null",
+    }),
     description: text("description"),
     places: boolean("places").array(),
     groups: boolean("groups").array(),

@@ -8,8 +8,8 @@ import {
 import { authedAction } from "./lib";
 
 const trainerSchema = z.object({
-  province: z.string().optional(),
-  city: z.string().optional(),
+  province_id: z.number().int().optional(),
+  city_id: z.number().int().optional(),
   description: z.string().max(2000).optional(),
   places: z.array(z.boolean()).length(3).optional(),
   groups: z.array(z.boolean()).length(3).optional(),

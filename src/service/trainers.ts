@@ -1,7 +1,7 @@
 import { eq, and, or, desc, sql } from "drizzle-orm";
 import type { AnyColumn } from "drizzle-orm";
 import { db } from "@/db/index";
-import { trainers, users } from "@/db/schema";
+import { trainers, users, cities, provinces } from "@/db/schema";
 import type {
   UpdateTrainer,
   PublicTrainerUser,
@@ -15,8 +15,10 @@ function publicTrainerSelect() {
     id: trainers.id,
     name: users.name,
     surname: users.surname,
-    city: trainers.city,
-    province: trainers.province,
+    city: cities.name,
+    province: provinces.name,
+    city_id: trainers.city_id,
+    province_id: trainers.province_id,
     description: trainers.description,
     hourly_rate: trainers.hourly_rate,
     levels: trainers.levels,
@@ -67,6 +69,8 @@ export async function getTrainerById(
     .select(publicTrainerSelect())
     .from(trainers)
     .innerJoin(users, eq(trainers.user_id, users.id))
+    .leftJoin(cities, eq(trainers.city_id, cities.id))
+    .leftJoin(provinces, eq(trainers.province_id, provinces.id))
     .where(
       and(
         eq(trainers.id, id),
@@ -86,6 +90,8 @@ export async function getTrainerByUserId(
     .select(publicTrainerSelect())
     .from(trainers)
     .innerJoin(users, eq(trainers.user_id, users.id))
+    .leftJoin(cities, eq(trainers.city_id, cities.id))
+    .leftJoin(provinces, eq(trainers.province_id, provinces.id))
     .where(eq(trainers.user_id, userId))
     .limit(1);
 
@@ -107,8 +113,8 @@ export async function getTrainerEmail(
 
 type TrainerFilters = {
   query?: string;
-  city?: string;
-  province?: string;
+  city_id?: number;
+  province_id?: number;
   places: boolean[];
   groups: boolean[];
   levels: boolean[];
@@ -123,8 +129,8 @@ type TrainerFilters = {
 type TrainerConditionFilters = Pick<
   TrainerFilters,
   | "query"
-  | "city"
-  | "province"
+  | "city_id"
+  | "province_id"
   | "places"
   | "groups"
   | "levels"
@@ -143,9 +149,9 @@ function buildTrainerConditions(filters: TrainerConditionFilters) {
     );
   }
 
-  if (filters.city) conditions.push(eq(trainers.city, filters.city));
-  if (filters.province)
-    conditions.push(eq(trainers.province, filters.province));
+  if (filters.city_id) conditions.push(eq(trainers.city_id, filters.city_id));
+  if (filters.province_id)
+    conditions.push(eq(trainers.province_id, filters.province_id));
 
   const placesFilter = boolArrayFilter(trainers.places, filters.places);
   if (placesFilter) conditions.push(placesFilter);
@@ -192,6 +198,8 @@ export async function getTrainersByFilters(
     .select(selection)
     .from(trainers)
     .innerJoin(users, eq(trainers.user_id, users.id))
+    .leftJoin(cities, eq(trainers.city_id, cities.id))
+    .leftJoin(provinces, eq(trainers.province_id, provinces.id))
     .where(and(...conditions))
     .orderBy(
       sql`md5(${filters.salt || ""} || '-' || cast(${trainers.id} as text))`,

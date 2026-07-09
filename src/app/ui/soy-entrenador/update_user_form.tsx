@@ -11,8 +11,8 @@ import { saveTrainer } from '@/actions/trainer';
 
 export default function UpdateUserForm({ defaultOptions }: {
   defaultOptions: {
-    prov: string,
-    city: string,
+    provinceId: number | null,
+    cityId: number | null,
     description: string,
     certifications: string[],
     places: boolean[],
@@ -25,8 +25,8 @@ export default function UpdateUserForm({ defaultOptions }: {
   const router = useRouter();
   const [description, setDescription] = useState(defaultOptions.description);
   const [achievements, setAchievements] = useState<string[]>(defaultOptions.certifications);
-  const [province, setProvince] = useState(defaultOptions.prov);
-  const [city, setCity] = useState(defaultOptions.city);
+  const [provinceId, setProvinceId] = useState(defaultOptions.provinceId);
+  const [cityId, setCityId] = useState(defaultOptions.cityId);
   const [places, setPlaces] = useState<boolean[]>(defaultOptions.places);
   const [groups, setGroups] = useState<boolean[]>(defaultOptions.groups);
   const [levels, setLevels] = useState<boolean[]>(defaultOptions.levels);
@@ -44,8 +44,8 @@ export default function UpdateUserForm({ defaultOptions }: {
       const certifications = achievements.filter(a => a.trim() !== '');
 
       const result = await saveTrainer({
-        province,
-        city,
+        province_id: provinceId ?? undefined,
+        city_id: cityId ?? undefined,
         description,
         places,
         groups,
@@ -74,10 +74,10 @@ export default function UpdateUserForm({ defaultOptions }: {
         <p>Completá tu información para registrarte como entrenador.</p>
         
         <LocationFilter
-          defaultOptions={{ prov: defaultOptions.prov, city: defaultOptions.city }}
+          defaultOptions={{ provinceId: defaultOptions.provinceId ?? undefined, cityId: defaultOptions.cityId ?? undefined }}
           replaceUrl={false}
-          onProvinceChange={setProvince}
-          onCityChange={setCity}
+          onProvinceChange={setProvinceId}
+          onCityChange={setCityId}
         />
         
         <div>
