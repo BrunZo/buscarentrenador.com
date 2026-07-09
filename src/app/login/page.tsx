@@ -1,8 +1,16 @@
 
 import { Suspense } from "react";
 import LoginForm from "@/app/ui/forms/login_form";
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import { auth } from "@/service/auth/auth";
 
 export default async function Page() {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (session?.user) {
+    redirect("/cuenta");
+  }
+
   return (
     <div className="flex flex-col items-center py-8 md:py-12 animate-fade-in">
       <div className="text-center mb-8">
