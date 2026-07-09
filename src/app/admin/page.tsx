@@ -1,3 +1,4 @@
+
 import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
 import { auth } from '@/service/auth/auth';
@@ -17,6 +18,9 @@ export default async function Page() {
     require_visible: false,
     status: 'pending',
     include_email: true,
+    limit: 0,
+    offset: 0,
+    salt: "",
   });
 
   return (

@@ -112,24 +112,29 @@ type TrainerFilters = {
   places: boolean[];
   groups: boolean[];
   levels: boolean[];
+  include_email: boolean;
   require_visible: boolean;
   status: "approved" | "pending" | "rejected";
-  // Only admin callers should request the email; public reads omit it.
-  include_email?: boolean;
+  limit: number;
+  offset: number;
+  salt: string;
 };
 
-export async function getTrainersByFilters(
-  filters: TrainerFilters & { include_email: true },
-): Promise<TrainerWithEmail[]>;
-export async function getTrainersByFilters(
-  filters: TrainerFilters & { include_email?: false },
-): Promise<PublicTrainerUser[]>;
-export async function getTrainersByFilters(
-  filters: TrainerFilters,
-): Promise<PublicTrainerUser[] | TrainerWithEmail[]> {
+type TrainerConditionFilters = Pick<
+  TrainerFilters,
+  | "query"
+  | "city"
+  | "province"
+  | "places"
+  | "groups"
+  | "levels"
+  | "require_visible"
+  | "status"
+>;
+
+function buildTrainerConditions(filters: TrainerConditionFilters) {
   const conditions = [eq(trainers.status, filters.status)];
-  // The public search only shows visible trainers; the admin panel passes
-  // require_visible: false to review hidden ones too.
+
   if (filters.require_visible) conditions.push(eq(trainers.is_visible, true));
 
   if (filters.query) {
@@ -151,16 +156,52 @@ export async function getTrainersByFilters(
   const levelsFilter = boolArrayFilter(trainers.levels, filters.levels);
   if (levelsFilter) conditions.push(levelsFilter);
 
+  return conditions;
+}
+
+export async function getTrainersCount(
+  filters: TrainerConditionFilters,
+): Promise<number> {
+  const conditions = buildTrainerConditions(filters);
+
+  const [result] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(trainers)
+    .innerJoin(users, eq(trainers.user_id, users.id))
+    .where(and(...conditions));
+
+  return Number(result?.count ?? 0);
+}
+
+export async function getTrainersByFilters(
+  filters: TrainerFilters & { include_email: true },
+): Promise<TrainerWithEmail[]>;
+export async function getTrainersByFilters(
+  filters: TrainerFilters & { include_email: false },
+): Promise<PublicTrainerUser[]>;
+export async function getTrainersByFilters(
+  filters: TrainerFilters,
+): Promise<PublicTrainerUser[] | TrainerWithEmail[]> {
+  const conditions = buildTrainerConditions(filters);
+
   const selection = filters.include_email
     ? { ...publicTrainerSelect(), email: users.email }
     : publicTrainerSelect();
 
-  return db
+  let query = db
     .select(selection)
     .from(trainers)
     .innerJoin(users, eq(trainers.user_id, users.id))
     .where(and(...conditions))
-    .orderBy(desc(trainers.created_at));
+    .orderBy(
+      sql`md5(${filters.salt || ""} || '-' || cast(${trainers.id} as text))`,
+    )
+    .$dynamic();
+
+  if (filters.limit > 0) query = query.limit(filters.limit);
+  if (filters.offset > 0) query = query.offset(filters.offset);
+
+  return await query;
 }
 
 export async function createOrUpdateTrainer(

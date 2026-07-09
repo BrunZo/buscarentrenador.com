@@ -5,7 +5,7 @@ import trainerFilters from '@/app/ui/entrenadores/filters/trainer_filters';
 import CardGrid from '@/app/ui/entrenadores/card';
 import Pagination from '@/app/ui/entrenadores/pagination';
 import LocationFilter from '@/app/ui/entrenadores/loc/location_filter';
-import { getTrainersByFilters } from '@/service/trainers';
+import { getTrainersByFilters, getTrainersCount } from '@/service/trainers';
 import { auth } from '@/service/auth/auth';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
@@ -22,30 +22,39 @@ export default async function Page({ searchParams }: {
   }>
 }) {
   const { query, city, prov, place, group, level, page } = await searchParams;
-  
+
+  const session = await auth.api.getSession({ headers: await headers() });
+  const salt = session?.user?.id
+    ?? (await headers()).get('x-forwarded-for')?.split(',')[0]?.trim()
+    ?? '';
+
+  const filterParams = {
+    query,
+    city,
+    province: prov,
+    places: place ? place.split(',').map(v => v === 'true') : [false, false, false],
+    groups: group ? group.split(',').map(v => v === 'true') : [false, false, false],
+    levels: level ? level.split(',').map(v => v === 'true') : [false, false, false, false, false],
+    require_visible: true,
+    status: 'approved' as const,
+  };
+
   let trainers;
+  let totalPages;
   try {
+    const totalCount = await getTrainersCount(filterParams);
+    totalPages = Math.ceil(totalCount / 4) || 1;
+    const currentPage = Math.min(Math.max(Number(page || 1), 1), totalPages);
+
     trainers = await getTrainersByFilters({
-      query,
-      city,
-      province: prov,
-      places: place ? place.split(',').map(v => v === 'true') : [false, false, false],
-      groups: group ? group.split(',').map(v => v === 'true') : [false, false, false],
-      levels: level ? level.split(',').map(v => v === 'true') : [false, false, false, false, false],
-      require_visible: true,
-      status: 'approved',
+      ...filterParams,
+      include_email: false,
+      limit: 4,
+      offset: 4 * (currentPage - 1),
+      salt,
     });
   } catch (error) {
     redirect('/login');
-  }
-  const trainerCount = trainers.length;
-  const currentPage = Math.min(Number(page || 1), Math.ceil(trainerCount / 4) || 1);
-
-  // Trainer cards are client components, so the whole object reaches the
-  // browser even if the email is never rendered — strip it for visitors.
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session?.user) {
-    trainers = trainers.map((trainer) => ({ ...trainer, email: null }));
   }
 
   return (
@@ -99,8 +108,8 @@ export default async function Page({ searchParams }: {
           </div>
         </div>
         <div className='w-full lg:flex-1 min-w-0'>
-          <CardGrid trainers={trainers.slice((currentPage - 1) * 4, currentPage * 4)}/>
-          <Pagination totalPages={Math.ceil(trainers.length / 4)}/>
+          <CardGrid trainers={trainers}/>
+          <Pagination totalPages={totalPages}/>
         </div>
       </div>
     </div>
