@@ -8,7 +8,6 @@ import LocationFilter from '@/app/ui/entrenadores/loc/location_filter';
 import { getTrainersByFilters, getTrainersCount } from '@/service/trainers';
 import { auth } from '@/service/auth/auth';
 import { headers } from 'next/headers';
-import { redirect } from 'next/navigation';
 
 export default async function Page({ searchParams }: {
   searchParams: Promise<{
@@ -39,23 +38,17 @@ export default async function Page({ searchParams }: {
     status: 'approved' as const,
   };
 
-  let trainers;
-  let totalPages;
-  try {
-    const totalCount = await getTrainersCount(filterParams);
-    totalPages = Math.ceil(totalCount / 4) || 1;
-    const currentPage = Math.min(Math.max(Number(page || 1), 1), totalPages);
+  const totalCount = await getTrainersCount(filterParams);
+  const totalPages = Math.ceil(totalCount / 4) || 1;
+  const currentPage = Math.min(Math.max(Number(page || 1), 1), totalPages);
 
-    trainers = await getTrainersByFilters({
-      ...filterParams,
-      include_email: false,
-      limit: 4,
-      offset: 4 * (currentPage - 1),
-      salt,
-    });
-  } catch (error) {
-    redirect('/login');
-  }
+  const trainers = await getTrainersByFilters({
+    ...filterParams,
+    include_email: false,
+    limit: 4,
+    offset: 4 * (currentPage - 1),
+    salt,
+  });
 
   return (
     <div className='animate-fade-in'>
