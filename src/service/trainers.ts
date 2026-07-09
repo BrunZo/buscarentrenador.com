@@ -129,8 +129,8 @@ type TrainerFilters = {
 type TrainerConditionFilters = Pick<
   TrainerFilters,
   | "query"
-  | "city"
-  | "province"
+  | "city_id"
+  | "province_id"
   | "places"
   | "groups"
   | "levels"
