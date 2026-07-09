@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 npm run dev          # start dev server
-npm run build        # run migrations then build (npx drizzle-kit migrate && next build)
+npm run build        # on Vercel production builds only, runs migrations then build; no-op migration step elsewhere
 npm run lint         # ESLint via next lint
 npx playwright test  # run all E2E tests
 npx playwright test tests/login.spec.ts  # run a single test file
@@ -45,7 +45,7 @@ Every mutating API route follows this exact pattern:
 
 ### Database
 
-Schema is in `db/schema.ts`. Migrations are managed by Drizzle Kit (`migrations/` directory). `npm run build` runs migrations automatically. To generate a new migration after schema changes:
+Schema is in `db/schema.ts`. Migrations are managed by Drizzle Kit (`migrations/` directory). `npm run build` runs `drizzle-kit migrate` only when `VERCEL_ENV=production` (i.e. real production deploys), so preview builds never touch the prod DB. To generate a new migration after schema changes:
 
 ```bash
 npx drizzle-kit generate

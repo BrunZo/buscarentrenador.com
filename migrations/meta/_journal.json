@@ -64,6 +64,13 @@
       "when": 1781418686654,
       "tag": "0008_add_role_and_trainer_status",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1783383500000,
+      "tag": "0009_locations_and_trainer_fk",
+      "breakpoints": true
     }
   ]
 }
