@@ -28,7 +28,7 @@ export default function Dashboard({
     options.push({ label: "Perfil de entrenador" });
     options.push({ label: "Mis alumnos" });
   } else {
-    options.push({ label: "Quiero ser entrenador", href: "/soy-entrenador" });
+    options.push({ label: "Soy entrenador", href: "/soy-entrenador" });
   }
 
   return (
