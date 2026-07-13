@@ -1,4 +1,10 @@
 import clsx from "clsx"
+import Link from "next/link"
+
+export type NavOption = {
+  label: string
+  href?: string
+}
 
 const icons = [
   <svg key="account" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -13,27 +19,40 @@ const icons = [
 ]
 
 export default function VerticalNavbar({ options, selected, handler }: {
-  options: string[]
+  options: NavOption[]
   selected: number
   handler: (i: number) => void
 }) {
   return (
     <div className='flex flex-col gap-2 w-full md:w-64 shrink-0'>
-      {options.map((option, i) => (
-        <button
-          key={i}
-          type="button"
-          className={clsx({
-            'flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer transition-all duration-200 font-medium': true,
-            'bg-linear-to-r from-indigo-600 to-purple-600 text-white shadow-medium': i === selected,
-            'bg-white text-gray-700 border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700': i !== selected,
-          })}
-          onClick={() => handler(i)}
-        >
-          {icons[i]}
-          <span>{option}</span>
-        </button>
-      ))} 
+      {options.map((option, i) => {
+        const itemClass = clsx({
+          'flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer transition-all duration-200 font-medium': true,
+          'bg-linear-to-r from-indigo-600 to-purple-600 text-white shadow-medium': i === selected,
+          'bg-white text-gray-700 border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700': i !== selected,
+        })
+
+        if (option.href) {
+          return (
+            <Link key={i} href={option.href} className={itemClass}>
+              {icons[i]}
+              <span>{option.label}</span>
+            </Link>
+          )
+        }
+
+        return (
+          <button
+            key={i}
+            type="button"
+            className={itemClass}
+            onClick={() => handler(i)}
+          >
+            {icons[i]}
+            <span>{option.label}</span>
+          </button>
+        )
+      })}
     </div>
   )
 }
